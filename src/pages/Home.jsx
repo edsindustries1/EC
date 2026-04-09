@@ -221,14 +221,20 @@ const Home = () => {
     );
     if (heroRef.current) heroObserver.observe(heroRef.current);
 
-    const footerEl = document.querySelector('footer');
     const footerObserver = new IntersectionObserver(
       ([entry]) => setFooterVisible(entry.isIntersecting),
       { threshold: 0 }
     );
-    if (footerEl) footerObserver.observe(footerEl);
+    const attachFooter = () => {
+      const footerEl = document.querySelector('footer');
+      if (footerEl) footerObserver.observe(footerEl);
+    };
+    attachFooter();
+    // Retry after paint to handle late layout composition
+    const retryId = setTimeout(attachFooter, 200);
 
     return () => {
+      clearTimeout(retryId);
       heroObserver.disconnect();
       footerObserver.disconnect();
     };
@@ -741,7 +747,7 @@ const Home = () => {
             onClick={scrollToTop}
             className="flex-grow bg-yellow-400 text-[#1a365d] font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm"
           >
-            Book a Ride <FiArrowRight size={16} />
+            Get a Free Quote <FiArrowRight size={16} />
           </button>
           <a
             href="tel:+18005551234"
