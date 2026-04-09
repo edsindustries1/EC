@@ -82,6 +82,10 @@ const Navbar = () => {
         <Link to="/my-rides" className="text-gray-100 hover:text-white transition-colors text-sm">
           My Rides
         </Link>
+        <Link to="/corporate" className="text-gray-100 hover:text-white transition-colors text-sm flex items-center gap-1">
+          <FiBriefcase size={14} />
+          Corporate
+        </Link>
       </>
     )
   }
@@ -178,6 +182,14 @@ const Navbar = () => {
           onClick={closeAll}
         >
           My Rides
+        </Link>
+        <Link
+          to="/corporate"
+          className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm flex items-center gap-2"
+          onClick={closeAll}
+        >
+          <FiBriefcase size={14} />
+          Corporate Travel
         </Link>
       </>
     )
