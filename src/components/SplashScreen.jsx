@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-const SPLASH_KEY = 'et_splash_shown'
 const MAX_DURATION = 5000
 
 const SplashScreen = ({ onDone }) => {
@@ -52,19 +51,9 @@ const SplashScreen = ({ onDone }) => {
 }
 
 const SplashScreenGate = ({ children }) => {
-  const [showSplash, setShowSplash] = useState(() => {
-    try {
-      return !sessionStorage.getItem(SPLASH_KEY)
-    } catch {
-      return false
-    }
-  })
+  const [showSplash, setShowSplash] = useState(true)
 
   const handleDone = () => {
-    try {
-      sessionStorage.setItem(SPLASH_KEY, '1')
-    } catch {
-    }
     setShowSplash(false)
   }
 
