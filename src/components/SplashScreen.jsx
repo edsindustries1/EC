@@ -6,8 +6,11 @@ const MAX_DURATION = 5000
 const SplashScreen = ({ onDone }) => {
   const videoRef = useRef(null)
   const [fading, setFading] = useState(false)
+  const dismissedRef = useRef(false)
 
   const dismiss = () => {
+    if (dismissedRef.current) return
+    dismissedRef.current = true
     setFading(true)
     setTimeout(onDone, 500)
   }

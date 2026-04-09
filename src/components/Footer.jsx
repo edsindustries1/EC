@@ -178,11 +178,11 @@ const Footer = () => {
             <ul className="space-y-2.5">
               <li>
                 <a
-                  href="mailto:support@everywherecars.com"
+                  href="mailto:support@everywheretransfers.com"
                   className="text-sm text-gray-400 hover:text-accent-500 transition-colors flex items-center gap-2"
                 >
                   <FiMail className="w-4 h-4 flex-shrink-0" />
-                  support@everywherecars.com
+                  support@everywheretransfers.com
                 </a>
               </li>
               <li>
