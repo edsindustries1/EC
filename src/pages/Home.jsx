@@ -590,7 +590,7 @@ const Home = () => {
             <h2 className="text-4xl font-bold">Why Customers Trust Us</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {GUARANTEES.map((g) => (
               <div
                 key={g.title}
@@ -735,7 +735,7 @@ const Home = () => {
             onClick={scrollToTop}
             className="flex-grow bg-yellow-400 text-[#1a365d] font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm"
           >
-            Book a Ride <FiArrowRight size={16} />
+            Get a Free Quote <FiArrowRight size={16} />
           </button>
           <a
             href="tel:+18005551234"
