@@ -14,7 +14,7 @@ const BookRide = () => {
         <div className="card">
           <form className="space-y-6">
             <div>
-              <label htmlFor="bookriде-pickup" className="label-base">Pickup Location</label>
+              <label htmlFor="bookride-pickup" className="label-base">Pickup Location</label>
               <PlaceAutocomplete
                 id="bookride-pickup"
                 name="pickup_location"
