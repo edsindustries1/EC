@@ -215,6 +215,7 @@ const Navbar = () => {
           <Link
             to="/"
             className="flex items-center flex-shrink-0 group"
+            aria-label="Everywhere Transfers — go to homepage"
             onClick={closeAll}
           >
             <div className="bg-white rounded-lg px-2 py-1 group-hover:opacity-90 transition-opacity">
