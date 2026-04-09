@@ -90,7 +90,7 @@ const Footer = () => {
               <img
                 src="/logo.png"
                 alt="Everywhere Transfers"
-                className="h-10 w-auto brightness-0 invert"
+                className="h-14 w-auto"
               />
             </div>
             <p className="text-sm text-gray-400 mb-5 max-w-xs leading-relaxed">

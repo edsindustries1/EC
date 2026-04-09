@@ -218,13 +218,11 @@ const Navbar = () => {
             aria-label="Everywhere Transfers — go to homepage"
             onClick={closeAll}
           >
-            <div className="bg-white rounded-lg px-2 py-1 group-hover:opacity-90 transition-opacity">
-              <img
-                src="/logo.png"
-                alt="Everywhere Transfers"
-                className="h-7 w-auto"
-              />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Everywhere Transfers"
+              className="h-10 w-auto group-hover:opacity-90 transition-opacity"
+            />
           </Link>
 
           {/* Desktop Navigation Links */}
