@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
+import SplashScreenGate from './components/SplashScreen'
 
 // Public Pages
 import Home from './pages/Home'
@@ -37,6 +38,7 @@ import AdminRevenue from './pages/admin/Revenue'
 function App() {
   return (
     <AuthProvider>
+      <SplashScreenGate>
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Navbar />
         <main className="flex-grow">
@@ -192,6 +194,7 @@ function App() {
           }}
         />
       </div>
+      </SplashScreenGate>
     </AuthProvider>
   )
 }

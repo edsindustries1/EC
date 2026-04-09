@@ -86,11 +86,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
           {/* Company Column — spans 2 on large screens */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-accent-500 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">E</span>
-              </div>
-              <h3 className="text-lg font-bold text-white">EVERYWHERE CARS</h3>
+            <div className="mb-4">
+              <img
+                src="/logo.png"
+                alt="Everywhere Transfers"
+                className="h-10 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-sm text-gray-400 mb-5 max-w-xs leading-relaxed">
               Your trusted transportation marketplace connecting customers with reliable, licensed drivers across 100+ US cities.
@@ -240,7 +241,7 @@ const Footer = () => {
         {/* Copyright Bar with trust badges */}
         <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-400">
-            &copy; {currentYear} Everywhere Cars. All rights reserved.
+            &copy; {currentYear} Everywhere Transfers. All rights reserved.
           </p>
 
           {/* Trust badges */}

@@ -214,15 +214,16 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 group flex-shrink-0"
+            className="flex items-center flex-shrink-0 group"
             onClick={closeAll}
           >
-            <div className="w-8 h-8 rounded-lg bg-accent-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">E</span>
+            <div className="bg-white rounded-lg px-2 py-1 group-hover:opacity-90 transition-opacity">
+              <img
+                src="/logo.png"
+                alt="Everywhere Transfers"
+                className="h-7 w-auto"
+              />
             </div>
-            <span className="hidden sm:block text-white font-bold text-lg tracking-wider group-hover:text-gray-100 transition-colors">
-              EVERYWHERE CARS
-            </span>
           </Link>
 
           {/* Desktop Navigation Links */}
