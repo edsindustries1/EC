@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiMenu, FiX, FiUser } from 'react-icons/fi'
+import { FiMenu, FiX, FiUser, FiPhone, FiBriefcase, FiArrowRight } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
+
+const PHONE = '(800) 555-1234'
+const PHONE_HREF = 'tel:+18005551234'
 
 const Navbar = () => {
   const navigate = useNavigate()
@@ -12,21 +15,29 @@ const Navbar = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen)
 
+  const closeAll = () => {
+    setIsMenuOpen(false)
+    setIsProfileDropdownOpen(false)
+  }
+
   const handleLogout = () => {
     logout()
-    setIsProfileDropdownOpen(false)
-    setIsMenuOpen(false)
+    closeAll()
     navigate('/')
   }
 
-  const getRoleBasedLinks = () => {
+  const getDesktopNavLinks = () => {
     if (!isAuthenticated) {
       return (
         <>
-          <Link to="/how-it-works" className="text-gray-100 hover:text-white transition-colors">
+          <Link to="/how-it-works" className="text-gray-100 hover:text-white transition-colors text-sm">
             How It Works
           </Link>
-          <Link to="/login" className="text-gray-100 hover:text-white transition-colors">
+          <Link to="/corporate" className="text-gray-100 hover:text-white transition-colors text-sm flex items-center gap-1">
+            <FiBriefcase size={14} />
+            Corporate
+          </Link>
+          <Link to="/login" className="text-gray-100 hover:text-white transition-colors text-sm">
             Login
           </Link>
           <Link to="/signup" className="btn-primary text-sm">
@@ -39,21 +50,21 @@ const Navbar = () => {
     if (user?.role === 'operator' || user?.role === 'admin') {
       return (
         <>
-          <Link to="/operator/dashboard" className="text-gray-100 hover:text-white transition-colors">
+          <Link to="/operator/dashboard" className="text-gray-100 hover:text-white transition-colors text-sm">
             Dashboard
           </Link>
-          <Link to="/operator/requests" className="text-gray-100 hover:text-white transition-colors">
+          <Link to="/operator/requests" className="text-gray-100 hover:text-white transition-colors text-sm">
             Requests
           </Link>
-          <Link to="/operator/drivers" className="text-gray-100 hover:text-white transition-colors">
+          <Link to="/operator/drivers" className="text-gray-100 hover:text-white transition-colors text-sm">
             Drivers
           </Link>
           {user?.role === 'admin' && (
             <>
-              <Link to="/admin/users" className="text-gray-100 hover:text-white transition-colors">
+              <Link to="/admin/users" className="text-gray-100 hover:text-white transition-colors text-sm">
                 Users
               </Link>
-              <Link to="/admin/revenue" className="text-gray-100 hover:text-white transition-colors">
+              <Link to="/admin/revenue" className="text-gray-100 hover:text-white transition-colors text-sm">
                 Revenue
               </Link>
             </>
@@ -65,10 +76,107 @@ const Navbar = () => {
     // Customer role
     return (
       <>
-        <Link to="/book" className="text-gray-100 hover:text-white transition-colors">
+        <Link to="/book" className="text-gray-100 hover:text-white transition-colors text-sm">
           Book a Ride
         </Link>
-        <Link to="/my-rides" className="text-gray-100 hover:text-white transition-colors">
+        <Link to="/my-rides" className="text-gray-100 hover:text-white transition-colors text-sm">
+          My Rides
+        </Link>
+      </>
+    )
+  }
+
+  const getMobileNavLinks = () => {
+    if (!isAuthenticated) {
+      return (
+        <>
+          <Link
+            to="/how-it-works"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            onClick={closeAll}
+          >
+            How It Works
+          </Link>
+          <Link
+            to="/corporate"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm flex items-center gap-2"
+            onClick={closeAll}
+          >
+            <FiBriefcase size={14} />
+            Corporate Travel
+          </Link>
+          <Link
+            to="/login"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            onClick={closeAll}
+          >
+            Login
+          </Link>
+        </>
+      )
+    }
+
+    if (user?.role === 'operator' || user?.role === 'admin') {
+      return (
+        <>
+          <Link
+            to="/operator/dashboard"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            onClick={closeAll}
+          >
+            Dashboard
+          </Link>
+          <Link
+            to="/operator/requests"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            onClick={closeAll}
+          >
+            Requests
+          </Link>
+          <Link
+            to="/operator/drivers"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            onClick={closeAll}
+          >
+            Drivers
+          </Link>
+          {user?.role === 'admin' && (
+            <>
+              <Link
+                to="/admin/users"
+                className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                onClick={closeAll}
+              >
+                Users
+              </Link>
+              <Link
+                to="/admin/revenue"
+                className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                onClick={closeAll}
+              >
+                Revenue
+              </Link>
+            </>
+          )}
+        </>
+      )
+    }
+
+    // Customer
+    return (
+      <>
+        <Link
+          to="/book"
+          className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+          onClick={closeAll}
+        >
+          Book a Ride
+        </Link>
+        <Link
+          to="/my-rides"
+          className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+          onClick={closeAll}
+        >
           My Rides
         </Link>
       </>
@@ -82,8 +190,8 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 group"
-            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-2 group flex-shrink-0"
+            onClick={closeAll}
           >
             <div className="w-8 h-8 rounded-lg bg-accent-500 flex items-center justify-center">
               <span className="text-white font-bold text-lg">E</span>
@@ -93,14 +201,23 @@ const Navbar = () => {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {getRoleBasedLinks()}
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center gap-6">
+            {getDesktopNavLinks()}
           </div>
 
-          {/* Profile Dropdown / Auth Buttons */}
+          {/* Desktop Right: Phone + Profile */}
           <div className="hidden md:flex items-center gap-4">
-            {isAuthenticated && user ? (
+            {/* Phone number — always visible on desktop */}
+            <a
+              href={PHONE_HREF}
+              className="flex items-center gap-1.5 text-blue-200 hover:text-white transition-colors text-sm font-medium"
+            >
+              <FiPhone size={14} />
+              {PHONE}
+            </a>
+
+            {isAuthenticated && user && (
               <div className="relative">
                 <button
                   onClick={toggleProfileDropdown}
@@ -114,24 +231,24 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors"
-                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors text-sm"
+                      onClick={closeAll}
                     >
                       My Profile
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors"
+                      className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors text-sm"
                     >
                       Logout
                     </button>
                   </div>
                 )}
               </div>
-            ) : null}
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Hamburger */}
           <button
             onClick={toggleMenu}
             className="md:hidden p-2 hover:bg-primary-700 rounded-lg transition-colors text-white"
@@ -142,33 +259,59 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-primary-900 border-t border-primary-700">
-          <div className="container-custom px-4 sm:px-6 py-4 space-y-3">
-            {getRoleBasedLinks()}
+      {/* Mobile Menu — slide-down */}
+      <div
+        className={`md:hidden bg-primary-900 border-t border-primary-700 overflow-hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="container-custom px-4 sm:px-6 py-4 space-y-1">
+          {/* Phone call row */}
+          <a
+            href={PHONE_HREF}
+            className="flex items-center gap-2 px-4 py-2.5 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm font-medium"
+          >
+            <FiPhone size={14} />
+            Call Us: {PHONE}
+          </a>
 
-            {isAuthenticated && user && (
-              <>
-                <div className="divider my-3" />
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-gray-100 hover:text-white transition-colors rounded-lg hover:bg-primary-800"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  My Profile
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-gray-100 hover:text-white transition-colors rounded-lg hover:bg-primary-800"
-                >
-                  Logout
-                </button>
-              </>
-            )}
+          <div className="border-t border-primary-700 my-1" />
+
+          {getMobileNavLinks()}
+
+          {isAuthenticated && user && (
+            <>
+              <div className="border-t border-primary-700 my-1" />
+              <Link
+                to="/profile"
+                className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                onClick={closeAll}
+              >
+                My Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+              >
+                Logout
+              </button>
+            </>
+          )}
+
+          <div className="border-t border-primary-700 my-1" />
+
+          {/* Get a Quote CTA */}
+          <div className="pt-1 pb-2">
+            <Link
+              to={isAuthenticated ? '/book' : '/signup'}
+              onClick={closeAll}
+              className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-primary-900 font-bold py-3 rounded-xl text-sm hover:bg-yellow-300 transition-colors"
+            >
+              Get a Free Quote <FiArrowRight size={14} />
+            </Link>
           </div>
         </div>
-      )}
+      </div>
     </nav>
   )
 }
