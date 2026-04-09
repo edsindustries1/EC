@@ -77,7 +77,7 @@ const FLEET = [
     bestFor: 'Tours, weddings & events',
   },
   {
-    type: 'Charter Bus',
+    type: 'Bus',
     tagline: 'The full charter experience',
     passengers: '15–50',
     features: ['Restroom On-Board', 'Luggage Bay', 'Wi-Fi & Power'],
@@ -205,6 +205,7 @@ const Home = () => {
   const ridesCount = useCountUp(10000, 1800, statsVisible);
   const citiesCount = useCountUp(100, 1400, statsVisible);
   const driversCount = useCountUp(450, 1600, statsVisible);
+  const ratingRaw = useCountUp(49, 1600, statsVisible);
 
   /* FAQ accordion */
   const [openFaq, setOpenFaq] = useState(null);
@@ -482,14 +483,14 @@ const Home = () => {
               { value: ridesCount, suffix: '+', label: 'Rides Completed', icon: FiTruck },
               { value: citiesCount, suffix: '+', label: 'Cities Served', icon: FiGlobe },
               { value: driversCount, suffix: '+', label: 'Verified Drivers', icon: FiUser },
-              { value: '4.9', suffix: '★', label: 'Average Rating', icon: FiStar, static: true },
+              { value: (ratingRaw / 10).toFixed(1), suffix: '★', label: 'Average Rating', icon: FiStar },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 mb-3">
                   <stat.icon className="text-[#1a365d]" size={18} />
                 </div>
                 <div className="text-3xl font-bold text-[#1a365d]">
-                  {stat.static ? stat.value : stat.value.toLocaleString()}{stat.suffix}
+                  {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}{stat.suffix}
                 </div>
                 <div className="text-sm text-gray-500 mt-0.5">{stat.label}</div>
               </div>
@@ -739,7 +740,7 @@ const Home = () => {
             onClick={scrollToTop}
             className="flex-grow bg-yellow-400 text-[#1a365d] font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm"
           >
-            Get a Free Quote <FiArrowRight size={16} />
+            Book a Ride <FiArrowRight size={16} />
           </button>
           <a
             href="tel:+18005551234"
