@@ -69,6 +69,10 @@ const Navbar = () => {
               </Link>
             </>
           )}
+          <Link to="/corporate" className="text-gray-100 hover:text-white transition-colors text-sm flex items-center gap-1">
+            <FiBriefcase size={14} />
+            Corporate
+          </Link>
         </>
       )
     }
@@ -162,6 +166,14 @@ const Navbar = () => {
               </Link>
             </>
           )}
+          <Link
+            to="/corporate"
+            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm flex items-center gap-2"
+            onClick={closeAll}
+          >
+            <FiBriefcase size={14} />
+            Corporate Travel
+          </Link>
         </>
       )
     }
@@ -312,16 +324,18 @@ const Navbar = () => {
 
           <div className="border-t border-primary-700 my-1" />
 
-          {/* Get a Quote CTA */}
-          <div className="pt-1 pb-2">
-            <Link
-              to={isAuthenticated ? '/book' : '/signup'}
-              onClick={closeAll}
-              className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-primary-900 font-bold py-3 rounded-xl text-sm hover:bg-yellow-300 transition-colors"
-            >
-              Get a Free Quote <FiArrowRight size={14} />
-            </Link>
-          </div>
+          {/* Get a Quote CTA — only for guests and customers */}
+          {(!isAuthenticated || user?.role === 'customer') && (
+            <div className="pt-1 pb-2">
+              <Link
+                to={isAuthenticated ? '/book' : '/signup'}
+                onClick={closeAll}
+                className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-primary-900 font-bold py-3 rounded-xl text-sm hover:bg-yellow-300 transition-colors"
+              >
+                Get a Free Quote <FiArrowRight size={14} />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>
