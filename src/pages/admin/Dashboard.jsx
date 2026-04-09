@@ -1,6 +1,6 @@
 import React from 'react'
 import { StatsCard } from '../../components'
-import { FiBarChart3, FiUsers, FiTrendingUp, FiDollarSign } from 'react-icons/fi'
+import { FiBarChart2, FiUsers, FiTrendingUp, FiDollarSign } from 'react-icons/fi'
 
 const AdminDashboard = () => {
   return (
@@ -19,7 +19,7 @@ const AdminDashboard = () => {
           <StatsCard
             title="Total Rides"
             value="12,890"
-            icon={FiBarChart3}
+            icon={FiBarChart2}
             color="green"
             change={24}
           />
