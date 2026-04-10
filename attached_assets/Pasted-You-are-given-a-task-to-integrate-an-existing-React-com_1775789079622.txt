@@ -1,0 +1,417 @@
+You are given a task to integrate an existing React component in the codebase
+
+The codebase should support:
+- shadcn project structure  
+- Tailwind CSS
+- Typescript
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+
+Determine the default path for components and styles. 
+If default path for components is not /components/ui, provide instructions on why it's important to create this folder
+Copy-paste this component to /components/ui folder:
+```tsx
+footer-column.tsx
+import {
+  Dribbble,
+  Facebook,
+  Github,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  Twitter,
+} from 'lucide-react';
+import Link from 'next/link';
+
+const data = {
+  facebookLink: 'https://facebook.com/mvpblocks',
+  instaLink: 'https://instagram.com/mvpblocks',
+  twitterLink: 'https://twitter.com/mvpblocks',
+  githubLink: 'https://github.com/mvpblocks',
+  dribbbleLink: 'https://dribbble.com/mvpblocks',
+  services: {
+    webdev: '/web-development',
+    webdesign: '/web-design',
+    marketing: '/marketing',
+    googleads: '/google-ads',
+  },
+  about: {
+    history: '/company-history',
+    team: '/meet-the-team',
+    handbook: '/employee-handbook',
+    careers: '/careers',
+  },
+  help: {
+    faqs: '/faqs',
+    support: '/support',
+    livechat: '/live-chat',
+  },
+  contact: {
+    email: 'hello@mvpblocks.com',
+    phone: '+91 8637373116',
+    address: 'Kolkata, West Bengal, India',
+  },
+  company: {
+    name: 'Mvpblocks',
+    description:
+      'Building beautiful and functional web experiences with modern technologies. We help startups and businesses create their digital presence.',
+    logo: '/logo.webp',
+  },
+};
+
+const socialLinks = [
+  { icon: Facebook, label: 'Facebook', href: data.facebookLink },
+  { icon: Instagram, label: 'Instagram', href: data.instaLink },
+  { icon: Twitter, label: 'Twitter', href: data.twitterLink },
+  { icon: Github, label: 'GitHub', href: data.githubLink },
+  { icon: Dribbble, label: 'Dribbble', href: data.dribbbleLink },
+];
+
+const aboutLinks = [
+  { text: 'Company History', href: data.about.history },
+  { text: 'Meet the Team', href: data.about.team },
+  { text: 'Employee Handbook', href: data.about.handbook },
+  { text: 'Careers', href: data.about.careers },
+];
+
+const serviceLinks = [
+  { text: 'Web Development', href: data.services.webdev },
+  { text: 'Web Design', href: data.services.webdesign },
+  { text: 'Marketing', href: data.services.marketing },
+  { text: 'Google Ads', href: data.services.googleads },
+];
+
+const helpfulLinks = [
+  { text: 'FAQs', href: data.help.faqs },
+  { text: 'Support', href: data.help.support },
+  { text: 'Live Chat', href: data.help.livechat, hasIndicator: true },
+];
+
+const contactInfo = [
+  { icon: Mail, text: data.contact.email },
+  { icon: Phone, text: data.contact.phone },
+  { icon: MapPin, text: data.contact.address, isAddress: true },
+];
+
+export default function Footer4Col() {
+  return (
+    <footer className="bg-secondary dark:bg-secondary/20 mt-16 w-full place-self-end rounded-t-xl">
+      <div className="mx-auto max-w-screen-xl px-4 pt-16 pb-6 sm:px-6 lg:px-8 lg:pt-24">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div>
+            <div className="text-primary flex justify-center gap-2 sm:justify-start">
+              <img
+                src={data.company.logo || '/placeholder.svg'}
+                alt="logo"
+                className="h-8 w-8 rounded-full"
+              />
+              <span className="text-2xl font-semibold">
+                {data.company.name}
+              </span>
+            </div>
+
+            <p className="text-foreground/50 mt-6 max-w-md text-center leading-relaxed sm:max-w-xs sm:text-left">
+              {data.company.description}
+            </p>
+
+            <ul className="mt-8 flex justify-center gap-6 sm:justify-start md:gap-8">
+              {socialLinks.map(({ icon: Icon, label, href }) => (
+                <li key={label}>
+                  <Link
+                    href={href}
+                    className="text-primary hover:text-primary/80 transition"
+                  >
+                    <span className="sr-only">{label}</span>
+                    <Icon className="size-6" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4 lg:col-span-2">
+            <div className="text-center sm:text-left">
+              <p className="text-lg font-medium">About Us</p>
+              <ul className="mt-8 space-y-4 text-sm">
+                {aboutLinks.map(({ text, href }) => (
+                  <li key={text}>
+                    <a
+                      className="text-secondary-foreground/70 transition"
+                      href={href}
+                    >
+                      {text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="text-center sm:text-left">
+              <p className="text-lg font-medium">Our Services</p>
+              <ul className="mt-8 space-y-4 text-sm">
+                {serviceLinks.map(({ text, href }) => (
+                  <li key={text}>
+                    <a
+                      className="text-secondary-foreground/70 transition"
+                      href={href}
+                    >
+                      {text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="text-center sm:text-left">
+              <p className="text-lg font-medium">Helpful Links</p>
+              <ul className="mt-8 space-y-4 text-sm">
+                {helpfulLinks.map(({ text, href, hasIndicator }) => (
+                  <li key={text}>
+                    <a
+                      href={href}
+                      className={`${
+                        hasIndicator
+                          ? 'group flex justify-center gap-1.5 sm:justify-start'
+                          : 'text-secondary-foreground/70 transition'
+                      }`}
+                    >
+                      <span className="text-secondary-foreground/70 transition">
+                        {text}
+                      </span>
+                      {hasIndicator && (
+                        <span className="relative flex size-2">
+                          <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                          <span className="bg-primary relative inline-flex size-2 rounded-full" />
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="text-center sm:text-left">
+              <p className="text-lg font-medium">Contact Us</p>
+              <ul className="mt-8 space-y-4 text-sm">
+                {contactInfo.map(({ icon: Icon, text, isAddress }) => (
+                  <li key={text}>
+                    <a
+                      className="flex items-center justify-center gap-1.5 sm:justify-start"
+                      href="#"
+                    >
+                      <Icon className="text-primary size-5 shrink-0 shadow-sm" />
+                      {isAddress ? (
+                        <address className="text-secondary-foreground/70 -mt-0.5 flex-1 not-italic transition">
+                          {text}
+                        </address>
+                      ) : (
+                        <span className="text-secondary-foreground/70 flex-1 transition">
+                          {text}
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 border-t pt-6">
+          <div className="text-center sm:flex sm:justify-between sm:text-left">
+            <p className="text-sm">
+              <span className="block sm:inline">All rights reserved.</span>
+            </p>
+
+            <p className="text-secondary-foreground/70 mt-4 text-sm transition sm:order-first sm:mt-0">
+              &copy; 2025 {data.company.name}
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+
+demo.tsx
+'use client';
+
+import { Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
+
+const footerColumns = [
+  {
+    title: 'Solutions',
+    links: [
+      'Business Automation',
+      'Cloud Services',
+      'Analytics',
+      'Integrations',
+      'Support',
+    ],
+  },
+  {
+    title: 'Resources',
+    links: ['Documentation', 'Case Studies', 'Blog', 'Webinars', 'Community'],
+  },
+  {
+    title: 'Company',
+    links: ['About Us', 'Careers', 'Contact', 'Partners', 'Press'],
+  },
+];
+
+const legalLinks = [
+  'Terms of Service',
+  'Privacy Policy',
+  'Cookie Settings',
+  'Accessibility',
+];
+
+const socialIcons = [
+  { icon: <Instagram className="h-5 w-5" />, href: '#' },
+  { icon: <Twitter className="h-5 w-5" />, href: '#' },
+  { icon: <Linkedin className="h-5 w-5" />, href: '#' },
+  { icon: <Youtube className="h-5 w-5" />, href: '#' },
+];
+
+export default function FooterNewsletter() {
+  return (
+    <footer className="bg-background text-foreground relative w-full pt-20 pb-10">
+      <div className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full overflow-hidden">
+        <div className="bg-primary absolute top-1/3 left-1/4 h-64 w-64 rounded-full opacity-10 blur-3xl" />
+        <div className="bg-primary absolute right-1/4 bottom-1/4 h-80 w-80 rounded-full opacity-10 blur-3xl" />
+      </div>
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="glass-effect mb-16 rounded-2xl p-8 md:p-12">
+          <div className="grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <h3 className="mb-4 text-2xl font-bold md:text-3xl">
+                Stay ahead with Acme Inc.
+              </h3>
+              <p className="text-foreground/70 mb-6">
+                Join thousands of professionals who trust Acme Inc. for
+                innovative business solutions.
+              </p>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="border-foreground/20 bg-background focus:ring-primary rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
+                />
+                <button className="bg-primary text-primary-foreground shadow-primary/20 hover:shadow-primary/30 rounded-lg px-6 py-3 font-medium shadow-lg transition">
+                  Subscribe Now
+                </button>
+              </div>
+            </div>
+            <div className="hidden justify-end md:flex">
+              <div className="relative">
+                <div className="bg-primary/20 absolute inset-0 rotate-6 rounded-xl" />
+                <img
+                  src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=320&h=240&q=80"
+                  alt="Acme Inc. team"
+                  className="relative w-80 rounded-xl object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mb-16 grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
+          <div className="col-span-2 lg:col-span-1">
+            <div className="mb-6 flex items-center space-x-2">
+              <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-primary-foreground h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <span className="text-xl font-bold">Acme Inc.</span>
+            </div>
+            <p className="text-foreground/60 mb-6">
+              Empowering businesses with reliable, scalable, and innovative
+              solutions.
+            </p>
+            <div className="flex space-x-4">
+              {socialIcons.map((item, i) => (
+                <a
+                  key={i}
+                  href={item.href}
+                  className="glass-effect hover:bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full transition"
+                >
+                  {item.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+          {footerColumns.map((col) => (
+            <div key={col.title}>
+              <h4 className="mb-4 text-lg font-semibold">{col.title}</h4>
+              <ul className="space-y-3">
+                {col.links.map((text) => (
+                  <li key={text}>
+                    <a
+                      href="#"
+                      className="text-foreground/60 hover:text-foreground transition"
+                    >
+                      {text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="border-foreground/10 flex flex-col items-center justify-between border-t pt-8 md:flex-row">
+          <p className="text-foreground/60 mb-4 text-sm md:mb-0">
+            © 2023 Acme Inc. All rights reserved.
+          </p>
+          <div className="flex flex-wrap justify-center gap-6">
+            {legalLinks.map((text) => (
+              <a
+                key={text}
+                href="#"
+                className="text-foreground/60 hover:text-foreground text-sm"
+              >
+                {text}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+```
+
+Install NPM dependencies:
+```bash
+next, lucide-react
+```
+
+Implementation Guidelines
+ 1. Analyze the component structure and identify all required dependencies
+ 2. Review the component's argumens and state
+ 3. Identify any required context providers or hooks and install them
+ 4. Questions to Ask
+ - What data/props will be passed to this component?
+ - Are there any specific state management requirements?
+ - Are there any required assets (images, icons, etc.)?
+ - What is the expected responsive behavior?
+ - What is the best place to use this component in the app?
+
+Steps to integrate
+ 0. Copy paste all the code above in the correct directories
+ 1. Install external dependencies
+ 2. Fill image assets with Unsplash stock images you know exist
+ 3. Use lucide-react icons for svgs or logos if component requires them
