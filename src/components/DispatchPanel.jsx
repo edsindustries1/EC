@@ -402,7 +402,7 @@ export default function DispatchPanel({ onRouteChange }) {
   }
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center px-4 py-8 lg:py-6">
+    <div className="relative w-full flex items-start justify-center">
 
       {voiceActive && (
         <div
@@ -425,7 +425,7 @@ export default function DispatchPanel({ onRouteChange }) {
       <div
         className="relative w-full overflow-hidden"
         style={{
-          maxWidth: 560,
+          maxWidth: 660,
           background: 'var(--bg-panel)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
@@ -448,7 +448,7 @@ export default function DispatchPanel({ onRouteChange }) {
           </div>
         </div>
 
-        <div className="p-5 sm:p-6">
+        <div className="p-6 sm:p-8">
 
           {phase === 'bids' ? (
             <div>
@@ -520,13 +520,17 @@ export default function DispatchPanel({ onRouteChange }) {
           ) : (
             <div>
               {phase === 'idle' && (
-                <div className="text-center mb-6">
-                  <img src="/logo.png?v=3" alt="Everywhere Cars" className="h-9 w-auto mx-auto mb-6 opacity-95" />
-                  <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-                    Your Ride,{' '}
-                    <span className="font-black" style={{ color: GOLD }}>Your Price.</span>
-                  </h1>
-                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>NYC operators compete for your business in real time.</p>
+                <div className="mb-7">
+                  <div className="text-center mb-7">
+                    <img src="/logo.png?v=3" alt="Everywhere Cars" className="h-11 w-auto mx-auto mb-5 opacity-95" />
+                    <h1 className="font-black mb-2" style={{ color: 'var(--text-primary)', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+                      Your Ride,{' '}
+                      <span style={{ color: GOLD }}>Your Price.</span>
+                    </h1>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                      Post a free request — NYC operators compete to win your ride.
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -557,9 +561,14 @@ export default function DispatchPanel({ onRouteChange }) {
                         <FiMic size={16} />
                       </button>
                     </div>
-                    <p className="text-center font-mono mt-2.5" style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                      No payment required · Price confirmed in minutes.
-                    </p>
+                    <div className="flex items-center justify-center gap-5 mt-4 flex-wrap">
+                      {['Free to post', 'No payment now', 'Licensed drivers'].map(t => (
+                        <span key={t} className="flex items-center gap-1.5 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#22c55e' }} />
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
