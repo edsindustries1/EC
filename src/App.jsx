@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
@@ -54,9 +54,6 @@ import AdminUsers from './pages/admin/Users'
 import AdminRevenue from './pages/admin/Revenue'
 
 function AppContent() {
-  const location = useLocation()
-  const isHomePage = location.pathname === '/'
-
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
       <Navbar />
@@ -211,7 +208,7 @@ function AppContent() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-        {!isHomePage && <Footer />}
+        <Footer />
         <WhatsAppWidget />
         <Toaster
           position="top-right"
