@@ -6,8 +6,8 @@ const PRICE_TABLE = {
   coach:       { local: [500, 700], airport: [600, 800], long: [1200, 1600] },
 }
 
-const AIRPORT_KEYWORDS = ['jfk', 'lga', 'ewr', 'fbo', 'airport', 'laguardia', 'newark', 'kennedy']
-const LONG_KEYWORDS = ['philadelphia', 'connecticut', 'boston', 'hamptons', 'hartford', 'bridgeport', 'stamford', 'providence', ' nj ', 'new jersey', 'jersey city', 'hoboken', 'trenton', 'princeton']
+const AIRPORT_KEYWORDS = ['jfk', 'lga', 'ewr', 'fbo', 'airport', 'laguardia', 'kennedy']
+const LONG_KEYWORDS = ['philadelphia', 'connecticut', 'boston', 'hamptons', 'hartford', 'bridgeport', 'stamford', 'providence', ' nj ', 'new jersey', 'jersey city', 'hoboken', 'trenton', 'princeton', 'newark']
 
 export function detectRouteType(pickup, dropoff) {
   const combined = `${pickup} ${dropoff}`.toLowerCase()

@@ -363,28 +363,28 @@ export default function DispatchPanel({ onRouteChange }) {
           source.connect(analyser)
           audioCtxRef.current = ctx
           analyserRef.current = analyser
+          audioCtxRef.stream = stream
         }).catch(() => {})
       }
     } catch {}
+
+    const cleanupAudio = () => {
+      try { audioCtxRef.current?.close() } catch {}
+      try { audioCtxRef.stream?.getTracks().forEach(t => t.stop()) } catch {}
+      analyserRef.current = null
+      audioCtxRef.current = null
+      audioCtxRef.stream = null
+    }
 
     r.onresult = (e) => {
       const t = e.results[0][0].transcript
       if (target === 'dropoff') setDropoff(t)
       else setPickup(t)
       setVoiceActive(false); setVoiceTarget(null)
-      try { audioCtxRef.current?.close() } catch {}
-      analyserRef.current = null
+      cleanupAudio()
     }
-    r.onerror = () => {
-      setVoiceActive(false); setVoiceTarget(null)
-      try { audioCtxRef.current?.close() } catch {}
-      analyserRef.current = null
-    }
-    r.onend = () => {
-      setVoiceActive(false); setVoiceTarget(null)
-      try { audioCtxRef.current?.close() } catch {}
-      analyserRef.current = null
-    }
+    r.onerror = () => { setVoiceActive(false); setVoiceTarget(null); cleanupAudio() }
+    r.onend = () => { setVoiceActive(false); setVoiceTarget(null); cleanupAudio() }
   }
 
   const resetAll = () => {
