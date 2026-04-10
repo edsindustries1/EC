@@ -149,6 +149,16 @@ function BidCard({ bid, onSelect, index, isLowest }) {
   )
 }
 
+function VoicePrompt({ target }) {
+  const text = target === 'dropoff' ? 'Say where you\'re going...' : 'Say your pickup location...'
+  const { displayed } = useTypewriter(text, 30)
+  return (
+    <p className="text-white/80 text-sm mb-6 min-h-[1.25rem]">
+      {displayed}<span className="inline-block w-0.5 h-3.5 ml-0.5 align-middle animate-pulse" style={{ background: GOLD, opacity: displayed.length < text.length ? 1 : 0 }} />
+    </p>
+  )
+}
+
 function VoiceWaveform({ active, analyserRef }) {
   const barsRef = useRef([null, null, null, null, null])
   const rafRef = useRef(null)
@@ -404,9 +414,7 @@ export default function DispatchPanel({ onRouteChange }) {
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 animate-pulse" style={{ background: `rgba(246,201,14,0.15)`, border: `2px solid ${GOLD}` }}>
               <FiMic size={28} style={{ color: GOLD }} />
             </div>
-            <p className="text-white/80 text-sm mb-6">
-              {voiceTarget === 'dropoff' ? 'Say your destination...' : 'Say your pickup...'}
-            </p>
+            <VoicePrompt target={voiceTarget} />
             <VoiceWaveform active={voiceActive} analyserRef={analyserRef} />
             <button onClick={() => { recognitionRef.current?.stop(); setVoiceActive(false) }} className="mt-6 text-white/40 hover:text-white/70 text-xs transition-colors">
               Cancel
@@ -418,7 +426,7 @@ export default function DispatchPanel({ onRouteChange }) {
       <div
         className="relative w-full overflow-hidden"
         style={{
-          maxWidth: 520,
+          maxWidth: 560,
           background: 'rgba(15,23,42,0.88)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
@@ -779,22 +787,6 @@ export default function DispatchPanel({ onRouteChange }) {
         .dispatch-field-wrap ul li[aria-selected="true"] {
           background: rgba(246,201,14,0.12);
           color: #F6C90E;
-        }
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes goldPulse {
-          0%, 100% { box-shadow: 0 0 24px rgba(246,201,14,0.35), 0 8px 20px rgba(0,0,0,0.3); }
-          50%       { box-shadow: 0 0 36px rgba(246,201,14,0.55), 0 8px 20px rgba(0,0,0,0.3); }
-        }
-        @keyframes dashFlow {
-          0%, 100% { opacity: 0.2; transform: scaleY(0.6); }
-          50%       { opacity: 1;   transform: scaleY(1.2); }
-        }
-        @keyframes waveBar {
-          from { height: 20%; }
-          to   { height: 100%; }
         }
       `}</style>
     </div>

@@ -112,6 +112,26 @@ body {
   50%       { box-shadow: 0 0 40px rgba(246,201,14,0.65); }
 }
 
+@keyframes goldPulse {
+  0%, 100% { box-shadow: 0 0 24px rgba(246,201,14,0.35), 0 8px 20px rgba(0,0,0,0.3); }
+  50%       { box-shadow: 0 0 36px rgba(246,201,14,0.55), 0 8px 20px rgba(0,0,0,0.3); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dashFlow {
+  0%, 100% { opacity: 0.2; transform: scaleY(0.6); }
+  50%       { opacity: 1;   transform: scaleY(1.2); }
+}
+
+@keyframes waveBar {
+  from { height: 20%; }
+  to   { height: 100%; }
+}
+
 @keyframes dot-trail {
   0%   { opacity: 0.8; transform: scale(1); }
   100% { opacity: 0;   transform: scale(0.4); }

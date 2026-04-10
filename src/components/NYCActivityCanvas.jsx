@@ -115,7 +115,7 @@ export default function NYCActivityCanvas({ pickup, dropoff, isMobile }) {
       })
 
       ctx.beginPath()
-      ctx.arc(cx, cy, 2.5, 0, Math.PI * 2)
+      ctx.arc(cx, cy, 3, 0, Math.PI * 2)
       ctx.fillStyle = `${ELECTRIC_BLUE}${dot.opacity})`
       ctx.shadowBlur = 6
       ctx.shadowColor = 'rgba(14,165,233,0.6)'
@@ -186,7 +186,7 @@ export default function NYCActivityCanvas({ pickup, dropoff, isMobile }) {
       const W = canvas.width
       const H = canvas.height
       const mobile = isMobileRef.current
-      dotsRef.current = Array.from({ length: 28 }, () => makeDot(W, H, mobile))
+      dotsRef.current = Array.from({ length: 25 }, () => makeDot(W, H, mobile))
     }
     resize()
     window.addEventListener('resize', resize)
