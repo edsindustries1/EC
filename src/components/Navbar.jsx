@@ -9,7 +9,7 @@ const SOCIALS = [
   { href: 'https://www.facebook.com/share/1CVi8FFsRs/', label: 'Facebook', Icon: FiFacebook },
   { href: 'https://www.instagram.com/everywherecars20', label: 'Instagram', Icon: FiInstagram },
   { href: 'https://www.linkedin.com/company/everywhere-transportation-inc', label: 'LinkedIn', Icon: FiLinkedin },
-  { href: 'http://wa.me/17182196683', label: 'WhatsApp', Icon: FiMessageCircle },
+  { href: 'https://wa.me/17182196683', label: 'WhatsApp', Icon: FiMessageCircle },
 ]
 
 const Navbar = () => {
@@ -221,12 +221,12 @@ const Navbar = () => {
           <Link
             to="/"
             className="flex items-center flex-shrink-0 group"
-            aria-label="Everywhere Transfers — go to homepage"
+            aria-label="Everywhere Cars — go to homepage"
             onClick={closeAll}
           >
             <img
               src="/logo.png?v=3"
-              alt="Everywhere Transfers"
+              alt="Everywhere Cars"
               className="h-14 w-auto group-hover:opacity-90 transition-opacity"
             />
           </Link>

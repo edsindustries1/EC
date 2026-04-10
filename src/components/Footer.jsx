@@ -18,7 +18,7 @@ import {
 const PHONE = '(718) 658-6000'
 const PHONE_HREF = 'tel:+17186586000'
 const EMAIL = 'booking@everywherecars.com'
-const WHATSAPP = 'http://wa.me/17182196683'
+const WHATSAPP = 'https://wa.me/17182196683'
 const FACEBOOK = 'https://www.facebook.com/share/1CVi8FFsRs/'
 const INSTAGRAM = 'https://www.instagram.com/everywherecars20'
 const LINKEDIN = 'https://www.linkedin.com/company/everywhere-transportation-inc'
@@ -97,7 +97,7 @@ const Footer = () => {
             <div className="mb-4">
               <img
                 src="/logo.png?v=3"
-                alt="Everywhere Transfers"
+                alt="Everywhere Cars"
                 className="h-14 w-auto"
               />
             </div>
@@ -255,7 +255,7 @@ const Footer = () => {
         {/* Copyright Bar with trust badges */}
         <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-400">
-            &copy; {currentYear} Everywhere Transfers &mdash; Powered by Everywhere Cars. All rights reserved.
+            &copy; {currentYear} Everywhere Cars. All rights reserved.
           </p>
 
           {/* Trust badges */}
