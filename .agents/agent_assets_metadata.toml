@@ -30,3 +30,27 @@ id = "iieHA6fqR6KNtGH_j6rAH"
 uri = "file://public/images/fleet-coach.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "k34mKSS_xKAHs7xHxWud2"
+uri = "file://public/images/service-airport.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "bUXm_9M3VgdefSVLcJS7F"
+uri = "file://public/images/service-hourly.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "pV7NtUt6GCS0sel9pVPKg"
+uri = "file://public/images/service-events.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "0ySuBzFjtUokwmKipI0RJ"
+uri = "file://public/images/service-corporate.png"
+type = "image"
+title = "generated_image"

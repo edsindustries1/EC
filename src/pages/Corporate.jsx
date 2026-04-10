@@ -20,57 +20,57 @@ import {
 
 const BENEFITS = [
   {
-    icon: FiUser,
-    title: 'Dedicated Account Manager',
-    description: 'Your own point of contact for every booking — no call centers, no ticket queues.',
-  },
-  {
-    icon: FiDollarSign,
-    title: 'Centralized Billing & Invoices',
-    description: 'Monthly consolidated invoices with itemized trip reports, ready for expense review.',
+    icon: FiBarChart2,
+    title: 'Elevated Professional Image',
+    description: 'Arrive at every meeting, boardroom, or client event in a luxury vehicle driven by a professionally trained chauffeur. First impressions matter — we make them count.',
   },
   {
     icon: FiClock,
-    title: 'Priority Booking',
-    description: 'Corporate clients get first access to vehicle availability, even during peak demand.',
+    title: 'Optimized Time & Productivity',
+    description: 'Turn travel time into work time. Rear-seat Wi-Fi, charging ports, and a quiet cabin let executives prepare for meetings, review documents, or take calls in comfort.',
   },
   {
-    icon: FiBarChart2,
-    title: 'Flight Tracking & Free Wait',
-    description: 'We monitor your flights in real time and extend wait time at no charge for delays.',
+    icon: FiUser,
+    title: 'Dedicated Travel Support',
+    description: 'Your assigned account manager handles every booking, change, and special request. No call queues, no ticket systems — one point of contact for your entire travel program.',
   },
   {
     icon: FiShield,
-    title: 'Fixed Rates for Budget Control',
-    description: 'Lock in your pricing upfront. No surge, no surprises — ever.',
+    title: 'Privacy & Executive Comfort',
+    description: 'Tinted windows, professional discretion, and a no-conversation-unless-requested policy. Your executives travel in confidence — whether discussing strategy or unwinding between commitments.',
   },
   {
     icon: FiTruck,
-    title: 'Vetted Professional Drivers',
-    description: 'Every driver holds a commercial license, passes a background check, and maintains a 4.7+ rating.',
+    title: 'Safety You Can Trust',
+    description: 'Every Everywhere Cars driver passes a full background check, holds a commercial license, and undergoes continuous safety training. Your team travels only with vetted professionals.',
+  },
+  {
+    icon: FiDollarSign,
+    title: 'Centralized Billing & Fixed Rates',
+    description: 'Monthly consolidated invoices with itemized trip reports. Fixed pricing across every ride — no surge, no surprise fuel surcharges, no hidden fees.',
   },
 ]
 
 const FLEET = [
   {
-    type: 'Executive Sedan',
-    capacity: '1–3 passengers',
-    icon: '🚗',
-    features: ['Leather interior', 'Climate control', 'USB charging'],
+    type: 'Mercedes S-Class / Lincoln Continental',
+    capacity: '2–3 passengers',
+    image: '/images/fleet-sedan.png',
+    features: ['Leather interior', 'Climate control', 'USB & wireless charging'],
     ideal: 'Solo executive transfers, airport pickups',
   },
   {
-    type: 'Premium SUV',
-    capacity: '1–5 passengers',
-    icon: '🚙',
-    features: ['Extra luggage room', 'Wi-Fi hotspot', 'Privacy glass'],
+    type: 'Cadillac Escalade / GMC Yukon',
+    capacity: '3–5 passengers',
+    image: '/images/fleet-suv.png',
+    features: ['Extended luggage room', 'Wi-Fi hotspot', 'Privacy glass'],
     ideal: 'Executive teams, roadshows, site visits',
   },
   {
-    type: 'Sprinter Van',
-    capacity: '10–14 passengers',
-    icon: '🚐',
-    features: ['Reclining seats', 'Overhead storage', 'PA system'],
+    type: 'Mercedes Sprinter Van',
+    capacity: '11–14 passengers',
+    image: '/images/fleet-sprinter.png',
+    features: ['Reclining seats', 'Overhead storage', 'Climate zones'],
     ideal: 'Team offsites, conference shuttles',
   },
 ]
@@ -151,6 +151,11 @@ const Corporate = () => {
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative min-h-[80vh] flex items-center bg-gradient-to-br from-[#0f1f3d] via-[#1a365d] to-[#1a3a6b] overflow-hidden">
+        <img
+          src="/images/service-corporate.png"
+          alt="Corporate travel — executive arriving in luxury vehicle"
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+        />
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-blue-600 opacity-10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-800 opacity-15 rounded-full blur-3xl -translate-x-1/4 translate-y-1/4" />
@@ -183,11 +188,11 @@ const Corporate = () => {
                 Contact Sales <FiArrowRight />
               </a>
               <a
-                href="tel:+18005551234"
+                href="tel:+17186586000"
                 className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/25 text-white font-semibold py-3.5 px-8 rounded-xl hover:bg-white/20 transition-colors text-base"
               >
                 <FiPhone size={16} />
-                (800) 555-1234
+                (718) 658-6000
               </a>
             </div>
 
@@ -248,8 +253,8 @@ const Corporate = () => {
                 key={v.type}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
               >
-                <div className="h-48 bg-gradient-to-br from-[#1a365d] to-[#0f1f3d] flex items-center justify-center">
-                  <span className="text-7xl">{v.icon}</span>
+                <div className="h-48 overflow-hidden">
+                  <img src={v.image} alt={v.type} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-1">
@@ -384,11 +389,11 @@ const Corporate = () => {
               </ul>
 
               <a
-                href="tel:+18005551234"
+                href="tel:+17186586000"
                 className="inline-flex items-center gap-2 text-[#1a365d] font-semibold text-sm hover:underline"
               >
                 <FiPhone size={15} />
-                Prefer to call? (800) 555-1234
+                Prefer to call? (718) 658-6000
               </a>
             </div>
 

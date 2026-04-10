@@ -10,6 +10,10 @@ import SplashScreenGate from './components/SplashScreen'
 // Public Pages
 import Home from './pages/Home'
 import Corporate from './pages/Corporate'
+import Services from './pages/services/Services'
+import AirportTransfers from './pages/services/AirportTransfers'
+import Hourly from './pages/services/Hourly'
+import Events from './pages/services/Events'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import Profile from './pages/Profile'
@@ -49,6 +53,10 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/corporate" element={<Corporate />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/airport-transfers" element={<AirportTransfers />} />
+            <Route path="/services/hourly" element={<Hourly />} />
+            <Route path="/services/events" element={<Events />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
 

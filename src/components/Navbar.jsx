@@ -1,6 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiMenu, FiX, FiUser, FiPhone, FiBriefcase, FiArrowRight, FiFacebook, FiInstagram, FiLinkedin, FiMessageCircle } from 'react-icons/fi'
+import {
+  FiMenu, FiX, FiUser, FiPhone, FiBriefcase, FiArrowRight,
+  FiFacebook, FiInstagram, FiLinkedin, FiMessageCircle,
+  FiChevronDown, FiNavigation, FiClock, FiAward,
+} from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 
 const PHONE = '(718) 658-6000'
@@ -12,11 +16,52 @@ const SOCIALS = [
   { href: 'https://wa.me/17182196683', label: 'WhatsApp', Icon: FiMessageCircle },
 ]
 
+const SERVICE_LINKS = [
+  { to: '/services/airport-transfers', label: 'Airport Transfers', icon: FiNavigation, desc: 'JFK, LGA, EWR & more' },
+  { to: '/services/hourly', label: 'Hourly Chauffeur', icon: FiClock, desc: 'As-directed service' },
+  { to: '/services/events', label: 'Event Transportation', icon: FiAward, desc: 'Weddings, galas & more' },
+  { to: '/corporate', label: 'Corporate Travel', icon: FiBriefcase, desc: 'Managed corporate accounts' },
+]
+
+const ServicesDropdown = ({ onClose }) => (
+  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50">
+    <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">Our Services</p>
+    {SERVICE_LINKS.map(({ to, label, icon: Icon, desc }) => (
+      <Link
+        key={to}
+        to={to}
+        onClick={onClose}
+        className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 rounded-xl mx-1 transition-colors group"
+      >
+        <div className="flex items-center justify-center w-8 h-8 bg-[#1a365d] rounded-lg flex-shrink-0">
+          <Icon size={15} className="text-white" />
+        </div>
+        <div>
+          <div className="text-sm font-semibold text-[#1a365d] group-hover:text-[#0f1f3d]">{label}</div>
+          <div className="text-xs text-gray-400">{desc}</div>
+        </div>
+      </Link>
+    ))}
+    <div className="border-t border-gray-100 mt-2 pt-2 mx-3">
+      <Link
+        to="/services"
+        onClick={onClose}
+        className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#1a365d] hover:text-[#0f1f3d] transition-colors py-1"
+      >
+        View all services <FiArrowRight size={12} />
+      </Link>
+    </div>
+  </div>
+)
+
 const Navbar = () => {
   const navigate = useNavigate()
   const { user, isAuthenticated, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [isServicesOpen, setIsServicesOpen] = useState(false)
+  const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false)
+  const servicesRef = useRef(null)
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen)
@@ -24,6 +69,8 @@ const Navbar = () => {
   const closeAll = () => {
     setIsMenuOpen(false)
     setIsProfileDropdownOpen(false)
+    setIsServicesOpen(false)
+    setIsMobileServicesOpen(false)
   }
 
   const handleLogout = () => {
@@ -32,6 +79,30 @@ const Navbar = () => {
     navigate('/')
   }
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (servicesRef.current && !servicesRef.current.contains(e.target)) {
+        setIsServicesOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const ServicesMenuButton = () => (
+    <div className="relative" ref={servicesRef}>
+      <button
+        onClick={() => setIsServicesOpen(!isServicesOpen)}
+        className="flex items-center gap-1 text-gray-100 hover:text-white transition-colors text-sm"
+        aria-expanded={isServicesOpen}
+        aria-haspopup="true"
+      >
+        Services <FiChevronDown size={13} className={`transition-transform duration-200 ${isServicesOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isServicesOpen && <ServicesDropdown onClose={() => setIsServicesOpen(false)} />}
+    </div>
+  )
+
   const getDesktopNavLinks = () => {
     if (!isAuthenticated) {
       return (
@@ -39,10 +110,7 @@ const Navbar = () => {
           <Link to="/how-it-works" className="text-gray-100 hover:text-white transition-colors text-sm">
             How It Works
           </Link>
-          <Link to="/corporate" className="text-gray-100 hover:text-white transition-colors text-sm flex items-center gap-1">
-            <FiBriefcase size={14} />
-            Corporate
-          </Link>
+          <ServicesMenuButton />
           <Link to="/login" className="text-gray-100 hover:text-white transition-colors text-sm">
             Login
           </Link>
@@ -75,15 +143,11 @@ const Navbar = () => {
               </Link>
             </>
           )}
-          <Link to="/corporate" className="text-gray-100 hover:text-white transition-colors text-sm flex items-center gap-1">
-            <FiBriefcase size={14} />
-            Corporate
-          </Link>
+          <ServicesMenuButton />
         </>
       )
     }
 
-    // Customer role
     return (
       <>
         <Link to="/book" className="text-gray-100 hover:text-white transition-colors text-sm">
@@ -92,10 +156,7 @@ const Navbar = () => {
         <Link to="/my-rides" className="text-gray-100 hover:text-white transition-colors text-sm">
           My Rides
         </Link>
-        <Link to="/corporate" className="text-gray-100 hover:text-white transition-colors text-sm flex items-center gap-1">
-          <FiBriefcase size={14} />
-          Corporate
-        </Link>
+        <ServicesMenuButton />
       </>
     )
   }
@@ -111,14 +172,31 @@ const Navbar = () => {
           >
             How It Works
           </Link>
-          <Link
-            to="/corporate"
-            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm flex items-center gap-2"
-            onClick={closeAll}
-          >
-            <FiBriefcase size={14} />
-            Corporate Travel
-          </Link>
+
+          <div>
+            <button
+              onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
+              className="flex items-center justify-between w-full px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            >
+              Services
+              <FiChevronDown size={14} className={`transition-transform duration-200 ${isMobileServicesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isMobileServicesOpen && (
+              <div className="ml-4 mt-1 space-y-0.5">
+                {SERVICE_LINKS.map(({ to, label }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={closeAll}
+                    className="block px-4 py-2 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           <Link
             to="/login"
             className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
@@ -172,19 +250,33 @@ const Navbar = () => {
               </Link>
             </>
           )}
-          <Link
-            to="/corporate"
-            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm flex items-center gap-2"
-            onClick={closeAll}
-          >
-            <FiBriefcase size={14} />
-            Corporate Travel
-          </Link>
+          <div>
+            <button
+              onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
+              className="flex items-center justify-between w-full px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            >
+              Services
+              <FiChevronDown size={14} className={`transition-transform duration-200 ${isMobileServicesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isMobileServicesOpen && (
+              <div className="ml-4 mt-1 space-y-0.5">
+                {SERVICE_LINKS.map(({ to, label }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={closeAll}
+                    className="block px-4 py-2 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </>
       )
     }
 
-    // Customer
     return (
       <>
         <Link
@@ -201,14 +293,29 @@ const Navbar = () => {
         >
           My Rides
         </Link>
-        <Link
-          to="/corporate"
-          className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm flex items-center gap-2"
-          onClick={closeAll}
-        >
-          <FiBriefcase size={14} />
-          Corporate Travel
-        </Link>
+        <div>
+          <button
+            onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
+            className="flex items-center justify-between w-full px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+          >
+            Services
+            <FiChevronDown size={14} className={`transition-transform duration-200 ${isMobileServicesOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isMobileServicesOpen && (
+            <div className="ml-4 mt-1 space-y-0.5">
+              {SERVICE_LINKS.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={closeAll}
+                  className="block px-4 py-2 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </>
     )
   }
@@ -217,7 +324,6 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-primary-800 to-primary-900 shadow-lg">
       <div className="container-custom px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center flex-shrink-0 group"
@@ -231,14 +337,11 @@ const Navbar = () => {
             />
           </Link>
 
-          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
             {getDesktopNavLinks()}
           </div>
 
-          {/* Desktop Right: Socials + Phone + Profile */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Social icons */}
             <div className="flex items-center gap-2 border-r border-white/20 pr-4">
               {SOCIALS.map(({ href, label, Icon }) => (
                 <a
@@ -253,7 +356,6 @@ const Navbar = () => {
                 </a>
               ))}
             </div>
-            {/* Phone number — always visible on desktop */}
             <a
               href={PHONE_HREF}
               className="flex items-center gap-1.5 text-blue-200 hover:text-white transition-colors text-sm font-medium"
@@ -293,7 +395,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Hamburger */}
           <button
             onClick={toggleMenu}
             className="md:hidden p-2 hover:bg-primary-700 rounded-lg transition-colors text-white"
@@ -304,7 +405,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu — slide-down */}
       <div
         className={`md:hidden bg-primary-900 border-t border-primary-700 overflow-hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
@@ -313,7 +413,6 @@ const Navbar = () => {
         {...(!isMenuOpen && { inert: '' })}
       >
         <div className="container-custom px-4 sm:px-6 py-4 space-y-1">
-          {/* Phone call row */}
           <a
             href={PHONE_HREF}
             className="flex items-center gap-2 px-4 py-2.5 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm font-medium"
@@ -347,7 +446,6 @@ const Navbar = () => {
 
           <div className="border-t border-primary-700 my-1" />
 
-          {/* Social icons row — mobile */}
           <div className="flex items-center gap-4 px-4 py-2">
             {SOCIALS.map(({ href, label, Icon }) => (
               <a
@@ -365,7 +463,6 @@ const Navbar = () => {
 
           <div className="border-t border-primary-700 my-1" />
 
-          {/* Get a Quote CTA — only for guests and customers */}
           {(!isAuthenticated || user?.role === 'customer') && (
             <div className="pt-1 pb-2">
               <Link
