@@ -221,7 +221,7 @@ const Navbar = () => {
             <img
               src="/logo.png"
               alt="Everywhere Transfers"
-              className="h-10 w-auto group-hover:opacity-90 transition-opacity"
+              className="h-14 w-auto group-hover:opacity-90 transition-opacity"
             />
           </Link>
 
