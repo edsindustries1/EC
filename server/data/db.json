@@ -1,0 +1,126 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "name": "Admin",
+      "email": "admin@everywherecars.com",
+      "password": "$2b$10$vJE2eHpMsAgK3LYttavRrOuvzziKs8TslKRxptZMEZZaPa6JWJAC.",
+      "phone": "+17186586000",
+      "role": "admin",
+      "created_at": "2026-04-10T02:16:19.473Z"
+    },
+    {
+      "id": "u2",
+      "name": "EC Operator",
+      "email": "operator@everywherecars.com",
+      "password": "$2b$10$4AaLlxW5fes0uQLaA6Pt3u1oF.1amzGqvWl4B9aqqSB27fvgdggpO",
+      "phone": "+17186586001",
+      "role": "operator",
+      "created_at": "2026-04-10T02:16:19.473Z"
+    },
+    {
+      "id": "u3",
+      "name": "Demo Customer",
+      "email": "customer@test.com",
+      "password": "$2b$10$Izv30gLV7NUjB/Asf9glz.eCQyBF4iC4cCzmVCU1mVG2wocZreeti",
+      "phone": "+12125550001",
+      "role": "customer",
+      "created_at": "2026-04-10T02:16:19.473Z"
+    }
+  ],
+  "quote_requests": [
+    {
+      "id": "101",
+      "status": "quoted",
+      "created_at": "2026-04-10T02:16:53.118Z",
+      "customer_name": "Test Customer",
+      "customer_phone": "9175550001",
+      "customer_email": "test@example.com",
+      "customer_id": null,
+      "pickup": "JFK Airport, Queens, NY",
+      "dropoff": "Manhattan, NY",
+      "ride_date": "2026-04-15T10:00",
+      "passengers": 2,
+      "vehicle_type": "sedan",
+      "updated_at": "2026-04-10T02:16:53.198Z"
+    },
+    {
+      "id": "103",
+      "status": "contacted",
+      "created_at": "2026-04-10T02:19:22.740Z",
+      "customer_name": "John Smith",
+      "customer_phone": "9175551234",
+      "customer_email": "john@example.com",
+      "customer_id": null,
+      "pickup": "JFK Airport, Queens, NY",
+      "dropoff": "Times Square, Manhattan, NY",
+      "ride_date": "2026-04-15T10:00",
+      "passengers": 2,
+      "vehicle_type": "suv",
+      "bid_price": 95,
+      "eta_minutes": 25,
+      "notes": "Black Escalade, complimentary water included.",
+      "updated_at": "2026-04-10T02:19:22.876Z"
+    }
+  ],
+  "bids": [
+    {
+      "id": "102",
+      "created_at": "2026-04-10T02:16:53.197Z",
+      "quote_request_id": "101",
+      "operator_id": "u2",
+      "operator_name": "EC Operator",
+      "price": 85,
+      "vehicle_type": "sedan",
+      "message": "Professional sedan service, on time guaranteed."
+    },
+    {
+      "id": "104",
+      "created_at": "2026-04-10T02:19:22.875Z",
+      "quote_request_id": "103",
+      "operator_id": "u2",
+      "operator_name": "EC Operator",
+      "price": 95,
+      "vehicle_type": "suv",
+      "eta_minutes": 25,
+      "message": "Black Escalade, complimentary water included.",
+      "notes": "Black Escalade, complimentary water included."
+    }
+  ],
+  "drivers": [
+    {
+      "id": "d1",
+      "operator_id": "u2",
+      "name": "James Carter",
+      "phone": "+17185550001",
+      "vehicle_type": "sedan",
+      "vehicle": "Lincoln Town Car",
+      "plate": "NYC-1234",
+      "status": "available",
+      "created_at": "2026-04-10T02:16:19.473Z"
+    },
+    {
+      "id": "d2",
+      "operator_id": "u2",
+      "name": "Maria Santos",
+      "phone": "+17185550002",
+      "vehicle_type": "suv",
+      "vehicle": "Cadillac Escalade",
+      "plate": "NYC-5678",
+      "status": "available",
+      "created_at": "2026-04-10T02:16:19.473Z"
+    },
+    {
+      "id": "d3",
+      "operator_id": "u2",
+      "name": "Kevin Brown",
+      "phone": "+17185550003",
+      "vehicle_type": "sprinter_van",
+      "vehicle": "Mercedes Sprinter",
+      "plate": "NYC-9012",
+      "status": "on_trip",
+      "created_at": "2026-04-10T02:16:19.473Z"
+    }
+  ],
+  "_nextId": 104
+}

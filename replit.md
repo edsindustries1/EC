@@ -64,20 +64,40 @@ A React + Vite frontend for "Everywhere Cars" — a NYC luxury car service. The 
 - `/transfers/nyc-to-connecticut`
 - `/transfers/nyc-to-boston`
 
-## API
-- Base URL: `VITE_API_URL` env var, defaults to `http://localhost:5000/api`
-- Auth: JWT stored in `localStorage`, attached via Axios interceptor
-- Quote Requests: `POST /api/quote-requests` (no auth), `GET /api/quote-requests` (operator), `PATCH /api/quote-requests/:id/status` (operator), `PATCH /api/quote-requests/:id` (operator bid), `GET /api/quote-requests/:id` (bid polling)
+## API & Backend
+
+### Backend (server/)
+- Express.js API server running on **port 3001** (`server/index.js`)
+- JSON file persistence at `server/data/db.json` (`server/db.js`)
+- Vite dev proxy: all `/api/*` requests from the frontend → backend via `vite.config.js`
+- `src/utils/api.js` uses relative `/api` base URL (proxied by Vite)
+
+### Auth Accounts (seeded)
+- **Operator:** `operator@everywherecars.com` / `operator123`
+- **Admin:** `admin@everywherecars.com` / `admin123`
+
+### Key Endpoints
+- `POST /api/auth/login` / `POST /api/auth/register` / `GET /api/auth/me`
+- `POST /api/quote-requests` — Customer dispatches a ride (no auth required)
+- `GET /api/quote-requests` — Operator lists all incoming requests
+- `GET /api/quote-requests/:id` — Customer polls for bids (returns `bids` array)
+- `PATCH /api/quote-requests/:id` — Operator submits bid (`bid_price`, `eta_minutes`, `notes`) + also creates bid entry for polling
+- `PATCH /api/quote-requests/:id/status` — Update request status
+- `POST /api/quote-requests/:id/bids` — Explicit bid creation endpoint
+- `GET /api/operator/dashboard` — Operator stats
+- `GET /api/operator/requests` — Recent requests for operator dashboard
+- `GET /api/drivers` / `POST /api/drivers` — Driver management
+- `GET /api/revenue` — Revenue stats
+
+### Dispatch Flow
+1. Customer fills dispatch form → `POST /api/quote-requests` → saved with `status: pending`
+2. Operator sees ride on their dashboard → "Quote Requests" tab
+3. Operator clicks "Send Bid" → `PATCH /api/quote-requests/:id` with `bid_price`/`notes` → creates bid entry + sets status `quoted`
+4. Customer's bid board polls `GET /api/quote-requests/:id` every 5s → bid appears with operator name, price, and ETA
+5. Customer clicks "SELECT THIS RIDE" → navigated to `/signup` (if guest) or `/book` (if logged in)
 
 ## Running
 ```
-npm run dev   # Development (port 5000 or next available)
-npm run build # Production build
+node server/index.js   # API server on port 3001 (workflow: "Start API server")
+npm run dev            # Vite frontend on port 5000 (workflow: "Start application")
 ```
-
-## Backend Notes
-This is a frontend-only repository. The backend must implement:
-- `POST /api/quote-requests` — Store lead (no auth middleware)
-- `GET /api/quote-requests` — List all leads (operator auth)
-- `PATCH /api/quote-requests/:id/status` — Update lead status
-- Table: `quote_requests` with fields: id, name, email, phone, pickup, dropoff, ride_date, passengers, vehicle_type, notes, status (new/contacted/booked), bid_price, eta_minutes, bids (array), created_at

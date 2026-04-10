@@ -117,12 +117,12 @@ function BidCard({ bid, onSelect, index, isLowest }) {
             alt="" className="w-full h-full object-cover" loading="lazy" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-white text-sm truncate">{bid.operator_name || 'Everywhere Cars'}</div>
+          <div className="font-bold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{bid.operator_name || 'Everywhere Cars'}</div>
           <div className="flex items-center gap-0.5 mt-0.5">
             {[1,2,3,4,5].map(i => (
               <FiStar key={i} size={10} className={i <= Math.round(bid.rating || 5) ? 'text-yellow-400' : 'text-white/20'} style={{ fill: i <= Math.round(bid.rating || 5) ? GOLD : 'transparent' }} />
             ))}
-            <span className="text-white/40 text-xs ml-1 font-mono">{(bid.rating || 5.0).toFixed(1)}</span>
+            <span className="text-xs ml-1 font-mono" style={{ color: 'var(--text-muted)' }}>{(bid.rating || 5.0).toFixed(1)}</span>
           </div>
           <div className="text-xs mt-0.5 font-mono" style={{ color: ELECTRIC }}>
             <FiClock size={10} className="inline mr-1" />
@@ -133,12 +133,12 @@ function BidCard({ bid, onSelect, index, isLowest }) {
           <div className="font-mono font-black leading-none" style={{ fontSize: '2rem', color: GOLD }}>
             ${bid.price}
           </div>
-          <div className="text-white/40 text-xs font-mono">fixed</div>
+          <div className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>fixed</div>
         </div>
       </div>
-      {bid.notes && (
-        <p className="text-white/50 text-xs italic mb-3 px-2 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
-          "{bid.notes}"
+      {(bid.notes || bid.message) && (
+        <p className="text-xs italic mb-3 px-2 py-1.5 rounded-lg" style={{ color: 'var(--text-secondary)', background: 'var(--bg-field)' }}>
+          "{bid.notes || bid.message}"
         </p>
       )}
       <button
