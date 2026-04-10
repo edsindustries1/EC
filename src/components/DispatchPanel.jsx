@@ -432,11 +432,11 @@ export default function DispatchPanel({ onRouteChange }) {
         <div className="px-4 py-2.5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(14,165,233,0.04)' }}>
           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: '#22c55e' }} />
           <div className="flex items-center gap-3 text-xs font-mono overflow-hidden" style={{ color: 'rgba(14,165,233,0.8)' }}>
-            <span className="whitespace-nowrap"><span className="font-bold">{stats.vehicles}</span> vehicles ready</span>
+            <span className="whitespace-nowrap"><span className="font-bold">{stats.vehicles}</span> vehicles ready near NYC</span>
             <span className="text-white/20">|</span>
-            <span className="whitespace-nowrap">Avg <span className="font-bold">{stats.response} min</span></span>
+            <span className="whitespace-nowrap">Avg response: <span className="font-bold">{stats.response} min</span></span>
             <span className="text-white/20 hidden sm:block">|</span>
-            <span className="whitespace-nowrap hidden sm:block"><span className="font-bold">{stats.rides}</span> rides today</span>
+            <span className="whitespace-nowrap hidden sm:block">Rides today: <span className="font-bold">{stats.rides}</span></span>
           </div>
         </div>
 
@@ -516,25 +516,30 @@ export default function DispatchPanel({ onRouteChange }) {
 
               <div style={{ transition: 'all 220ms cubic-bezier(0.4,0,0.2,1)' }}>
                 {phase === 'idle' ? (
-                  <div
-                    className="relative w-full flex items-center px-5 py-4 rounded-2xl cursor-text transition-all"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
-                    onClick={() => setPhase('route')}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={e => e.key === 'Enter' && setPhase('route')}
-                    aria-label="Open booking form"
-                  >
-                    <FiNavigation2 size={20} style={{ color: GOLD }} className="flex-shrink-0 mr-3" />
-                    <span className="text-white/50 text-lg font-medium flex-1">Where to?</span>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); startVoice('dropoff') }}
-                      className="p-1.5 rounded-full transition-colors text-white/30 hover:text-yellow-400 ml-2"
-                      aria-label="Voice input"
+                  <div>
+                    <div
+                      className="relative w-full flex items-center px-5 py-4 rounded-2xl cursor-text transition-all"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+                      onClick={() => setPhase('route')}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => e.key === 'Enter' && setPhase('route')}
+                      aria-label="Open booking form"
                     >
-                      <FiMic size={16} />
-                    </button>
+                      <FiNavigation2 size={20} style={{ color: GOLD }} className="flex-shrink-0 mr-3" />
+                      <span className="text-white/50 text-lg font-medium flex-1">Where to?</span>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); startVoice('dropoff') }}
+                        className="p-1.5 rounded-full transition-colors text-white/30 hover:text-yellow-400 ml-2"
+                        aria-label="Voice input"
+                      >
+                        <FiMic size={16} />
+                      </button>
+                    </div>
+                    <p className="text-center font-mono mt-2.5" style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11 }}>
+                      No payment required · Price confirmed in minutes.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
