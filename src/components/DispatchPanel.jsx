@@ -234,6 +234,7 @@ export default function DispatchPanel({ onRouteChange }) {
   const recognitionRef = useRef(null)
   const analyserRef = useRef(null)
   const audioCtxRef = useRef(null)
+  const micStreamRef = useRef(null)
   const pollRef = useRef(null)
   const countdownRef = useRef(null)
   const noOfferRef = useRef(null)
@@ -256,13 +257,6 @@ export default function DispatchPanel({ onRouteChange }) {
   useEffect(() => {
     if (onRouteChange) onRouteChange(pickup, dropoff)
   }, [pickup, dropoff, onRouteChange])
-
-  const advancePhase = useCallback(() => {
-    if (!hasRoute && phase === 'route') return
-    if (phase === 'idle') setPhase('route')
-    else if (phase === 'route' && hasRoute) setPhase('details')
-    else if (phase === 'details' && hasTrip && hasVehicle) setPhase('contact')
-  }, [phase, hasRoute, hasTrip, hasVehicle])
 
   useEffect(() => {
     if (phase === 'route' && hasRoute) {
@@ -363,17 +357,17 @@ export default function DispatchPanel({ onRouteChange }) {
           source.connect(analyser)
           audioCtxRef.current = ctx
           analyserRef.current = analyser
-          audioCtxRef.stream = stream
+          micStreamRef.current = stream
         }).catch(() => {})
       }
     } catch {}
 
     const cleanupAudio = () => {
       try { audioCtxRef.current?.close() } catch {}
-      try { audioCtxRef.stream?.getTracks().forEach(t => t.stop()) } catch {}
+      try { micStreamRef.current?.getTracks().forEach(t => t.stop()) } catch {}
       analyserRef.current = null
       audioCtxRef.current = null
-      audioCtxRef.stream = null
+      micStreamRef.current = null
     }
 
     r.onresult = (e) => {
