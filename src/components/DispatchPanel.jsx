@@ -50,11 +50,14 @@ function useSimulatedStats() {
     const schedule = () => {
       const delay = Math.floor(Math.random() * 25000) + 15000
       timerId = setTimeout(() => {
-        setStats(s => ({
-          vehicles: Math.max(10, Math.min(30, s.vehicles + 1)),
-          response: s.response,
-          rides: s.rides + 1,
-        }))
+        setStats(s => {
+          const rDelta = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0
+          return {
+            vehicles: Math.max(10, Math.min(30, s.vehicles + 1)),
+            response: Math.max(2, Math.min(8, s.response + rDelta)),
+            rides: s.rides + 1,
+          }
+        })
         schedule()
       }, delay)
     }
@@ -518,20 +521,23 @@ export default function DispatchPanel({ onRouteChange }) {
                 {phase === 'idle' ? (
                   <div>
                     <div
-                      className="relative w-full flex items-center px-5 py-4 rounded-2xl cursor-text transition-all"
+                      className="relative w-full flex items-center px-4 py-3 rounded-2xl transition-all"
                       style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
-                      onClick={() => setPhase('route')}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => e.key === 'Enter' && setPhase('route')}
-                      aria-label="Open booking form"
                     >
-                      <FiNavigation2 size={20} style={{ color: GOLD }} className="flex-shrink-0 mr-3" />
-                      <span className="text-white/50 text-lg font-medium flex-1">Where to?</span>
+                      <FiNavigation2 size={18} style={{ color: GOLD }} className="flex-shrink-0 mr-3 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Where to?"
+                        className="flex-1 bg-transparent outline-none text-white/50 text-lg font-medium placeholder-white/50 focus:text-white/80 transition-colors"
+                        onFocus={() => setPhase('route')}
+                        style={{ minWidth: 0 }}
+                        aria-label="Where to? Enter destination to start booking"
+                        readOnly
+                      />
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); startVoice('dropoff') }}
-                        className="p-1.5 rounded-full transition-colors text-white/30 hover:text-yellow-400 ml-2"
+                        className="p-1.5 rounded-full transition-colors text-white/30 hover:text-yellow-400 ml-2 flex-shrink-0"
                         aria-label="Voice input"
                       >
                         <FiMic size={16} />
