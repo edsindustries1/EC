@@ -170,6 +170,7 @@ const FLEET_GROUPS = [
     badge: '11–55 Passengers',
     tagline: 'From intimate Sprinter transfers to full charter coaches — we scale with your group.',
     image: '/images/fleet-sprinter.png',
+    imageCoach: '/images/fleet-coach.png',
     vehicles: [
       {
         name: 'Mercedes-Benz Sprinter Van',
@@ -268,7 +269,7 @@ const GroupSection = ({ group, onBook }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-10 items-start">
           <div className="lg:w-80 flex-shrink-0">
-            <div className="rounded-2xl overflow-hidden mb-5 h-52">
+            <div className="rounded-2xl overflow-hidden mb-3 h-52">
               <img
                 src={group.image}
                 alt={group.label}
@@ -276,6 +277,16 @@ const GroupSection = ({ group, onBook }) => {
                 loading="lazy"
               />
             </div>
+            {group.imageCoach && (
+              <div className="rounded-2xl overflow-hidden mb-3 h-36">
+                <img
+                  src={group.imageCoach}
+                  alt="Coach buses"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
             <div className="inline-flex items-center gap-1.5 bg-[#1a365d]/10 text-[#1a365d] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-2">
               {group.id === 'electric' && <FiZap size={11} />}
               {group.badge}

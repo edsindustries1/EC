@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
@@ -718,12 +718,12 @@ const Home = () => {
           </div>
 
           <div className="text-center mt-10">
-            <a
-              href="/fleet"
+            <Link
+              to="/fleet"
               className="inline-flex items-center gap-2 bg-[#1a365d] text-white font-bold py-3.5 px-8 rounded-xl hover:bg-[#0f1f3d] transition-colors text-base shadow"
             >
               View Full Fleet <FiArrowRight size={16} />
-            </a>
+            </Link>
             <p className="text-xs text-gray-400 mt-3">250+ vehicles across 4 categories — sedans, SUVs, vans, and coach buses</p>
           </div>
         </div>
