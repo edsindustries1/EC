@@ -88,7 +88,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="mb-4">
               <img
-                src="/logo.png"
+                src="/logo.png?v=3"
                 alt="Everywhere Transfers"
                 className="h-14 w-auto"
               />

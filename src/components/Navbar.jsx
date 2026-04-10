@@ -219,7 +219,7 @@ const Navbar = () => {
             onClick={closeAll}
           >
             <img
-              src="/logo.png"
+              src="/logo.png?v=3"
               alt="Everywhere Transfers"
               className="h-14 w-auto group-hover:opacity-90 transition-opacity"
             />
