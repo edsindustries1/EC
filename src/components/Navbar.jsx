@@ -4,9 +4,10 @@ import {
   FiMenu, FiX, FiUser, FiPhone, FiBriefcase, FiArrowRight,
   FiFacebook, FiInstagram, FiLinkedin, FiMessageCircle,
   FiChevronDown, FiNavigation, FiClock, FiAward, FiTruck,
-  FiHelpCircle,
+  FiHelpCircle, FiSun, FiMoon,
 } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const PHONE = '(718) 658-6000'
 const PHONE_HREF = 'tel:+17186586000'
@@ -117,6 +118,7 @@ const Navbar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, isAuthenticated, logout } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [isServicesOpen, setIsServicesOpen] = useState(false)
@@ -496,6 +498,14 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg transition-all text-white/70 hover:text-white hover:bg-white/10 flex-shrink-0"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={isDark ? 'Light mode' : 'Dark mode'}
+            >
+              {isDark ? <FiSun size={17} /> : <FiMoon size={17} />}
+            </button>
             <div className="flex items-center gap-2 border-r border-white/20 pr-4">
               {SOCIALS.map(({ href, label, Icon }) => (
                 <a
@@ -549,13 +559,22 @@ const Navbar = () => {
             )}
           </div>
 
-          <button
-            onClick={toggleMenu}
-            className="md:hidden p-2 hover:bg-primary-700 rounded-lg transition-colors text-white"
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg transition-colors text-white hover:bg-primary-700"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+            </button>
+            <button
+              onClick={toggleMenu}
+              className="p-2 hover:bg-primary-700 rounded-lg transition-colors text-white"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 

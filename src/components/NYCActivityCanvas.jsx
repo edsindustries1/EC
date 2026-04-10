@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react'
 import { approximatePosition } from '../utils/priceEstimator'
+import { useTheme } from '../context/ThemeContext'
 
 const ELECTRIC_BLUE = 'rgba(14,165,233,'
 const GOLD = '#F6C90E'
@@ -59,11 +60,14 @@ function resetDot(dot, W, H, isMobile) {
 }
 
 export default function NYCActivityCanvas({ pickup, dropoff, isMobile }) {
+  const { isDark } = useTheme()
   const canvasRef = useRef(null)
   const animRef = useRef(null)
   const dotsRef = useRef([])
   const isMobileRef = useRef(isMobile)
   const routeProgressRef = useRef(0)
+  const isDarkRef = useRef(isDark)
+  useEffect(() => { isDarkRef.current = isDark }, [isDark])
 
   useEffect(() => { isMobileRef.current = isMobile }, [isMobile])
 
@@ -83,7 +87,7 @@ export default function NYCActivityCanvas({ pickup, dropoff, isMobile }) {
       const gridX = Math.max(1, Math.floor(W / 48)) > 0 ? 48 : 40
       const gridY = Math.max(1, Math.floor(H / 40)) > 0 ? 40 : 36
       ctx.lineWidth = 0.5
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)'
+      ctx.strokeStyle = isDarkRef.current ? 'rgba(255,255,255,0.04)' : 'rgba(26,54,93,0.08)'
       for (let x = 0; x <= W; x += gridX) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke()
       }
@@ -142,9 +146,9 @@ export default function NYCActivityCanvas({ pickup, dropoff, isMobile }) {
         const pos2 = approximatePosition(dropoff, W, H)
         ctx.beginPath()
         ctx.arc(pos2.x, pos2.y, 7, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(255,255,255,0.9)'
+        ctx.fillStyle = isDarkRef.current ? 'rgba(255,255,255,0.9)' : 'rgba(15,31,61,0.85)'
         ctx.shadowBlur = 15
-        ctx.shadowColor = 'rgba(255,255,255,0.5)'
+        ctx.shadowColor = isDarkRef.current ? 'rgba(255,255,255,0.5)' : 'rgba(15,31,61,0.4)'
         ctx.fill()
         ctx.shadowBlur = 0
 

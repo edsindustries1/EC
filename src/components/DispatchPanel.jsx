@@ -424,21 +424,22 @@ export default function DispatchPanel({ onRouteChange }) {
         className="relative w-full overflow-hidden"
         style={{
           maxWidth: 560,
-          background: 'rgba(15,23,42,0.88)',
+          background: 'var(--bg-panel)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: 'var(--border-panel)',
           borderRadius: 20,
-          boxShadow: '0 0 80px rgba(246,201,14,0.04), 0 25px 60px rgba(0,0,0,0.55)',
+          boxShadow: '0 0 80px rgba(246,201,14,0.04), 0 25px 60px rgba(0,0,0,0.3)',
+          transition: 'background 300ms ease, border 300ms ease',
         }}
       >
-        <div className="px-4 py-2.5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(14,165,233,0.04)' }}>
+        <div className="px-4 py-2.5 flex items-center gap-3 border-b" style={{ borderColor: 'var(--bg-field)', background: 'var(--stats-bg)' }}>
           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: '#22c55e' }} />
-          <div className="flex items-center gap-3 text-xs font-mono overflow-hidden" style={{ color: 'rgba(14,165,233,0.8)' }}>
+          <div className="flex items-center gap-3 text-xs font-mono overflow-hidden" style={{ color: ELECTRIC }}>
             <span className="whitespace-nowrap"><span className="font-bold">{stats.vehicles}</span> vehicles ready near NYC</span>
-            <span className="text-white/20">|</span>
+            <span style={{ color: 'var(--text-muted)' }}>|</span>
             <span className="whitespace-nowrap">Avg response: <span className="font-bold">{stats.response} min</span></span>
-            <span className="text-white/20 hidden sm:block">|</span>
+            <span className="hidden sm:block" style={{ color: 'var(--text-muted)' }}>|</span>
             <span className="whitespace-nowrap hidden sm:block">Rides today: <span className="font-bold">{stats.rides}</span></span>
           </div>
         </div>
@@ -509,11 +510,11 @@ export default function DispatchPanel({ onRouteChange }) {
               {phase === 'idle' && (
                 <div className="text-center mb-6">
                   <img src="/logo.png?v=3" alt="Everywhere Cars" className="h-9 w-auto mx-auto mb-6 opacity-95" />
-                  <h1 className="text-white text-2xl font-bold mb-1">
+                  <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                     Your Ride,{' '}
                     <span className="font-black" style={{ color: GOLD }}>Your Price.</span>
                   </h1>
-                  <p className="text-white/40 text-sm">NYC operators compete for your business in real time.</p>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>NYC operators compete for your business in real time.</p>
                 </div>
               )}
 
@@ -522,28 +523,29 @@ export default function DispatchPanel({ onRouteChange }) {
                   <div>
                     <div
                       className="relative w-full flex items-center px-4 py-3 rounded-2xl transition-all"
-                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+                      style={{ background: 'var(--bg-field)', border: 'var(--border-field)' }}
                     >
                       <FiNavigation2 size={18} style={{ color: GOLD }} className="flex-shrink-0 mr-3 pointer-events-none" />
                       <input
                         type="text"
                         placeholder="Where to?"
-                        className="flex-1 bg-transparent outline-none text-white/50 text-lg font-medium placeholder-white/50 focus:text-white/80 transition-colors"
+                        className="flex-1 bg-transparent outline-none text-lg font-medium transition-colors"
+                        style={{ color: 'var(--text-muted)', minWidth: 0 }}
                         onFocus={() => setPhase('route')}
-                        style={{ minWidth: 0 }}
                         aria-label="Where to? Enter destination to start booking"
                         readOnly
                       />
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); startVoice('dropoff') }}
-                        className="p-1.5 rounded-full transition-colors text-white/30 hover:text-yellow-400 ml-2 flex-shrink-0"
+                        className="p-1.5 rounded-full transition-colors hover:text-yellow-400 ml-2 flex-shrink-0"
+                        style={{ color: 'var(--text-muted)' }}
                         aria-label="Voice input"
                       >
                         <FiMic size={16} />
                       </button>
                     </div>
-                    <p className="text-center font-mono mt-2.5" style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11 }}>
+                    <p className="text-center font-mono mt-2.5" style={{ color: 'var(--text-muted)', fontSize: 11 }}>
                       No payment required · Price confirmed in minutes.
                     </p>
                   </div>
@@ -760,31 +762,31 @@ export default function DispatchPanel({ onRouteChange }) {
       <style>{`
         .dispatch-field {
           width: 100%;
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.12);
-          color: white;
+          background: var(--bg-field);
+          border: var(--border-field);
+          color: var(--text-primary);
           border-radius: 0.75rem;
           padding: 0.75rem 1rem;
           font-size: 0.9rem;
           outline: none;
-          transition: border-color 220ms cubic-bezier(0.4,0,0.2,1), background 220ms;
+          transition: border-color 220ms cubic-bezier(0.4,0,0.2,1), background 220ms, color 300ms;
         }
-        .dispatch-field::placeholder { color: rgba(255,255,255,0.3); }
+        .dispatch-field::placeholder { color: var(--text-muted); }
         .dispatch-field:focus {
           border-color: rgba(246,201,14,0.5);
-          background: rgba(255,255,255,0.1);
+          background: var(--bg-field-hover);
         }
         .dispatch-field-wrap .absolute.left-3 { z-index: 10; }
         .dispatch-field-wrap .dispatch-field { padding-left: 2.5rem; }
         .dispatch-field-wrap ul {
-          background: #0a1628;
-          border: 1px solid rgba(255,255,255,0.12);
+          background: var(--bg-surface);
+          border: var(--border-field);
           border-radius: 0.75rem;
           overflow: hidden;
         }
         .dispatch-field-wrap ul li {
-          color: rgba(255,255,255,0.75);
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          color: var(--text-secondary);
+          border-bottom: 1px solid var(--bg-field);
           padding: 0.65rem 1rem;
           font-size: 0.8rem;
         }

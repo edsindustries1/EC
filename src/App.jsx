@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -57,7 +58,7 @@ function AppContent() {
   const isHomePage = location.pathname === '/'
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
       <Navbar />
       <main className="flex-grow">
           <Routes>
@@ -234,11 +235,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <SplashScreenGate>
-        <AppContent />
-      </SplashScreenGate>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <SplashScreenGate>
+          <AppContent />
+        </SplashScreenGate>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

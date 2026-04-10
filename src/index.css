@@ -12,8 +12,46 @@ html {
   scroll-behavior: smooth;
 }
 
+:root,
+[data-theme='dark'] {
+  --bg-page: #050a0f;
+  --bg-surface: #0a1628;
+  --bg-panel: rgba(15, 23, 42, 0.88);
+  --bg-field: rgba(255, 255, 255, 0.06);
+  --bg-field-hover: rgba(255, 255, 255, 0.1);
+  --border-panel: 1px solid rgba(255, 255, 255, 0.08);
+  --border-field: 1px solid rgba(255, 255, 255, 0.12);
+  --text-primary: rgba(255, 255, 255, 1);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.35);
+  --stats-bg: rgba(255, 255, 255, 0.04);
+  --canvas-bg: #050a0f;
+  --canvas-grid: rgba(255, 255, 255, 0.04);
+  --canvas-dot: rgba(14, 165, 233, 0.65);
+}
+
+[data-theme='light'] {
+  --bg-page: #f0f4f9;
+  --bg-surface: #ffffff;
+  --bg-panel: rgba(255, 255, 255, 0.95);
+  --bg-field: rgba(26, 54, 93, 0.06);
+  --bg-field-hover: rgba(26, 54, 93, 0.1);
+  --border-panel: 1px solid rgba(26, 54, 93, 0.14);
+  --border-field: 1px solid rgba(26, 54, 93, 0.14);
+  --text-primary: #0f1f3d;
+  --text-secondary: #374151;
+  --text-muted: rgba(26, 54, 93, 0.45);
+  --stats-bg: rgba(26, 54, 93, 0.07);
+  --canvas-bg: #e8eef6;
+  --canvas-grid: rgba(26, 54, 93, 0.08);
+  --canvas-dot: rgba(14, 165, 233, 0.55);
+}
+
 body {
-  @apply bg-gray-50 font-sans text-gray-900;
+  @apply font-sans;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  transition: background-color 300ms ease, color 300ms ease;
 }
 
 /* Custom Scrollbar */
