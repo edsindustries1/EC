@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { FiMenu, FiX, FiUser, FiPhone, FiBriefcase, FiArrowRight } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 
-const PHONE = '(800) 555-1234'
-const PHONE_HREF = 'tel:+18005551234'
+const PHONE = '(718) 658-6000'
+const PHONE_HREF = 'tel:+17186586000'
 
 const Navbar = () => {
   const navigate = useNavigate()

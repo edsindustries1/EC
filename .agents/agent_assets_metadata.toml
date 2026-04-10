@@ -1,0 +1,32 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "-Mx_YwX3bzcjXpIrYqZX-"
+uri = "file://public/images/fleet-electric.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "8ef6U2FYtL_UxxkI_kX9D"
+uri = "file://public/images/fleet-sedan.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "MH-Rni549rY4PUoEIuo66"
+uri = "file://public/images/fleet-suv.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "NbzATUcfd3wrMZUdWvOnA"
+uri = "file://public/images/fleet-sprinter.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "iieHA6fqR6KNtGH_j6rAH"
+uri = "file://public/images/fleet-coach.png"
+type = "image"
+title = "generated_image"

@@ -25,6 +25,7 @@ import {
   FiGlobe,
   FiAward,
   FiCheckCircle,
+  FiBriefcase,
 } from 'react-icons/fi';
 
 // Animated counter hook
@@ -50,78 +51,99 @@ function useCountUp(target, duration = 1800, start = false) {
 // Static data
 const FLEET = [
   {
-    type: 'Sedan',
-    tagline: 'Classic comfort for professionals',
-    passengers: '1–3',
-    features: ['Climate Control', 'Leather Seats', 'USB Charging'],
-    bestFor: 'Airport runs & business meetings',
+    type: 'Luxury Electric',
+    models: 'Cadillac Lyriq · Tesla Model S',
+    tagline: 'Zero emissions, maximum prestige',
+    passengers: '2–4',
+    bags: '2–3',
+    features: ['All-Electric Drive', 'Heated Leather Seats', 'Panoramic Roof'],
+    bestFor: 'Eco-conscious executives & airport runs',
+    image: '/images/fleet-electric.png',
   },
   {
-    type: 'SUV',
-    tagline: 'Premium space for executives',
-    passengers: '1–5',
-    features: ['Extra Luggage Room', 'Wi-Fi Hotspot', 'Privacy Glass'],
-    bestFor: 'Corporate travel & family trips',
+    type: 'Luxury Sedans',
+    models: 'Mercedes S-Class · Lincoln Continental',
+    tagline: 'Classic sophistication, every mile',
+    passengers: '2–3',
+    bags: '2–3',
+    features: ['Climate Control', 'Leather Interior', 'USB & Wireless Charging'],
+    bestFor: 'Business meetings & airport transfers',
+    image: '/images/fleet-sedan.png',
   },
   {
-    type: 'Van',
-    tagline: 'Together is better',
-    passengers: '6–10',
-    features: ['Row Seating', 'Climate Control', 'Rear Entertainment'],
-    bestFor: 'Family outings & team travel',
+    type: 'SUVs',
+    models: 'Cadillac Escalade · GMC Yukon · Lincoln Navigator',
+    tagline: 'Premium space for any occasion',
+    passengers: '3–5',
+    bags: '4–6',
+    features: ['Extended Luggage Space', 'Privacy Glass', 'Wi-Fi Hotspot'],
+    bestFor: 'Groups, families & corporate travel',
+    image: '/images/fleet-suv.png',
   },
   {
-    type: 'Sprinter',
-    tagline: 'Modern group luxury',
-    passengers: '10–14',
-    features: ['Reclining Seats', 'Overhead Storage', 'PA System'],
-    bestFor: 'Tours, weddings & events',
+    type: 'Sprinter Vans',
+    models: 'Mercedes Sprinter · Ford Transit',
+    tagline: 'Group luxury, redefined',
+    passengers: '11–14',
+    bags: '10+',
+    features: ['Captain Seating', 'Overhead Storage', 'Climate Zones'],
+    bestFor: 'Corporate groups, tours & weddings',
+    image: '/images/fleet-sprinter.png',
   },
   {
-    type: 'Bus',
-    tagline: 'The full charter experience',
-    passengers: '15–50',
-    features: ['Restroom On-Board', 'Luggage Bay', 'Wi-Fi & Power'],
-    bestFor: 'Corporate events & large groups',
+    type: 'Coach Buses',
+    models: 'Temsa TS35 · MCI Coach · Prevost',
+    tagline: 'Full charter, full experience',
+    passengers: '20–55',
+    bags: 'Luggage bay',
+    features: ['Restroom On-Board', 'PA System', 'Wi-Fi & Power Outlets'],
+    bestFor: 'Large events, conferences & tours',
+    image: '/images/fleet-coach.png',
   },
 ];
 
 const TESTIMONIALS = [
   {
-    name: 'Marcus T.',
-    route: 'LAX → Beverly Hills',
-    rating: 5,
-    text: 'Absolutely seamless experience. Driver was on time, the Sprinter was spotless, and the whole team handled a last-minute schedule change without blinking.',
-  },
-  {
-    name: 'Priya S.',
+    name: 'David R.',
+    role: 'Finance Executive',
     route: 'JFK → Midtown Manhattan',
     rating: 5,
-    text: 'I use Everywhere Cars for every business trip. Fixed pricing, no surge surprises, and the drivers are always professional. Highly recommend for corporate travelers.',
+    text: 'I fly into JFK every Monday. Everywhere Cars has been my go-to for two years. The Escalade is always immaculate, driver is always on time, and billing through the corporate account is seamless.',
+  },
+  {
+    name: 'Sophia M.',
+    role: 'Wedding Planner',
+    route: 'LGA → Long Island City',
+    rating: 5,
+    text: 'We used three Sprinter vans for a wedding party transfer from LaGuardia. The coordination was flawless, the vehicles were stunning, and every guest arrived on time and in style.',
   },
   {
     name: 'James & Rachel W.',
-    route: 'Chicago O\'Hare → Downtown',
+    role: 'Anniversary Trip',
+    route: 'EWR → Manhattan',
     rating: 5,
-    text: 'Booked an SUV for our anniversary trip. The driver had a welcome card waiting for us. Such a thoughtful touch — exceeded every expectation.',
+    text: 'Flying into Newark, we were exhausted after a transatlantic flight. The chauffeur was waiting in arrivals with our name on a sign. The Lincoln Continental was spotless. Exactly what we needed.',
   },
   {
     name: 'Dr. Kenji M.',
-    route: 'Miami → Fort Lauderdale',
+    role: 'Medical Conference Attendee',
+    route: 'JFK → Brooklyn',
     rating: 5,
-    text: 'After my 11 PM flight the driver was already waiting in arrivals. No hunting for an app pickup pin. Just walked straight to a clean, quiet sedan.',
+    text: 'After a red-eye from the West Coast the driver was waiting, tracked my delayed flight, and didn\'t charge extra. Quiet, clean sedan, professional driver — exactly what you need after a long flight.',
   },
   {
     name: 'Sandra L.',
-    route: 'Dallas → Arlington',
+    role: 'Event Director',
+    route: 'Manhattan → Javits Center',
     rating: 5,
-    text: 'Used the charter bus for our company off-site. The whole booking process was quick and the bus was amazing. Will be our go-to vendor from now on.',
+    text: 'Coordinated a 55-passenger coach for our annual conference. Booking was simple, the MCI coach arrived early, and every single delegate commented on how professional the service was.',
   },
   {
     name: 'Antonio R.',
-    route: 'DFW → Irving',
+    role: 'Startup Founder',
+    route: 'Midtown → FBO Teterboro',
     rating: 5,
-    text: 'Called at the last minute for a same-day airport run. They found me a driver in under 20 minutes. Incredible service — this is what reliability looks like.',
+    text: 'Last-minute request to get to a private terminal at Teterboro. Called at 7 AM and had a black Cadillac Escalade in front of my office at 8:15. This is what real service looks like.',
   },
 ];
 
@@ -188,7 +210,7 @@ const Home = () => {
     date: '',
     time: '',
     passengers: 1,
-    vehicle_type: 'Sedan',
+    vehicle_type: 'Mercedes S-Class (2-3 Passengers)',
     special_instructions: '',
   });
 
@@ -203,9 +225,9 @@ const Home = () => {
     if (statsRef.current) observer.observe(statsRef.current);
     return () => observer.disconnect();
   }, []);
-  const ridesCount = useCountUp(10000, 1800, statsVisible);
-  const citiesCount = useCountUp(100, 1400, statsVisible);
-  const driversCount = useCountUp(450, 1600, statsVisible);
+  const vehiclesCount = useCountUp(250, 1800, statsVisible);
+  const sprintersCount = useCountUp(50, 1400, statsVisible);
+  const coachesCount = useCountUp(20, 1200, statsVisible);
   const ratingRaw = useCountUp(49, 1600, statsVisible);
 
   /* FAQ accordion */
@@ -298,19 +320,19 @@ const Home = () => {
             <div className="text-white">
               <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm font-medium text-blue-100 backdrop-blur-sm">
                 <FiZap size={14} className="text-yellow-400" />
-                Premium Transportation Across the USA
+                New York&rsquo;s Premier Luxury Chauffeur Service
               </div>
 
               <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 tracking-tight">
-                Your Ride,
+                We Go
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-200">
-                  Your Price.
+                  Everywhere.
                 </span>
               </h1>
 
               <p className="text-lg text-blue-100 mb-8 max-w-md leading-relaxed">
-                Post your trip once and receive competitive quotes from verified professional drivers — no haggling, no hidden fees.
+                Premium airport transfers, hourly chauffeur service, corporate travel, and event transportation — JFK, LGA, EWR and beyond. Fixed pricing, no surprises.
               </p>
 
               {/* Trust signals */}
@@ -322,20 +344,20 @@ const Home = () => {
                   <span className="text-sm font-semibold ml-1 text-white">4.9 / 5</span>
                 </div>
                 <div className="text-blue-300 text-sm">|</div>
-                <span className="text-sm text-blue-100">10,000+ rides completed</span>
+                <span className="text-sm text-blue-100">250+ luxury vehicles</span>
                 <div className="text-blue-300 text-sm">|</div>
-                <span className="text-sm text-blue-100">100+ US cities</span>
+                <span className="text-sm text-blue-100">New York &amp; beyond</span>
               </div>
 
               {/* Phone CTA */}
               <a
-                href="tel:+18005551234"
+                href="tel:+17186586000"
                 className="inline-flex items-center gap-2 text-white/90 hover:text-white text-sm font-medium transition-colors"
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-white/15 rounded-full border border-white/20">
                   <FiPhone size={14} />
                 </div>
-                Need help? Call <span className="font-bold">(800) 555-1234</span>
+                Need help? Call <span className="font-bold">(718) 658-6000</span>
               </a>
             </div>
 
@@ -427,12 +449,39 @@ const Home = () => {
                       value={formData.vehicle_type}
                       onChange={handleInputChange}
                       className="input-base"
+                      aria-label="Vehicle type"
                     >
-                      <option>Sedan</option>
-                      <option>SUV</option>
-                      <option>Van</option>
-                      <option>Sprinter</option>
-                      <option>Bus</option>
+                      <optgroup label="Luxury Electric">
+                        <option>Cadillac Lyriq (2-4 Passengers)</option>
+                        <option>Tesla Model S (2-3 Passengers)</option>
+                      </optgroup>
+                      <optgroup label="Luxury Sedans">
+                        <option>Mercedes S-Class (2-3 Passengers)</option>
+                        <option>Lincoln Continental (2-3 Passengers)</option>
+                        <option>Dodge Charger (2-3 Passengers)</option>
+                        <option>Toyota Camry (2-3 Passengers)</option>
+                        <option>Honda Accord (2-3 Passengers)</option>
+                        <option>Ford Fusion (2-3 Passengers)</option>
+                      </optgroup>
+                      <optgroup label="SUVs">
+                        <option>Cadillac Escalade (3-5 Passengers)</option>
+                        <option>GMC Yukon (3-5 Passengers)</option>
+                        <option>Lincoln Navigator (3-5 Passengers)</option>
+                        <option>Chevy Suburban (3-5 Passengers)</option>
+                        <option>Toyota Highlander (3-5 Passengers)</option>
+                        <option>Nissan Pathfinder (3-5 Passengers)</option>
+                        <option>Ford Explorer (3-5 Passengers)</option>
+                      </optgroup>
+                      <optgroup label="Vans">
+                        <option>Mercedes Sprinter Van (11-12 Passengers)</option>
+                        <option>Ford Transit Van (11-12 Passengers)</option>
+                      </optgroup>
+                      <optgroup label="Buses">
+                        <option>Ford F550 Mini Bus (20 Passengers)</option>
+                        <option>Temsa TS35 Coach Bus (40 Passengers)</option>
+                        <option>MCI Coach Bus (55 Passengers)</option>
+                        <option>Prevost Coach Bus (55 Passengers)</option>
+                      </optgroup>
                     </select>
                   </div>
                 </div>
@@ -491,9 +540,9 @@ const Home = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: ridesCount, suffix: '+', label: 'Rides Completed', icon: FiTruck },
-              { value: citiesCount, suffix: '+', label: 'Cities Served', icon: FiGlobe },
-              { value: driversCount, suffix: '+', label: 'Verified Drivers', icon: FiUser },
+              { value: vehiclesCount, suffix: '+', label: 'Luxury Vehicles', icon: FiTruck },
+              { value: sprintersCount, suffix: '+', label: 'Sprinter Vans', icon: FiGlobe },
+              { value: coachesCount, suffix: '+', label: 'Coach Buses', icon: FiUser },
               { value: (ratingRaw / 10).toFixed(1), suffix: '★', label: 'Average Rating', icon: FiStar },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
@@ -562,40 +611,102 @@ const Home = () => {
       </section>
 
       
-      <section className="bg-white py-24">
+      <section className="bg-[#0f1f3d] py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-sm font-semibold uppercase tracking-widest text-[#1a365d] mb-2 block">450+ Vehicles</span>
-            <h2 className="text-4xl font-bold text-gray-900">Choose Your Vehicle</h2>
+            <span className="text-sm font-semibold uppercase tracking-widest text-blue-300 mb-2 block">What We Offer</span>
+            <h2 className="text-4xl font-bold text-white">Our Services</h2>
+            <p className="text-blue-200 text-base mt-3 max-w-xl mx-auto">From a single airport run to a full corporate travel program — we cover every need with professionalism.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+            {[
+              {
+                icon: FiNavigation2,
+                title: 'Airport Transfers',
+                description: 'JFK, LGA, EWR and FBO terminals. Flight tracking, free 60-min wait, meet-and-greet included.',
+              },
+              {
+                icon: FiClock,
+                title: 'Hourly Chauffeur',
+                description: 'Book by the hour for meetings, events, or city tours. Your chauffeur stays with you all day.',
+              },
+              {
+                icon: FiAward,
+                title: 'Event Transportation',
+                description: 'Weddings, galas, concerts, sporting events — sedans, SUVs, Sprinters, and coach buses.',
+              },
+              {
+                icon: FiBriefcase,
+                title: 'Corporate Travel',
+                description: 'Dedicated account managers, monthly invoicing, and fleet booking for executive teams.',
+              },
+              {
+                icon: FiArrowRight,
+                title: 'Point-to-Point',
+                description: 'Door-to-door between any two addresses — fixed price, no meters, no surge.',
+              },
+            ].map((s) => (
+              <div
+                key={s.title}
+                className="bg-white/10 border border-white/15 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 flex flex-col gap-3"
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-white/15 rounded-xl">
+                  <s.icon className="text-blue-200" size={22} />
+                </div>
+                <h3 className="text-white font-bold text-base">{s.title}</h3>
+                <p className="text-blue-200 text-sm leading-relaxed">{s.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      
+      <section className="bg-white py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-sm font-semibold uppercase tracking-widest text-[#1a365d] mb-2 block">250+ Luxury Vehicles</span>
+            <h2 className="text-4xl font-bold text-gray-900">Choose Your Ride</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
             {FLEET.map((v) => (
               <div
                 key={v.type}
-                className="group border border-gray-100 rounded-2xl p-6 hover:border-[#1a365d] hover:shadow-card-hover transition-all duration-300 flex flex-col"
+                className="group border border-gray-100 rounded-2xl overflow-hidden hover:border-[#1a365d] hover:shadow-card-hover transition-all duration-300 flex flex-col"
               >
-                <div className="flex items-center justify-center w-12 h-12 bg-primary-50 rounded-xl mb-4 group-hover:bg-[#1a365d] transition-colors duration-300">
-                  <FiTruck className="text-[#1a365d] group-hover:text-white transition-colors duration-300" size={22} />
+                <div className="relative h-40 overflow-hidden bg-gray-100">
+                  <img
+                    src={v.image}
+                    alt={v.type}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <span className="text-white font-bold text-sm leading-tight drop-shadow">{v.type}</span>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{v.type}</h3>
-                <p className="text-xs text-[#1a365d] font-semibold mb-1">{v.passengers} passengers</p>
-                <p className="text-xs text-gray-500 italic mb-1">{v.tagline}</p>
-                <p className="text-xs text-gray-400 mb-4">Best for: {v.bestFor}</p>
-                <ul className="space-y-1.5 mb-5 flex-grow">
-                  {v.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-xs text-gray-600">
-                      <FiCheck className="text-green-500 flex-shrink-0" size={12} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => bookVehicle(v.type)}
-                  className="mt-auto w-full text-center text-sm font-semibold text-[#1a365d] border border-[#1a365d] rounded-lg py-2 hover:bg-[#1a365d] hover:text-white transition-all duration-200"
-                >
-                  Book This Vehicle
-                </button>
+                <div className="p-5 flex flex-col flex-grow">
+                  <p className="text-xs text-gray-500 italic mb-1">{v.tagline}</p>
+                  <p className="text-xs text-[#1a365d] font-semibold mb-0.5">{v.passengers} pax &middot; {v.bags} bags</p>
+                  <p className="text-xs text-gray-400 mb-3">{v.models}</p>
+                  <ul className="space-y-1.5 mb-4 flex-grow">
+                    {v.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-xs text-gray-600">
+                        <FiCheck className="text-green-500 flex-shrink-0" size={12} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => bookVehicle(v.type)}
+                    className="mt-auto w-full text-center text-sm font-semibold text-[#1a365d] border border-[#1a365d] rounded-lg py-2 hover:bg-[#1a365d] hover:text-white transition-all duration-200"
+                  >
+                    Book This Vehicle
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -654,7 +765,8 @@ const Home = () => {
                   <p className="text-gray-600 text-sm leading-relaxed mb-5 flex-grow">&ldquo;{t.text}&rdquo;</p>
                   <div className="border-t border-gray-100 pt-4">
                     <div className="font-bold text-gray-900 text-sm">{t.name}</div>
-                    <div className="text-xs text-[#1a365d] mt-0.5 flex items-center gap-1">
+                    <div className="text-xs text-gray-500">{t.role}</div>
+                    <div className="text-xs text-[#1a365d] mt-1 flex items-center gap-1">
                       <FiMapPin size={10} />
                       {t.route}
                     </div>
@@ -725,11 +837,11 @@ const Home = () => {
               Create Free Account <FiArrowRight />
             </button>
             <a
-              href="tel:+18005551234"
+              href="tel:+17186586000"
               className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/30 text-white font-semibold py-4 px-8 rounded-xl hover:bg-white/20 transition-all duration-200 text-base"
             >
               <FiPhone size={16} />
-              Call Us Instead
+              Call (718) 658-6000
             </a>
           </div>
 
@@ -755,8 +867,9 @@ const Home = () => {
             Get a Free Quote <FiArrowRight size={16} />
           </button>
           <a
-            href="tel:+18005551234"
+            href="tel:+17186586000"
             className="flex items-center justify-center w-12 h-12 bg-white/10 border border-white/20 rounded-xl text-white"
+            aria-label="Call (718) 658-6000"
           >
             <FiPhone size={18} />
           </a>

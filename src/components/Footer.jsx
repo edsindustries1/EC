@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import {
   FiFacebook,
-  FiTwitter,
   FiLinkedin,
   FiInstagram,
   FiMail,
@@ -13,11 +12,20 @@ import {
   FiLock,
   FiArrowRight,
   FiBriefcase,
+  FiMessageCircle,
 } from 'react-icons/fi'
+
+const PHONE = '(718) 658-6000'
+const PHONE_HREF = 'tel:+17186586000'
+const EMAIL = 'booking@everywherecars.com'
+const WHATSAPP = 'http://wa.me/17182196683'
+const FACEBOOK = 'https://www.facebook.com/share/1CVi8FFsRs/'
+const INSTAGRAM = 'https://www.instagram.com/everywherecars20'
+const LINKEDIN = 'https://www.linkedin.com/company/everywhere-transportation-inc'
 
 const TRUST_BADGES = [
   { icon: FiShield, label: 'Licensed & Insured' },
-  { icon: FiUser, label: 'Verified Drivers' },
+  { icon: FiUser, label: 'Vetted Chauffeurs' },
   { icon: FiLock, label: 'Secure Payments' },
 ]
 
@@ -94,11 +102,11 @@ const Footer = () => {
               />
             </div>
             <p className="text-sm text-gray-400 mb-5 max-w-xs leading-relaxed">
-              Your trusted transportation marketplace connecting customers with reliable, licensed drivers across 100+ US cities.
+              New York's premier luxury chauffeur service. Airport transfers, corporate travel, events — we go everywhere, so you don't have to worry.
             </p>
             <div className="flex gap-4">
               <a
-                href="https://facebook.com"
+                href={FACEBOOK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-accent-500 transition-colors"
@@ -107,16 +115,16 @@ const Footer = () => {
                 <FiFacebook className="w-5 h-5" />
               </a>
               <a
-                href="https://twitter.com"
+                href={INSTAGRAM}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-accent-500 transition-colors"
-                aria-label="Twitter"
+                aria-label="Instagram"
               >
-                <FiTwitter className="w-5 h-5" />
+                <FiInstagram className="w-5 h-5" />
               </a>
               <a
-                href="https://linkedin.com"
+                href={LINKEDIN}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-accent-500 transition-colors"
@@ -125,13 +133,13 @@ const Footer = () => {
                 <FiLinkedin className="w-5 h-5" />
               </a>
               <a
-                href="https://instagram.com"
+                href={WHATSAPP}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-accent-500 transition-colors"
-                aria-label="Instagram"
+                aria-label="WhatsApp"
               >
-                <FiInstagram className="w-5 h-5" />
+                <FiMessageCircle className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -142,7 +150,12 @@ const Footer = () => {
             <ul className="space-y-2.5">
               <li>
                 <Link to="/book" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
-                  Book a Ride
+                  Airport Transfers
+                </Link>
+              </li>
+              <li>
+                <Link to="/book" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
+                  Hourly Chauffeur
                 </Link>
               </li>
               <li>
@@ -155,53 +168,54 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/how-it-works" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
-                  How It Works
+                <Link to="/book" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
+                  Event Transportation
                 </Link>
               </li>
               <li>
-                <a href="#pricing" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
-                  Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#features" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
-                  Features
-                </a>
+                <Link to="/book" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
+                  Point-to-Point
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support Column */}
+          {/* Contact Column */}
           <div>
-            <h4 className="text-base font-semibold text-white mb-4">Support</h4>
+            <h4 className="text-base font-semibold text-white mb-4">Contact</h4>
             <ul className="space-y-2.5">
               <li>
                 <a
-                  href="mailto:support@everywheretransfers.com"
+                  href={`mailto:${EMAIL}`}
                   className="text-sm text-gray-400 hover:text-accent-500 transition-colors flex items-center gap-2"
                 >
                   <FiMail className="w-4 h-4 flex-shrink-0" />
-                  support@everywheretransfers.com
+                  {EMAIL}
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+18005551234"
+                  href={PHONE_HREF}
                   className="text-sm text-gray-400 hover:text-accent-500 transition-colors flex items-center gap-2"
                 >
                   <FiPhone className="w-4 h-4 flex-shrink-0" />
-                  (800) 555-1234
+                  {PHONE}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={WHATSAPP}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-400 hover:text-accent-500 transition-colors flex items-center gap-2"
+                >
+                  <FiMessageCircle className="w-4 h-4 flex-shrink-0" />
+                  WhatsApp Us
                 </a>
               </li>
               <li>
                 <a href="#faq" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
                   FAQ
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="text-sm text-gray-400 hover:text-accent-500 transition-colors">
-                  Contact Us
                 </a>
               </li>
             </ul>
@@ -241,7 +255,7 @@ const Footer = () => {
         {/* Copyright Bar with trust badges */}
         <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-400">
-            &copy; {currentYear} Everywhere Transfers. All rights reserved.
+            &copy; {currentYear} Everywhere Transfers &mdash; Powered by Everywhere Cars. All rights reserved.
           </p>
 
           {/* Trust badges */}
@@ -255,7 +269,7 @@ const Footer = () => {
           </div>
 
           <p className="text-sm text-gray-500">
-            Made with passion for seamless mobility
+            New York&rsquo;s luxury ground transportation experts
           </p>
         </div>
       </div>
