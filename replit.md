@@ -40,6 +40,13 @@ A React + Vite frontend for "Everywhere Cars" — a NYC luxury car service. The 
 
 ## Key Features
 
+### Conversational AI Homepage (Task 11)
+- `Home.jsx` — Fully rebuilt as immersive booking experience. No below-fold content sections. Full-viewport dark navy/black gradient with animated gold particle background.
+- `ConversationalBooker.jsx` — Multi-step wizard (6 steps): destination → pickup → date/time → passenger count → vehicle type → contact info. Features typewriter question animation, address autocomplete with voice input (Web Speech API), single-click passenger buttons, vehicle card selection, smooth slide transitions, progress dots.
+- `LiveBidBoard.jsx` — Shown after ride post. Polls `GET /api/quote-requests/:id` every 5s for operator bids. Countdown timer (10 min), skeleton cards while waiting, animated bid cards slide in, "Book This Ride" CTA. Fallback after 2 min shows phone + WhatsApp.
+- `Navbar.jsx` — Upgraded with dual megamenus: "Services" + "Explore" (Fleet, How It Works, Corporate) + Popular Routes dropdown with 8 SEO links.
+- `QuoteRequestsTab.jsx` — Added "Send Bid" modal per lead: price, vehicle type, ETA, notes. Submits `PATCH /api/quote-requests/:id` with bid data.
+
 ### Lead Generation (Task 10)
 - `/quote` — Public quote form (no login required). Submits to `POST /api/quote-requests`.
 - WhatsApp floating widget on all pages with pulse animation.
@@ -59,7 +66,7 @@ A React + Vite frontend for "Everywhere Cars" — a NYC luxury car service. The 
 ## API
 - Base URL: `VITE_API_URL` env var, defaults to `http://localhost:5000/api`
 - Auth: JWT stored in `localStorage`, attached via Axios interceptor
-- Quote Requests: `POST /api/quote-requests` (no auth), `GET /api/quote-requests` (operator), `PATCH /api/quote-requests/:id/status` (operator)
+- Quote Requests: `POST /api/quote-requests` (no auth), `GET /api/quote-requests` (operator), `PATCH /api/quote-requests/:id/status` (operator), `PATCH /api/quote-requests/:id` (operator bid), `GET /api/quote-requests/:id` (bid polling)
 
 ## Running
 ```
@@ -72,4 +79,4 @@ This is a frontend-only repository. The backend must implement:
 - `POST /api/quote-requests` — Store lead (no auth middleware)
 - `GET /api/quote-requests` — List all leads (operator auth)
 - `PATCH /api/quote-requests/:id/status` — Update lead status
-- Table: `quote_requests` with fields: id, name, email, phone, pickup, dropoff, ride_date, passengers, vehicle_type, notes, status (new/contacted/booked), created_at
+- Table: `quote_requests` with fields: id, name, email, phone, pickup, dropoff, ride_date, passengers, vehicle_type, notes, status (new/contacted/booked), bid_price, eta_minutes, bids (array), created_at

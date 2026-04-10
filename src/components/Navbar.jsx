@@ -4,6 +4,7 @@ import {
   FiMenu, FiX, FiUser, FiPhone, FiBriefcase, FiArrowRight,
   FiFacebook, FiInstagram, FiLinkedin, FiMessageCircle,
   FiChevronDown, FiNavigation, FiClock, FiAward, FiTruck,
+  FiHelpCircle,
 } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 
@@ -21,6 +22,23 @@ const SERVICE_LINKS = [
   { to: '/services/hourly', label: 'Hourly Chauffeur', icon: FiClock, desc: 'As-directed service' },
   { to: '/services/events', label: 'Event Transportation', icon: FiAward, desc: 'Weddings, galas & more' },
   { to: '/corporate', label: 'Corporate Travel', icon: FiBriefcase, desc: 'Managed corporate accounts' },
+]
+
+const EXPLORE_LINKS = [
+  { to: '/fleet', label: 'Our Fleet', icon: FiTruck, desc: 'Sedans, SUVs, Sprinters & Coaches' },
+  { to: '/how-it-works', label: 'How It Works', icon: FiHelpCircle, desc: 'Book in 3 simple steps' },
+  { to: '/corporate', label: 'Corporate', icon: FiBriefcase, desc: 'Business accounts & billing' },
+]
+
+const ROUTE_LINKS = [
+  { to: '/transfers/jfk-to-manhattan', label: 'JFK → Manhattan' },
+  { to: '/transfers/lga-to-manhattan', label: 'LGA → Manhattan' },
+  { to: '/transfers/ewr-to-manhattan', label: 'EWR → Manhattan' },
+  { to: '/transfers/jfk-to-brooklyn', label: 'JFK → Brooklyn' },
+  { to: '/transfers/manhattan-to-hamptons', label: 'Manhattan → Hamptons' },
+  { to: '/transfers/nyc-to-philadelphia', label: 'NYC → Philadelphia' },
+  { to: '/transfers/nyc-to-connecticut', label: 'NYC → Connecticut' },
+  { to: '/transfers/nyc-to-boston', label: 'NYC → Boston' },
 ]
 
 const ServicesDropdown = ({ onClose }) => (
@@ -54,14 +72,58 @@ const ServicesDropdown = ({ onClose }) => (
   </div>
 )
 
+const ExploreDropdown = ({ onClose }) => (
+  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50" style={{ width: '480px' }}>
+    <div className="grid grid-cols-2 gap-0">
+      <div className="border-r border-gray-100 pr-1">
+        <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">Explore</p>
+        {EXPLORE_LINKS.map(({ to, label, icon: Icon, desc }) => (
+          <Link
+            key={to}
+            to={to}
+            onClick={onClose}
+            className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 rounded-xl mx-1 transition-colors group"
+          >
+            <div className="flex items-center justify-center w-7 h-7 bg-[#1a365d] rounded-lg flex-shrink-0">
+              <Icon size={13} className="text-white" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-[#1a365d] group-hover:text-[#0f1f3d]">{label}</div>
+              <div className="text-xs text-gray-400">{desc}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <div className="pl-1">
+        <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">Popular Routes</p>
+        <div className="space-y-0.5">
+          {ROUTE_LINKS.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              onClick={onClose}
+              className="block px-4 py-1.5 text-sm text-gray-600 hover:text-[#1a365d] hover:bg-gray-50 rounded-lg mx-1 transition-colors"
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)
+
 const Navbar = () => {
   const navigate = useNavigate()
   const { user, isAuthenticated, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [isServicesOpen, setIsServicesOpen] = useState(false)
+  const [isExploreOpen, setIsExploreOpen] = useState(false)
   const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false)
+  const [isMobileExploreOpen, setIsMobileExploreOpen] = useState(false)
   const servicesRef = useRef(null)
+  const exploreRef = useRef(null)
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen)
@@ -70,7 +132,9 @@ const Navbar = () => {
     setIsMenuOpen(false)
     setIsProfileDropdownOpen(false)
     setIsServicesOpen(false)
+    setIsExploreOpen(false)
     setIsMobileServicesOpen(false)
+    setIsMobileExploreOpen(false)
   }
 
   const handleLogout = () => {
@@ -84,6 +148,9 @@ const Navbar = () => {
       if (servicesRef.current && !servicesRef.current.contains(e.target)) {
         setIsServicesOpen(false)
       }
+      if (exploreRef.current && !exploreRef.current.contains(e.target)) {
+        setIsExploreOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -92,7 +159,7 @@ const Navbar = () => {
   const ServicesMenuButton = () => (
     <div className="relative" ref={servicesRef}>
       <button
-        onClick={() => setIsServicesOpen(!isServicesOpen)}
+        onClick={() => { setIsServicesOpen(!isServicesOpen); setIsExploreOpen(false); }}
         className="flex items-center gap-1 text-gray-100 hover:text-white transition-colors text-sm"
         aria-expanded={isServicesOpen}
         aria-haspopup="true"
@@ -103,18 +170,26 @@ const Navbar = () => {
     </div>
   )
 
+  const ExploreMenuButton = () => (
+    <div className="relative" ref={exploreRef}>
+      <button
+        onClick={() => { setIsExploreOpen(!isExploreOpen); setIsServicesOpen(false); }}
+        className="flex items-center gap-1 text-gray-100 hover:text-white transition-colors text-sm"
+        aria-expanded={isExploreOpen}
+        aria-haspopup="true"
+      >
+        Explore <FiChevronDown size={13} className={`transition-transform duration-200 ${isExploreOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isExploreOpen && <ExploreDropdown onClose={() => setIsExploreOpen(false)} />}
+    </div>
+  )
+
   const getDesktopNavLinks = () => {
     if (!isAuthenticated) {
       return (
         <>
-          <Link to="/how-it-works" className="text-gray-100 hover:text-white transition-colors text-sm">
-            How It Works
-          </Link>
           <ServicesMenuButton />
-          <Link to="/fleet" className="flex items-center gap-1 text-gray-100 hover:text-white transition-colors text-sm">
-            <FiTruck size={13} />
-            Our Fleet
-          </Link>
+          <ExploreMenuButton />
           <Link to="/login" className="text-gray-100 hover:text-white transition-colors text-sm">
             Login
           </Link>
@@ -164,10 +239,7 @@ const Navbar = () => {
           My Rides
         </Link>
         <ServicesMenuButton />
-        <Link to="/fleet" className="flex items-center gap-1 text-gray-100 hover:text-white transition-colors text-sm">
-          <FiTruck size={13} />
-          Our Fleet
-        </Link>
+        <ExploreMenuButton />
       </>
     )
   }
@@ -176,14 +248,6 @@ const Navbar = () => {
     if (!isAuthenticated) {
       return (
         <>
-          <Link
-            to="/how-it-works"
-            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
-            onClick={closeAll}
-          >
-            How It Works
-          </Link>
-
           <div>
             <button
               onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
@@ -208,13 +272,41 @@ const Navbar = () => {
             )}
           </div>
 
-          <Link
-            to="/fleet"
-            className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
-            onClick={closeAll}
-          >
-            Our Fleet
-          </Link>
+          <div>
+            <button
+              onClick={() => setIsMobileExploreOpen(!isMobileExploreOpen)}
+              className="flex items-center justify-between w-full px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+            >
+              Explore
+              <FiChevronDown size={14} className={`transition-transform duration-200 ${isMobileExploreOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isMobileExploreOpen && (
+              <div className="ml-4 mt-1 space-y-0.5">
+                {EXPLORE_LINKS.map(({ to, label }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={closeAll}
+                    className="block px-4 py-2 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                  >
+                    {label}
+                  </Link>
+                ))}
+                <div className="border-t border-primary-700 my-1" />
+                <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-gray-500">Routes</p>
+                {ROUTE_LINKS.map(({ to, label }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={closeAll}
+                    className="block px-4 py-2 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
 
           <Link
             to="/login"
@@ -335,13 +427,29 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        <Link
-          to="/fleet"
-          className="block px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
-          onClick={closeAll}
-        >
-          Our Fleet
-        </Link>
+        <div>
+          <button
+            onClick={() => setIsMobileExploreOpen(!isMobileExploreOpen)}
+            className="flex items-center justify-between w-full px-4 py-2.5 text-gray-100 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+          >
+            Explore
+            <FiChevronDown size={14} className={`transition-transform duration-200 ${isMobileExploreOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isMobileExploreOpen && (
+            <div className="ml-4 mt-1 space-y-0.5">
+              {EXPLORE_LINKS.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={closeAll}
+                  className="block px-4 py-2 text-blue-200 hover:text-white hover:bg-primary-800 rounded-lg transition-colors text-sm"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </>
     )
   }

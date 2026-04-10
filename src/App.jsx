@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
@@ -52,13 +52,14 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 import AdminRevenue from './pages/admin/Revenue'
 
-function App() {
+function AppContent() {
+  const location = useLocation()
+  const isHomePage = location.pathname === '/'
+
   return (
-    <AuthProvider>
-      <SplashScreenGate>
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="flex-grow">
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="flex-grow">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -209,7 +210,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-        <Footer />
+        {!isHomePage && <Footer />}
         <WhatsAppWidget />
         <Toaster
           position="top-right"
@@ -228,6 +229,14 @@ function App() {
           }}
         />
       </div>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <SplashScreenGate>
+        <AppContent />
       </SplashScreenGate>
     </AuthProvider>
   )

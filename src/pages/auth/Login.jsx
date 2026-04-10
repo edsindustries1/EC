@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -35,6 +36,16 @@ const Login = () => {
       const response = await login(formData.email, formData.password);
 
       toast.success('Welcome back!');
+
+      const pending = location.state?.fromBidBoard
+        ? location.state
+        : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null; } catch { return null; } })();
+
+      if (pending?.fromBidBoard) {
+        try { sessionStorage.removeItem('pendingBidBooking'); } catch {}
+        navigate('/book', { state: pending });
+        return;
+      }
 
       // Redirect based on role
       if (response?.user?.role === 'customer') {

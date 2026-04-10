@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FiUser, FiMail, FiPhone, FiLock, FiEye, FiEyeOff, FiCheck } from 'react-icons/fi';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -72,8 +73,18 @@ const Signup = () => {
         password: formData.password,
       });
 
-      toast.success('Account created! Redirecting to login...');
-      setTimeout(() => navigate('/login'), 1500);
+      const pending = location.state?.fromBidBoard
+        ? location.state
+        : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null; } catch { return null; } })();
+
+      if (pending?.fromBidBoard) {
+        try { sessionStorage.removeItem('pendingBidBooking'); } catch {}
+        toast.success('Account created! Taking you to your booking...');
+        setTimeout(() => navigate('/book', { state: pending }), 1200);
+      } else {
+        toast.success('Account created! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 1500);
+      }
     } catch (error) {
       toast.error(error.message || 'Failed to create account');
     } finally {
