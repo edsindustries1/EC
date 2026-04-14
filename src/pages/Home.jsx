@@ -64,13 +64,13 @@ export default function Home() {
     panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  const overlayBase = isDark ? 'rgba(4,8,14,0.40)' : 'rgba(20,30,60,0.22)'
+  const overlayBase = isDark ? 'rgba(4,8,14,0.28)' : 'rgba(10,18,40,0.18)'
   const overlayTop = isDark
-    ? 'linear-gradient(to bottom, rgba(4,8,14,0.65) 0%, transparent 100%)'
-    : 'linear-gradient(to bottom, rgba(10,20,50,0.45) 0%, transparent 100%)'
+    ? 'linear-gradient(to bottom, rgba(4,8,14,0.55) 0%, transparent 100%)'
+    : 'linear-gradient(to bottom, rgba(10,18,40,0.42) 0%, transparent 100%)'
   const overlayBottom = isDark
-    ? 'linear-gradient(to top, rgba(4,8,14,0.80) 0%, transparent 100%)'
-    : 'linear-gradient(to top, rgba(10,20,50,0.40) 0%, transparent 100%)'
+    ? 'linear-gradient(to top, rgba(4,8,14,0.60) 0%, transparent 100%)'
+    : 'linear-gradient(to top, rgba(10,18,40,0.35) 0%, transparent 100%)'
 
   return (
     <div style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
@@ -126,7 +126,22 @@ export default function Home() {
             </div>
           </div>
 
-          <DispatchPanel presetVehicle={presetVehicle} hideStats />
+          <div
+            style={{
+              '--bg-panel': 'rgba(5, 12, 25, 0.35)',
+              '--border-panel': '1px solid rgba(255, 255, 255, 0.20)',
+              '--bg-field': 'rgba(255, 255, 255, 0.09)',
+              '--bg-field-hover': 'rgba(255, 255, 255, 0.15)',
+              '--border-field': '1px solid rgba(255, 255, 255, 0.20)',
+              '--border-color': 'rgba(255, 255, 255, 0.12)',
+              '--stats-bg': 'rgba(255, 255, 255, 0.06)',
+              '--text-primary': 'rgba(255, 255, 255, 1)',
+              '--text-secondary': 'rgba(255, 255, 255, 0.78)',
+              '--text-muted': 'rgba(255, 255, 255, 0.45)',
+            }}
+          >
+            <DispatchPanel presetVehicle={presetVehicle} hideStats />
+          </div>
         </div>
       </section>
 
