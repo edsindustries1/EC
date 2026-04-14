@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import { join, dirname } from 'path'
 import { existsSync } from 'fs'
 import { db } from './db.js'
-import { sendWelcomeEmail, sendQuoteConfirmation } from './emailService.js'
+import { sendWelcomeEmail, sendQuoteConfirmation, sendOperatorNotification } from './emailService.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -125,6 +125,16 @@ app.post('/api/quote-requests', (req, res) => {
       sendQuoteConfirmation(name || 'Guest', email, pickup, dropoff, vehicle_type || 'sedan')
         .catch(err => console.error('[email] quote confirmation failed:', err.message))
     }
+    sendOperatorNotification({
+      name: name || 'Guest',
+      email: email || '',
+      phone: phone || '',
+      pickup,
+      dropoff,
+      vehicleType: vehicle_type || 'sedan',
+      passengers: passengers || 1,
+      rideDate: ride_date || '',
+    }).catch(err => console.error('[email] operator notification failed:', err.message))
     res.status(201).json({ success: true, data: qr })
   } catch (e) {
     res.status(500).json({ message: 'Could not create quote request', error: e.message })
