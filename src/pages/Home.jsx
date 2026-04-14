@@ -135,8 +135,9 @@ export default function Home() {
               '--border-field': '1px solid rgba(255, 255, 255, 0.20)',
               '--border-color': 'rgba(255, 255, 255, 0.12)',
               '--stats-bg': 'rgba(255, 255, 255, 0.06)',
+              '--bg-surface': 'rgba(8, 16, 36, 0.97)',
               '--text-primary': 'rgba(255, 255, 255, 1)',
-              '--text-secondary': 'rgba(255, 255, 255, 0.78)',
+              '--text-secondary': 'rgba(255, 255, 255, 0.82)',
               '--text-muted': 'rgba(255, 255, 255, 0.45)',
             }}
           >
