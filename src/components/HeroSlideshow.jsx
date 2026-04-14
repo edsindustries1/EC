@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 
-const SLIDES = [
+const DEFAULT_SLIDES = [
   { src: '/hero/slide1.jpg', alt: 'Luxury black sedan at hotel entrance' },
   { src: '/hero/slide2.jpg', alt: 'Cadillac Escalade at JFK airport' },
   { src: '/hero/slide3.jpg', alt: 'Executive van in New York City' },
@@ -8,9 +8,11 @@ const SLIDES = [
   { src: '/hero/slide5.jpg', alt: 'Premium limousine interior' },
 ]
 
-const SLIDE_MS = 5500
+const DEFAULT_SLIDE_MS = 5500
 
-export default function HeroSlideshow({ onSlideChange }) {
+export default function HeroSlideshow({ images, slideMs, onSlideChange }) {
+  const SLIDES = images && images.length > 0 ? images : DEFAULT_SLIDES
+  const SLIDE_MS = slideMs || DEFAULT_SLIDE_MS
   const [active, setActive] = useState(0)
   const [loaded, setLoaded] = useState({})
   const intervalRef = useRef(null)
@@ -52,7 +54,7 @@ export default function HeroSlideshow({ onSlideChange }) {
           className="absolute inset-0"
           style={{
             opacity: i === active ? 1 : 0,
-            transition: prefersReduced ? 'none' : 'opacity 1200ms ease-in-out',
+            transition: prefersReduced ? 'none' : 'opacity 1000ms ease-in-out',
             zIndex: i === active ? 2 : 1,
           }}
         >
