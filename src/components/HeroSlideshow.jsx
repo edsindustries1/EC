@@ -32,7 +32,7 @@ export default function HeroSlideshow({ images, slideMs, onSlideChange }) {
       })
       setTick(t => t + 1)
     }, SLIDE_MS)
-  }, [onSlideChange])
+  }, [onSlideChange, SLIDE_MS, SLIDES.length])
 
   useEffect(() => {
     startTimer()
