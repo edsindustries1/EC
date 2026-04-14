@@ -1,32 +1,38 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { buildWelcomeEmail } from './emailTemplates/welcome.js'
 import { buildQuoteConfirmationEmail } from './emailTemplates/quoteConfirmation.js'
 
 const BASE_URL = process.env.BASE_URL || 'https://everywherecars.com'
 
-async function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
-    console.warn('[email] RESEND_API_KEY not set — emails disabled')
+function createTransport() {
+  const user = process.env.GMAIL_USER
+  const pass = process.env.GMAIL_APP_PASSWORD
+  if (!user || !pass) {
+    console.warn('[email] GMAIL_USER / GMAIL_APP_PASSWORD not set — emails disabled')
     return null
   }
-  const fromEmail = process.env.FROM_EMAIL || 'Everywhere Cars <onboarding@resend.dev>'
-  return { client: new Resend(apiKey), fromEmail }
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false },
+  })
 }
 
 export async function sendWelcomeEmail(name, email) {
   if (!email) return
-  const resend = await getResendClient()
-  if (!resend) return
+  const transport = createTransport()
+  if (!transport) return
   try {
     const { subject, html } = buildWelcomeEmail(name || 'there', BASE_URL)
-    const result = await resend.client.emails.send({
-      from: resend.fromEmail,
+    const info = await transport.sendMail({
+      from: `"Everywhere Cars" <${process.env.GMAIL_USER}>`,
       to: email,
       subject,
       html,
     })
-    console.log('[email] Welcome sent to', email, result?.data?.id || '')
+    console.log('[email] Welcome sent to', email, info.messageId)
   } catch (err) {
     console.error('[email] Welcome failed:', err.message)
   }
@@ -34,17 +40,17 @@ export async function sendWelcomeEmail(name, email) {
 
 export async function sendQuoteConfirmation(name, email, pickup, dropoff, vehicleType) {
   if (!email) return
-  const resend = await getResendClient()
-  if (!resend) return
+  const transport = createTransport()
+  if (!transport) return
   try {
     const { subject, html } = buildQuoteConfirmationEmail(name || 'there', pickup, dropoff, vehicleType, BASE_URL)
-    const result = await resend.client.emails.send({
-      from: resend.fromEmail,
+    const info = await transport.sendMail({
+      from: `"Everywhere Cars" <${process.env.GMAIL_USER}>`,
       to: email,
       subject,
       html,
     })
-    console.log('[email] Quote confirmation sent to', email, result?.data?.id || '')
+    console.log('[email] Quote confirmation sent to', email, info.messageId)
   } catch (err) {
     console.error('[email] Quote confirmation failed:', err.message)
   }
