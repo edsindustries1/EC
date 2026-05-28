@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
 import SplashScreenGate from './components/SplashScreen'
 import WhatsAppWidget from './components/WhatsAppWidget'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Public Pages
 import Home from './pages/Home'
@@ -25,6 +26,9 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
 import Quote from './pages/Quote'
+import SearchResults from './pages/SearchResults'
+import BookTrip from './pages/BookTrip'
+import Reservation from './pages/Reservation'
 
 // Transfer Route Pages (SEO)
 import JFKToManhattan from './pages/transfers/JFKToManhattan'
@@ -73,6 +77,11 @@ function AppContent() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/quote" element={<Quote />} />
+
+            {/* Amtrak-style booking funnel (Phase 1) */}
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/book-trip/:vehicleId" element={<BookTrip />} />
+            <Route path="/reservation/:ref" element={<Reservation />} />
 
             {/* SEO Transfer Route Pages */}
             <Route path="/transfers/jfk-to-manhattan" element={<JFKToManhattan />} />
@@ -232,13 +241,15 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <SplashScreenGate>
-          <AppContent />
-        </SplashScreenGate>
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <SplashScreenGate>
+            <AppContent />
+          </SplashScreenGate>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 

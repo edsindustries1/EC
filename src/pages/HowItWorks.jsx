@@ -1,152 +1,120 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import {
-  FiMapPin,
-  FiCheckCircle,
-  FiAward,
-  FiArrowRight,
-  FiCheck,
-  FiPhone,
-  FiShield,
-  FiClock,
-  FiDollarSign,
-} from 'react-icons/fi'
+import { FiArrowRight, FiClock, FiUsers, FiCalendar, FiPhone } from 'react-icons/fi'
+import { FadeIn } from '../hooks/useFadeIn'
+
+const BLACK = '#000', WHITE = '#fff'
+const GRAY_50 = '#F6F6F6', GRAY_100 = '#EEEEEE', GRAY_500 = '#6B6B6B'
+const FONT = "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif"
 
 const STEPS = [
-  {
-    step: '01',
-    icon: FiMapPin,
-    title: 'Tell Us Where You\'re Going',
-    description:
-      'Enter your pickup address, destination, travel date, and passenger count. It takes less than 60 seconds.',
-  },
-  {
-    step: '02',
-    icon: FiCheckCircle,
-    title: 'We Send You a Fixed Price',
-    description:
-      'Our reservations team reviews your request and sends you a fixed, all-inclusive price — no hidden fees, no surge pricing.',
-  },
-  {
-    step: '03',
-    icon: FiAward,
-    title: 'Confirm & Ride in Comfort',
-    description:
-      'Approve your quote, pay securely, and a professional chauffeur will meet you at your door. Flight tracking included on all airport transfers.',
-  },
+  { num: '01', title: 'Tell us where',         desc: 'Enter pickup, drop-off, date and time. Get an instant flat-rate quote — no surge pricing, ever.' },
+  { num: '02', title: 'Pick your ride',        desc: 'Choose a sedan, SUV, Sprinter, shuttle or coach. Each comes with a vetted professional chauffeur.' },
+  { num: '03', title: 'Sit back, ride in style', desc: 'We track your flight, watch traffic, and notify your driver. SMS with driver details arrives 24h before pickup.' },
 ]
 
-const BENEFITS = [
-  { icon: FiClock, label: 'Free 60-minute airport wait — we track your flight' },
-  { icon: FiDollarSign, label: 'Fixed all-inclusive pricing — no surprises at journey\'s end' },
-  { icon: FiShield, label: 'Fully licensed, insured, and background-checked chauffeurs' },
-  { icon: FiPhone, label: '24 / 7 live support before, during, and after every ride' },
-  { icon: FiCheck, label: 'No payment required until you confirm your booking' },
-  { icon: FiAward, label: 'Premium fleet — sedans, SUVs, Sprinters, and coach buses' },
+const TRIP_TYPES = [
+  { title: 'Airport transfers', desc: 'JFK, LGA, EWR, TEB. We track your flight free of charge.',           icon: FiClock },
+  { title: 'Corporate travel',  desc: 'Centralised billing, expense automation, priority dispatch.',         icon: FiUsers },
+  { title: 'Group & events',    desc: 'Weddings, galas, conferences. Coaches and shuttles available.',       icon: FiCalendar },
+  { title: 'By the hour',       desc: 'As-directed service — meetings, shopping, multi-stop days.',          icon: FiClock },
 ]
 
-const HowItWorks = () => {
+const FAQ = [
+  { q: 'How far in advance should I book?',     a: 'For airport transfers we recommend 12+ hours. Same-day requests are usually fulfilled within an hour.' },
+  { q: 'Are gratuities included?',              a: 'Yes — gratuity is included in your flat rate. Tipping is appreciated but never expected.' },
+  { q: 'What if my flight is delayed?',         a: 'We monitor your flight in real time. Your driver waits without extra charge.' },
+  { q: 'Can I cancel or modify my reservation?', a: 'Free cancellation up to 4 hours before your pickup. Reach out anytime via the reservation lookup.' },
+]
+
+export default function HowItWorks() {
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
+    <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em' }}>
 
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-[#0f1f3d] via-[#1a365d] to-[#1a3a6b] text-white overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600 opacity-10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-800 opacity-15 rounded-full blur-3xl -translate-x-1/4 translate-y-1/4" />
-        </div>
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm font-medium text-blue-100">
-            Simple &amp; Transparent
+      <Section bg={WHITE}>
+        <FadeIn>
+          <h1 style={H1}>Premium chauffeur,<br/>three simple steps.</h1>
+          <p style={LEAD}>From quote to confirmation in under sixty seconds. Then we take it from there.</p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link to="/" style={btnPrimary}>Book now <FiArrowRight size={15}/></Link>
+            <a href="tel:+17186586000" style={btnSecondary}><FiPhone size={14}/> (718) 658-6000</a>
           </div>
-          <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            How It Works
-          </h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
-            Booking a premium chauffeur with Everywhere Cars is fast, simple, and completely transparent — from your first request to the moment you arrive.
-          </p>
-        </div>
-      </section>
+        </FadeIn>
+      </Section>
 
-      {/* Steps */}
-      <section className="bg-gray-50 py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="text-sm font-semibold uppercase tracking-widest text-[#1a365d] mb-2 block">Three Easy Steps</span>
-            <h2 className="text-4xl font-bold text-gray-900">From Request to Ride</h2>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-stretch gap-0">
-            {STEPS.map((item, idx, arr) => (
-              <React.Fragment key={item.step}>
-                <div className="relative bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 p-8 text-center group flex-1">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#1a365d] text-white text-xs font-bold px-3 py-1 rounded-full tracking-wider">
-                    STEP {item.step}
-                  </div>
-                  <div className="flex items-center justify-center w-16 h-16 bg-blue-50 rounded-2xl mx-auto mb-5 mt-2 group-hover:bg-[#1a365d] transition-colors duration-300">
-                    <item.icon className="text-[#1a365d] group-hover:text-white transition-colors duration-300" size={28} />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                  <p className="text-gray-500 leading-relaxed text-sm">{item.description}</p>
-                </div>
-                {idx < arr.length - 1 && (
-                  <div className="hidden md:flex items-center justify-center px-2 flex-shrink-0 text-[#1a365d] opacity-40">
-                    <FiArrowRight size={28} />
-                  </div>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits */}
-      <section className="bg-white py-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-sm font-semibold uppercase tracking-widest text-[#1a365d] mb-2 block">Every Ride, Every Time</span>
-            <h2 className="text-4xl font-bold text-gray-900">What's Included</h2>
-            <p className="text-gray-500 text-base mt-3 max-w-xl mx-auto">Every booking comes with the same premium experience — no upgrades required.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {BENEFITS.map((b, idx) => (
-              <div key={idx} className="flex items-center gap-4 bg-gray-50 rounded-xl p-5">
-                <div className="flex items-center justify-center w-10 h-10 bg-[#1a365d] rounded-xl flex-shrink-0">
-                  <b.icon className="text-white" size={18} />
-                </div>
-                <span className="text-gray-700 font-medium text-sm">{b.label}</span>
+      <Section bg={GRAY_50}>
+        <FadeIn><h2 style={H2}>How it works</h2></FadeIn>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {STEPS.map((s, i) => (
+            <FadeIn key={s.num} delay={i * 80}>
+              <div style={card}>
+                <div style={{ fontSize: 56, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.04em', marginBottom: 18 }}>{s.num}</div>
+                <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.01em' }}>{s.title}</h3>
+                <p style={{ fontSize: 15, lineHeight: 1.55, color: GRAY_500 }}>{s.desc}</p>
               </div>
-            ))}
-          </div>
+            </FadeIn>
+          ))}
         </div>
-      </section>
+      </Section>
 
-      {/* CTA */}
-      <section className="bg-gradient-to-br from-[#0f1f3d] to-[#1a365d] text-white py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Book Your Ride?</h2>
-          <p className="text-blue-200 text-lg mb-10">
-            Join thousands of travellers who trust Everywhere Cars for premium, stress-free ground transportation.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/signup"
-              className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-[#0f1f3d] font-bold px-8 py-4 rounded-xl hover:bg-yellow-300 transition-colors text-base"
-            >
-              Get a Free Quote <FiArrowRight />
-            </Link>
-            <a
-              href="tel:+17186586000"
-              className="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-base"
-            >
-              <FiPhone size={16} /> Call (718) 658-6000
-            </a>
-          </div>
+      <Section bg={WHITE}>
+        <FadeIn><h2 style={H2}>Built for every type of trip</h2></FadeIn>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {TRIP_TYPES.map((f, i) => (
+            <FadeIn key={f.title} delay={i * 70}>
+              <div style={{ ...card, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                <div style={{ width: 44, height: 44, borderRadius: 8, background: BLACK, color: WHITE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <f.icon size={20}/>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4, letterSpacing: '-0.01em' }}>{f.title}</h3>
+                  <p style={{ fontSize: 14, lineHeight: 1.5, color: GRAY_500 }}>{f.desc}</p>
+                </div>
+              </div>
+            </FadeIn>
+          ))}
         </div>
-      </section>
+      </Section>
+
+      <Section bg={GRAY_50}>
+        <FadeIn><h2 style={H2}>Frequently asked</h2></FadeIn>
+        <div style={{ maxWidth: 760 }}>
+          {FAQ.map((item, i) => (
+            <FadeIn key={item.q} delay={i * 60}>
+              <details style={{ borderBottom: `1px solid ${GRAY_100}`, padding: '20px 0' }}>
+                <summary style={{ fontSize: 18, fontWeight: 600, cursor: 'pointer', listStyle: 'none' }}>{item.q}</summary>
+                <p style={{ fontSize: 15, color: GRAY_500, lineHeight: 1.6, marginTop: 10 }}>{item.a}</p>
+              </details>
+            </FadeIn>
+          ))}
+        </div>
+      </Section>
+
+      <Section bg={BLACK} text={WHITE}>
+        <FadeIn>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'flex-start' }}>
+            <h2 style={{ ...H2, color: WHITE, marginBottom: 0 }}>Ready when you are.</h2>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <Link to="/" style={{ ...btnPrimary, background: WHITE, color: BLACK }}>Book a ride <FiArrowRight size={15}/></Link>
+              <Link to="/corporate" style={{ ...btnSecondary, color: WHITE, border: `1px solid ${WHITE}`, background: 'transparent' }}>For business</Link>
+            </div>
+          </div>
+        </FadeIn>
+      </Section>
     </div>
   )
 }
 
-export default HowItWorks
+function Section({ children, bg = WHITE, text = BLACK }) {
+  return (
+    <section style={{ background: bg, color: text }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0' }}>{children}</div>
+    </section>
+  )
+}
+const H1 = { fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '1.25rem' }
+const H2 = { fontSize: 'clamp(1.75rem, 3.4vw, 2.6rem)', lineHeight: 1.1, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '2rem' }
+const LEAD = { fontSize: 18, lineHeight: 1.5, color: GRAY_500, maxWidth: 580, marginBottom: '1.75rem' }
+const card = { background: WHITE, padding: 28, borderRadius: 8, border: `1px solid ${GRAY_100}`, height: '100%' }
+const btnPrimary = { background: BLACK, color: WHITE, padding: '14px 24px', borderRadius: 4, border: 0, fontWeight: 600, fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }
+const btnSecondary = { background: 'transparent', color: BLACK, padding: '14px 22px', borderRadius: 4, border: `1px solid ${BLACK}`, fontWeight: 600, fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }

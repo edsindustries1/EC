@@ -1,541 +1,199 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import {
-  FiBriefcase,
-  FiArrowRight,
-  FiPhone,
-  FiUser,
-  FiDollarSign,
-  FiClock,
-  FiShield,
-  FiBarChart2,
-  FiTruck,
-  FiCheck,
-  FiCheckCircle,
-  FiStar,
-  FiCalendar,
-  FiMail,
-} from 'react-icons/fi'
+import { FiArrowRight, FiCheck, FiBriefcase, FiClock, FiCreditCard, FiUsers, FiShield, FiPhone, FiPieChart } from 'react-icons/fi'
+import { FadeIn } from '../hooks/useFadeIn'
+import api from '../utils/api'
 
-const BENEFITS = [
-  {
-    icon: FiBarChart2,
-    title: 'Elevated Professional Image',
-    description: 'Arrive at every meeting, boardroom, or client event in a luxury vehicle driven by a professionally trained chauffeur. First impressions matter — we make them count.',
-  },
-  {
-    icon: FiClock,
-    title: 'Optimized Time & Productivity',
-    description: 'Turn travel time into work time. Rear-seat Wi-Fi, charging ports, and a quiet cabin let executives prepare for meetings, review documents, or take calls in comfort.',
-  },
-  {
-    icon: FiUser,
-    title: 'Dedicated Travel Support',
-    description: 'Your assigned account manager handles every booking, change, and special request. No call queues, no ticket systems — one point of contact for your entire travel program.',
-  },
-  {
-    icon: FiShield,
-    title: 'Privacy & Executive Comfort',
-    description: 'Tinted windows, professional discretion, and a no-conversation-unless-requested policy. Your executives travel in confidence — whether discussing strategy or unwinding between commitments.',
-  },
-  {
-    icon: FiTruck,
-    title: 'Safety You Can Trust',
-    description: 'Every Everywhere Cars driver passes a full background check, holds a commercial license, and undergoes continuous safety training. Your team travels only with vetted professionals.',
-  },
-  {
-    icon: FiDollarSign,
-    title: 'Centralized Billing & Fixed Rates',
-    description: 'Monthly consolidated invoices with itemized trip reports. Fixed pricing across every ride — no surge, no surprise fuel surcharges, no hidden fees.',
-  },
+const BLACK = '#000', WHITE = '#fff'
+const GRAY_50 = '#F6F6F6', GRAY_100 = '#EEEEEE', GRAY_500 = '#6B6B6B'
+const FONT = "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+
+const FEATURES = [
+  { icon: FiCreditCard, title: 'Centralised billing',    desc: 'One consolidated monthly invoice for your entire team. Itemised by traveller, trip, and cost centre.' },
+  { icon: FiClock,      title: 'Priority dispatch',      desc: 'Skip the queue. Corporate accounts get first-available vehicles and SLA-backed response times.' },
+  { icon: FiPieChart,   title: 'Expense automation',    desc: 'Auto-export to Concur, Expensify, and SAP. Receipt photos, mileage, and gratuity captured.' },
+  { icon: FiUsers,      title: 'Traveller management', desc: 'Add and remove travellers in seconds. Set per-traveller spend limits and approval workflows.' },
+  { icon: FiShield,     title: 'Duty of care',          desc: 'Background-checked chauffeurs, GPS-tracked vehicles, 24/7 incident response — your obligation, our standard.' },
+  { icon: FiBriefcase,  title: 'Dedicated account team', desc: 'A real person who knows your team and your travel patterns. Direct line, no IVRs.' },
 ]
 
-const FLEET = [
-  {
-    type: 'Mercedes S-Class / Lincoln Continental',
-    capacity: '2–3 passengers',
-    image: '/images/fleet-sedan.png',
-    features: ['Leather interior', 'Climate control', 'USB & wireless charging'],
-    ideal: 'Solo executive transfers, airport pickups',
-  },
-  {
-    type: 'Cadillac Escalade / GMC Yukon',
-    capacity: '3–5 passengers',
-    image: '/images/fleet-suv.png',
-    features: ['Extended luggage room', 'Wi-Fi hotspot', 'Privacy glass'],
-    ideal: 'Executive teams, roadshows, site visits',
-  },
-  {
-    type: 'Mercedes Sprinter Van',
-    capacity: '11–14 passengers',
-    image: '/images/fleet-sprinter.png',
-    features: ['Reclining seats', 'Overhead storage', 'Climate zones'],
-    ideal: 'Team offsites, conference shuttles',
-  },
+const TIERS = [
+  { name: 'Starter',    desc: 'For small teams getting started', includes: ['Up to 10 travellers', 'Monthly invoicing', 'Email support'] },
+  { name: 'Business',   desc: 'For growing teams', highlight: true, includes: ['Up to 100 travellers', 'Concur / Expensify export', 'Dedicated rep', '24/7 priority dispatch'] },
+  { name: 'Enterprise', desc: 'For organisations with global travel', includes: ['Unlimited travellers', 'Custom SLAs & contracts', 'API access', 'Multi-city operations'] },
 ]
 
-const STEPS = [
-  {
-    number: '01',
-    title: 'Set Up Your Account',
-    description: 'Contact our sales team to create your corporate account with billing details, approved bookers, and spend limits.',
-  },
-  {
-    number: '02',
-    title: 'Add Team Members',
-    description: 'Invite employees as authorized riders or bookers. Admins can view and manage all bookings in one dashboard.',
-  },
-  {
-    number: '03',
-    title: 'Book & Track All Rides',
-    description: 'Team members book rides directly. You get real-time tracking, automated trip reports, and a single monthly invoice.',
-  },
-]
+export default function Corporate() {
+  const [submitting, setSubmitting] = useState(false)
+  const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', team_size: '', notes: '' })
 
-const CLIENTS = [
-  { name: 'Apex Consulting', initials: 'AC', color: 'bg-blue-600' },
-  { name: 'Meridian Partners', initials: 'MP', color: 'bg-indigo-600' },
-  { name: 'Vantage Group', initials: 'VG', color: 'bg-slate-600' },
-  { name: 'Pinnacle Capital', initials: 'PC', color: 'bg-blue-800' },
-  { name: 'Horizon Tech', initials: 'HT', color: 'bg-sky-700' },
-]
-
-const MONTHLY_VOLUMES = [
-  '1–5 rides',
-  '6–15 rides',
-  '16–30 rides',
-  '31–60 rides',
-  '61–100 rides',
-  '100+ rides',
-]
-
-const Corporate = () => {
-  const navigate = useNavigate()
-  const [form, setForm] = useState({
-    name: '',
-    company: '',
-    email: '',
-    phone: '',
-    volume: '',
-  })
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.company || !form.email || !form.volume) {
-      toast.error('Please fill in all required fields')
-      return
+    if (!form.name || !form.email) { toast.error('Name and email required'); return }
+    setSubmitting(true)
+    try {
+      await api.post('/quote-requests', {
+        name: form.name, email: form.email, phone: form.phone,
+        pickup: 'Corporate inquiry', dropoff: form.company || 'Corporate inquiry',
+        vehicle_type: 'sedan',
+        passengers: form.team_size || 1,
+        ride_date: new Date().toISOString().slice(0, 10),
+      })
+      toast.success('Thanks — our corporate team will reach out within one business day.')
+      setForm({ name: '', email: '', phone: '', company: '', team_size: '', notes: '' })
+    } catch {
+      toast.error('Could not send. Please call (718) 658-6000.')
+    } finally {
+      setSubmitting(false)
     }
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRe.test(form.email)) {
-      toast.error('Please enter a valid email address')
-      return
-    }
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSubmitted(true)
-      toast.success('Thanks! Our sales team will reach out within 1 business day.')
-    }, 800)
   }
+
+  const onChange = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
   return (
-    <div className="overflow-x-hidden" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
+    <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em' }}>
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[80vh] flex items-center bg-gradient-to-br from-[#0f1f3d] via-[#1a365d] to-[#1a3a6b] overflow-hidden">
-        <img
-          src="/images/service-corporate.png"
-          alt="Corporate travel — executive arriving in luxury vehicle"
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-        />
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-blue-600 opacity-10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-800 opacity-15 rounded-full blur-3xl -translate-x-1/4 translate-y-1/4" />
+      <Section bg={WHITE}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <FadeIn className="lg:col-span-7">
+            <p style={EYEBROW}>Everywhere Cars for Business</p>
+            <h1 style={H1}>Move your team like<br/>the executives they are.</h1>
+            <p style={LEAD}>One account. Hundreds of travellers. Centralised billing, automated expensing, and priority dispatch — across every city we serve.</p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <a href="#contact" style={btnPrimary}>Talk to sales <FiArrowRight size={15}/></a>
+              <a href="tel:+17186586000" style={btnSecondary}><FiPhone size={14}/> (718) 658-6000</a>
+            </div>
+          </FadeIn>
+          <FadeIn delay={120} className="lg:col-span-5">
+            <div style={{ aspectRatio: '4/3', background: GRAY_50, borderRadius: 8, overflow: 'hidden' }}>
+              <img src="/images/service-corporate.png" alt="" onError={(e) => { e.currentTarget.style.display = 'none' }} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+            </div>
+          </FadeIn>
         </div>
+      </Section>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm font-medium text-blue-100 backdrop-blur-sm">
-              <FiBriefcase size={14} className="text-yellow-400" />
-              Corporate &amp; Business Travel
-            </div>
-
-            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 tracking-tight text-white">
-              Business Travel,
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-200">
-                Simplified.
-              </span>
-            </h1>
-
-            <p className="text-xl text-blue-100 mb-10 max-w-xl leading-relaxed">
-              Dedicated account management, centralized invoicing, and a premium fleet — built for companies that move fast and can't afford surprises.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a
-                href="#contact-sales"
-                className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-[#1a365d] font-bold py-3.5 px-8 rounded-xl hover:bg-yellow-300 transition-colors text-base shadow-lg"
-              >
-                Contact Sales <FiArrowRight />
-              </a>
-              <a
-                href="tel:+17186586000"
-                className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/25 text-white font-semibold py-3.5 px-8 rounded-xl hover:bg-white/20 transition-colors text-base"
-              >
-                <FiPhone size={16} />
-                (718) 658-6000
-              </a>
-            </div>
-
-            <div className="flex flex-wrap gap-6 mt-10">
-              {['Fortune 500 trusted', 'Net-30 invoicing', 'No contracts required'].map((item) => (
-                <div key={item} className="flex items-center gap-2 text-blue-100 text-sm">
-                  <FiCheckCircle size={15} className="text-yellow-400" />
-                  {item}
+      <Section bg={GRAY_50}>
+        <FadeIn><h2 style={H2}>Built for the way you work</h2></FadeIn>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURES.map((f, i) => (
+            <FadeIn key={f.title} delay={i * 60}>
+              <div style={card}>
+                <div style={{ width: 44, height: 44, borderRadius: 8, background: BLACK, color: WHITE, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                  <f.icon size={20}/>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Why Corporate ────────────────────────────────────── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-sm font-semibold uppercase tracking-widest text-yellow-500 mb-3">Why Corporate?</p>
-            <h2 className="text-4xl font-bold text-[#1a365d] mb-4">Built for Business, Not Leisure</h2>
-            <p className="text-gray-500 max-w-xl mx-auto text-lg">
-              Everything a travel manager or executive needs — with none of the friction you're used to.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {BENEFITS.map((b) => (
-              <div
-                key={b.title}
-                className="bg-gray-50 rounded-2xl p-7 border border-gray-100 hover:border-blue-100 hover:shadow-md transition-all"
-              >
-                <div className="flex items-center justify-center w-12 h-12 bg-[#1a365d] rounded-xl mb-5">
-                  <b.icon size={22} className="text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-[#1a365d] mb-2">{b.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{b.description}</p>
+                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6, letterSpacing: '-0.01em' }}>{f.title}</h3>
+                <p style={{ fontSize: 14, lineHeight: 1.55, color: GRAY_500 }}>{f.desc}</p>
               </div>
-            ))}
-          </div>
+            </FadeIn>
+          ))}
         </div>
-      </section>
+      </Section>
 
-      {/* ── Fleet ────────────────────────────────────────────── */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-sm font-semibold uppercase tracking-widest text-yellow-500 mb-3">Corporate Fleet</p>
-            <h2 className="text-4xl font-bold text-[#1a365d] mb-4">Vehicles Your Clients Will Notice</h2>
-            <p className="text-gray-500 max-w-xl mx-auto text-lg">
-              From solo airport pickups to full conference shuttles — choose the right vehicle for every occasion.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {FLEET.map((v) => (
-              <div
-                key={v.type}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              >
-                <div className="h-48 overflow-hidden">
-                  <img src={v.image} alt={v.type} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="text-lg font-bold text-[#1a365d]">{v.type}</h3>
-                    <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-2.5 py-1 rounded-full">
-                      {v.capacity}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400 mb-4 font-medium">{v.ideal}</p>
-                  <ul className="space-y-1.5 mb-5">
-                    {v.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                        <FiCheck size={13} className="text-[#1a365d] flex-shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    onClick={() => navigate('/signup')}
-                    className="w-full text-center text-sm font-semibold text-[#1a365d] border border-[#1a365d] rounded-xl py-2.5 hover:bg-[#1a365d] hover:text-white transition-all"
-                  >
-                    Get a Quote
-                  </button>
-                </div>
+      <Section bg={WHITE}>
+        <FadeIn><h2 style={H2}>Choose your plan</h2></FadeIn>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {TIERS.map((t, i) => (
+            <FadeIn key={t.name} delay={i * 80}>
+              <div style={{
+                ...card,
+                background: t.highlight ? BLACK : WHITE,
+                color: t.highlight ? WHITE : BLACK,
+                borderColor: t.highlight ? BLACK : GRAY_100,
+                position: 'relative',
+              }}>
+                {t.highlight && (
+                  <span style={{ position: 'absolute', top: -10, right: 20, background: WHITE, color: BLACK, padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    Most popular
+                  </span>
+                )}
+                <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4, letterSpacing: '-0.01em' }}>{t.name}</h3>
+                <p style={{ fontSize: 14, color: t.highlight ? 'rgba(255,255,255,0.7)' : GRAY_500, marginBottom: 18 }}>{t.desc}</p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {t.includes.map(f => (
+                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+                      <FiCheck size={14}/> {f}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="#contact"
+                  style={{
+                    ...btnPrimary,
+                    marginTop: 22,
+                    background: t.highlight ? WHITE : BLACK,
+                    color: t.highlight ? BLACK : WHITE,
+                  }}
+                >
+                  Get started <FiArrowRight size={14}/>
+                </a>
               </div>
-            ))}
-          </div>
+            </FadeIn>
+          ))}
         </div>
-      </section>
+      </Section>
 
-      {/* ── How It Works for Teams ───────────────────────────── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-sm font-semibold uppercase tracking-widest text-yellow-500 mb-3">Onboarding</p>
-            <h2 className="text-4xl font-bold text-[#1a365d] mb-4">How It Works for Teams</h2>
-            <p className="text-gray-500 max-w-xl mx-auto text-lg">
-              Up and running in one business day. No complex integrations, no IT tickets.
-            </p>
-          </div>
-
-          <div className="relative">
-            {/* Connector line — desktop only */}
-            <div className="hidden lg:block absolute top-8 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-0.5 bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200" />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-              {STEPS.map((step, i) => (
-                <div key={step.number} className="relative flex flex-col items-center text-center">
-                  <div className="relative z-10 flex items-center justify-center w-16 h-16 rounded-full bg-[#1a365d] text-white font-bold text-xl mb-6 shadow-lg">
-                    {step.number}
-                  </div>
-                  <h3 className="text-xl font-bold text-[#1a365d] mb-3">{step.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{step.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Client Trust ─────────────────────────────────────── */}
-      <section className="py-20 bg-gradient-to-br from-[#0f1f3d] via-[#1a365d] to-[#1a3a6b]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-yellow-400 mb-3">Trusted By</p>
-            <h2 className="text-3xl font-bold text-white mb-4">Companies That Move With Us</h2>
-          </div>
-
-          {/* Client logo placeholders */}
-          <div className="flex flex-wrap justify-center gap-5 mb-16">
-            {CLIENTS.map((c) => (
-              <div
-                key={c.name}
-                className="flex items-center gap-3 bg-white/10 border border-white/15 backdrop-blur-sm rounded-2xl px-6 py-4"
-              >
-                <div className={`w-10 h-10 ${c.color} rounded-lg flex items-center justify-center text-white font-bold text-sm`}>
-                  {c.initials}
-                </div>
-                <span className="text-white font-semibold text-sm">{c.name}</span>
+      <Section bg={GRAY_50}>
+        <div id="contact" className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <FadeIn className="lg:col-span-5">
+            <p style={EYEBROW}>Talk to sales</p>
+            <h2 style={H2}>Let's build the right account for your team.</h2>
+            <p style={LEAD}>Drop your details and we'll set up a 20-minute walkthrough. No commitment, no pressure.</p>
+            <div style={{ fontSize: 14, color: GRAY_500 }}>Prefer a call? <a href="tel:+17186586000" style={{ color: BLACK, fontWeight: 600, textDecoration: 'underline' }}>(718) 658-6000</a></div>
+          </FadeIn>
+          <FadeIn delay={120} className="lg:col-span-7">
+            <form onSubmit={submit} style={{ background: WHITE, padding: 28, borderRadius: 8, border: `1px solid ${GRAY_100}`, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input label="Full name *"  value={form.name}    onChange={onChange('name')}    placeholder="Jane Smith"/>
+                <Input label="Work email *" value={form.email}   onChange={onChange('email')}   placeholder="jane@company.com" type="email"/>
+                <Input label="Phone"        value={form.phone}   onChange={onChange('phone')}   placeholder="+1 (212) 555-0100"/>
+                <Input label="Company"      value={form.company} onChange={onChange('company')} placeholder="Acme, Inc."/>
               </div>
-            ))}
-          </div>
-
-          {/* Testimonial */}
-          <div className="max-w-2xl mx-auto bg-white/10 border border-white/15 backdrop-blur-sm rounded-2xl p-8 text-center">
-            <div className="flex justify-center gap-1 mb-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <FiStar key={i} size={18} className="text-yellow-400 fill-yellow-400" />
-              ))}
-            </div>
-            <blockquote className="text-blue-100 text-lg leading-relaxed mb-6 italic">
-              "Since switching to Everywhere Cars we've cut our travel admin time by 60%. Our account manager handles everything — invoices, driver requests, last-minute changes. It's the first vendor that actually makes our lives easier."
-            </blockquote>
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                JT
+              <Input label="Team size"      value={form.team_size} onChange={onChange('team_size')} placeholder="e.g. 25"/>
+              <div>
+                <Label>What can we help with?</Label>
+                <textarea
+                  value={form.notes}
+                  onChange={onChange('notes')}
+                  rows={3}
+                  placeholder="Routes, volume, integrations…"
+                  style={inputStyle()}
+                />
               </div>
-              <div className="text-left">
-                <p className="text-white font-semibold text-sm">Jessica T.</p>
-                <p className="text-blue-300 text-xs">Head of Operations, Apex Consulting</p>
-              </div>
-            </div>
-          </div>
+              <button type="submit" disabled={submitting} style={{ ...btnPrimary, justifyContent: 'center', padding: '14px 22px', fontSize: 15, opacity: submitting ? 0.6 : 1 }}>
+                {submitting ? 'Sending…' : <>Request a walkthrough <FiArrowRight size={15}/></>}
+              </button>
+            </form>
+          </FadeIn>
         </div>
-      </section>
-
-      {/* ── Lead Capture Form ─────────────────────────────────── */}
-      <section id="contact-sales" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
-
-            {/* Left — value prop */}
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-yellow-500 mb-3">Contact Sales</p>
-              <h2 className="text-4xl font-bold text-[#1a365d] mb-5">Let's Talk About Your Travel Needs</h2>
-              <p className="text-gray-500 text-lg mb-8 leading-relaxed">
-                Tell us a little about your company and volume. Our sales team will reach out within one business day with a custom pricing proposal.
-              </p>
-
-              <ul className="space-y-4 mb-10">
-                {[
-                  'No setup fees or contracts',
-                  'Custom rates for high-volume accounts',
-                  'Dedicated account manager assigned on day one',
-                  'Invoicing in 5 business days',
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-gray-700 text-sm">
-                    <FiCheckCircle size={18} className="text-[#1a365d] mt-0.5 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <a
-                href="tel:+17186586000"
-                className="inline-flex items-center gap-2 text-[#1a365d] font-semibold text-sm hover:underline"
-              >
-                <FiPhone size={15} />
-                Prefer to call? (718) 658-6000
-              </a>
-            </div>
-
-            {/* Right — form */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              {submitted ? (
-                <div className="flex flex-col items-center text-center py-8">
-                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-5">
-                    <FiCheckCircle size={32} className="text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#1a365d] mb-3">Request Received!</h3>
-                  <p className="text-gray-500 mb-6 leading-relaxed">
-                    Thank you, <strong>{form.name}</strong>. Our sales team will reach out to <strong>{form.email}</strong> within 1 business day.
-                  </p>
-                  <button
-                    onClick={() => { setSubmitted(false); setForm({ name: '', company: '', email: '', phone: '', volume: '' }) }}
-                    className="text-sm text-[#1a365d] font-semibold hover:underline"
-                  >
-                    Submit another inquiry
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-xl font-bold text-[#1a365d] mb-1">Get a Corporate Proposal</h3>
-                  <p className="text-sm text-gray-400 mb-6">We respond within 1 business day.</p>
-
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="block text-sm font-semibold text-gray-700">
-                          Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <FiUser className="absolute left-3 top-3 text-gray-400" size={15} />
-                          <input
-                            type="text"
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            placeholder="Jane Smith"
-                            aria-label="Full name"
-                            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a365d]/30 focus:border-[#1a365d] transition-colors"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-sm font-semibold text-gray-700">
-                          Company <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <FiBriefcase className="absolute left-3 top-3 text-gray-400" size={15} />
-                          <input
-                            type="text"
-                            name="company"
-                            value={form.company}
-                            onChange={handleChange}
-                            placeholder="Acme Corp"
-                            aria-label="Company name"
-                            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a365d]/30 focus:border-[#1a365d] transition-colors"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-sm font-semibold text-gray-700">
-                        Work Email <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <FiMail className="absolute left-3 top-3 text-gray-400" size={15} />
-                        <input
-                          type="email"
-                          name="email"
-                          value={form.email}
-                          onChange={handleChange}
-                          placeholder="jane@company.com"
-                          aria-label="Work email address"
-                          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a365d]/30 focus:border-[#1a365d] transition-colors"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-sm font-semibold text-gray-700">Phone Number</label>
-                      <div className="relative">
-                        <FiPhone className="absolute left-3 top-3 text-gray-400" size={15} />
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={form.phone}
-                          onChange={handleChange}
-                          placeholder="(555) 000-0000"
-                          aria-label="Phone number"
-                          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a365d]/30 focus:border-[#1a365d] transition-colors"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-sm font-semibold text-gray-700">
-                        Estimated Monthly Ride Volume <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <FiCalendar className="absolute left-3 top-3 text-gray-400" size={15} />
-                        <select
-                          name="volume"
-                          value={form.volume}
-                          onChange={handleChange}
-                          aria-label="Estimated monthly ride volume"
-                          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a365d]/30 focus:border-[#1a365d] transition-colors appearance-none bg-white"
-                        >
-                          <option value="">Select volume…</option>
-                          {MONTHLY_VOLUMES.map((v) => (
-                            <option key={v} value={v}>{v}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-[#1a365d] text-white font-bold py-3.5 rounded-xl hover:bg-[#0f1f3d] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg mt-2"
-                    >
-                      {loading ? 'Sending…' : (
-                        <>Contact Sales Team <FiArrowRight /></>
-                      )}
-                    </button>
-
-                    <p className="text-center text-xs text-gray-400">
-                      No spam. No commitment. We'll simply send you a custom proposal.
-                    </p>
-                  </form>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      </Section>
     </div>
   )
 }
 
-export default Corporate
+function Section({ children, bg = WHITE, text = BLACK }) {
+  return (
+    <section style={{ background: bg, color: text }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0' }}>{children}</div>
+    </section>
+  )
+}
+function Input({ label, value, onChange, placeholder, type = 'text' }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <input type={type} value={value} onChange={onChange} placeholder={placeholder} style={inputStyle()}/>
+    </div>
+  )
+}
+function Label({ children }) {
+  return <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{children}</label>
+}
+const inputStyle = () => ({ width: '100%', padding: '11px 12px', borderRadius: 4, fontSize: 14, border: `1px solid ${GRAY_100}`, background: GRAY_50, color: BLACK, outline: 'none', fontFamily: FONT })
+const EYEBROW = { fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: GRAY_500, marginBottom: 10 }
+const H1 = { fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '1.25rem' }
+const H2 = { fontSize: 'clamp(1.75rem, 3.4vw, 2.6rem)', lineHeight: 1.1, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '2rem' }
+const LEAD = { fontSize: 18, lineHeight: 1.5, color: GRAY_500, maxWidth: 580, marginBottom: '1.75rem' }
+const card = { background: WHITE, padding: 24, borderRadius: 8, border: `1px solid ${GRAY_100}`, height: '100%' }
+const btnPrimary = { background: BLACK, color: WHITE, padding: '12px 22px', borderRadius: 4, border: 0, fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }
+const btnSecondary = { background: 'transparent', color: BLACK, padding: '12px 22px', borderRadius: 4, border: `1px solid ${BLACK}`, fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }

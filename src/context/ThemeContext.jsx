@@ -1,15 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
-const ThemeContext = createContext({ isDark: true, toggleTheme: () => {} })
+const ThemeContext = createContext({ isDark: false, toggleTheme: () => {} })
 
 export function ThemeProvider({ children }) {
-  const [isDark, setIsDark] = useState(() => {
-    try {
-      const stored = localStorage.getItem('theme')
-      if (stored) return stored === 'dark'
-    } catch {}
-    return true
-  })
+  // Forced light — new uber-style design is single-mode white
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     const root = document.documentElement

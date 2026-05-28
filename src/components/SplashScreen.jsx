@@ -51,18 +51,8 @@ const SplashScreen = ({ onDone }) => {
 }
 
 const SplashScreenGate = ({ children }) => {
-  const [showSplash, setShowSplash] = useState(true)
-
-  const handleDone = () => {
-    setShowSplash(false)
-  }
-
-  return (
-    <>
-      {showSplash && <SplashScreen onDone={handleDone} />}
-      {children}
-    </>
-  )
+  // Splash disabled for the uber-style redesign
+  return <>{children}</>
 }
 
 export default SplashScreenGate

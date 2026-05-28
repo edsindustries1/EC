@@ -51,9 +51,10 @@ html {
 
 body {
   @apply font-sans;
-  background-color: var(--bg-page);
-  color: var(--text-primary);
-  transition: background-color 300ms ease, color 300ms ease;
+  background-color: #ffffff;
+  color: #000000;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom Scrollbar */
@@ -249,6 +250,10 @@ body {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -431,7 +436,145 @@ body {
 [data-theme='dark'] .border-orange-200  { border-color: rgba(249,115,22,0.25)  !important; }
 [data-theme='dark'] .border-orange-300  { border-color: rgba(249,115,22,0.35)  !important; }
 
-/* ─────────────────────────────────────────────────────────────────────
-   LIGHT MODE — body text defaults; hero/CTA sections stay dark (brand)
-   ───────────────────────────────────────────────────────────────────── */
-[data-theme='light'] body { color: #0f1f3d; }
+/* ═══════════════════════════════════════════════════════════════════════
+   UBER-STYLE B&W OVERRIDES
+   Map the old navy/yellow brand to a pure black/white grayscale palette.
+   Applied last so they win against earlier rules.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* primary-* (navy family) → grayscale */
+.bg-primary-50  { background-color: #FAFAFA !important; }
+.bg-primary-100 { background-color: #F6F6F6 !important; }
+.bg-primary-200 { background-color: #EEEEEE !important; }
+.bg-primary-300 { background-color: #D6D6D6 !important; }
+.bg-primary-400 { background-color: #999999 !important; }
+.bg-primary-500 { background-color: #6B6B6B !important; }
+.bg-primary-600 { background-color: #4D4D4D !important; }
+.bg-primary-700 { background-color: #2A2A2A !important; }
+.bg-primary-800 { background-color: #000000 !important; }
+.bg-primary-900 { background-color: #000000 !important; }
+
+.hover\:bg-primary-50:hover  { background-color: #F6F6F6 !important; }
+.hover\:bg-primary-100:hover { background-color: #EEEEEE !important; }
+.hover\:bg-primary-700:hover { background-color: #1f1f1f !important; }
+.hover\:bg-primary-800:hover { background-color: #1f1f1f !important; }
+.hover\:bg-primary-900:hover { background-color: #1f1f1f !important; }
+
+.text-primary-50  { color: #FAFAFA !important; }
+.text-primary-100 { color: #F6F6F6 !important; }
+.text-primary-300 { color: #9CA3AF !important; }
+.text-primary-400 { color: #6B6B6B !important; }
+.text-primary-500 { color: #4D4D4D !important; }
+.text-primary-600 { color: #2A2A2A !important; }
+.text-primary-700 { color: #000000 !important; }
+.text-primary-800 { color: #000000 !important; }
+.text-primary-900 { color: #000000 !important; }
+
+.border-primary-100 { border-color: #EEEEEE !important; }
+.border-primary-200 { border-color: #D6D6D6 !important; }
+.border-primary-300 { border-color: #CFCFCF !important; }
+.border-primary-700 { border-color: #2A2A2A !important; }
+.border-primary-800 { border-color: #000000 !important; }
+.border-primary-900 { border-color: #000000 !important; }
+
+/* secondary-* (also navy) → grayscale */
+.bg-secondary-800,
+.bg-secondary-900 { background-color: #000000 !important; }
+.text-secondary-800,
+.text-secondary-900 { color: #000000 !important; }
+
+/* accent-* (blue) → grayscale */
+.bg-accent-500   { background-color: #000000 !important; }
+.bg-accent-600   { background-color: #1f1f1f !important; }
+.text-accent-500 { color: #000000 !important; }
+.text-accent-600 { color: #000000 !important; }
+.hover\:bg-accent-600:hover { background-color: #1f1f1f !important; }
+
+/* Yellow brand (gold) → black text accents */
+.bg-yellow-400   { background-color: #000000 !important; }
+.bg-yellow-300   { background-color: #1f1f1f !important; }
+.bg-yellow-100   { background-color: #F6F6F6 !important; }
+.bg-yellow-50    { background-color: #FAFAFA !important; }
+.text-yellow-400 { color: #000000 !important; }
+.text-yellow-300 { color: #000000 !important; }
+.text-yellow-700 { color: #000000 !important; }
+.text-yellow-800 { color: #000000 !important; }
+.hover\:bg-yellow-300:hover { background-color: #1f1f1f !important; }
+.hover\:bg-yellow-400:hover { background-color: #1f1f1f !important; }
+.border-yellow-300 { border-color: #CFCFCF !important; }
+.border-yellow-400 { border-color: #000000 !important; }
+
+/* Arbitrary navy values (#1a365d, #0f1f3d) → black */
+.bg-\[#1a365d\]    { background-color: #000000 !important; }
+.bg-\[#0f1f3d\]    { background-color: #000000 !important; }
+.text-\[#1a365d\]  { color: #000000 !important; }
+.text-\[#0f1f3d\]  { color: #000000 !important; }
+.border-\[#1a365d\] { border-color: #000000 !important; }
+.hover\:bg-\[#1a365d\]:hover { background-color: #1f1f1f !important; }
+.hover\:bg-\[#0f1f3d\]:hover { background-color: #1f1f1f !important; }
+.hover\:text-\[#0f1f3d\]:hover { color: #1f1f1f !important; }
+.hover\:text-\[#1a365d\]:hover { color: #1f1f1f !important; }
+.hover\:border-\[#1a365d\]:hover { border-color: #000000 !important; }
+
+/* Arbitrary gold (#F6C90E etc) → black */
+.bg-\[#F6C90E\]   { background-color: #000000 !important; }
+.text-\[#F6C90E\] { color: #000000 !important; }
+
+/* Gradient hero backgrounds (navy→darker) → black */
+.bg-gradient-to-r.from-primary-800,
+.bg-gradient-to-br.from-primary-800,
+.bg-gradient-to-b.from-primary-800 { background: #000000 !important; }
+
+/* btn-primary (component class) → black uber pill */
+.btn-primary {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 9999px !important;
+}
+.btn-primary:hover { background-color: #1f1f1f !important; }
+
+.btn-secondary {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+  border-radius: 9999px !important;
+}
+
+.btn-accent {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 9999px !important;
+}
+
+/* Inputs — flat gray fill, no blue ring */
+.input-base {
+  background-color: #F6F6F6 !important;
+  border-color: #EEEEEE !important;
+  border-radius: 4px !important;
+}
+.input-base:focus {
+  --tw-ring-color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+/* Text gradient (brand wordmark) → solid black */
+.text-gradient {
+  background: none !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar-thumb { background-color: #000 !important; }
+::-webkit-scrollbar-thumb:hover { background-color: #2A2A2A !important; }
+
+/* Focus rings → black */
+.focus\:ring-primary-800:focus,
+.focus\:ring-\[#1a365d\]:focus {
+  --tw-ring-color: #000 !important;
+}
+
+/* Box-shadow card-hover → neutral gray */
+.shadow-card-hover, .hover\:shadow-card-hover:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.10) !important;
+}

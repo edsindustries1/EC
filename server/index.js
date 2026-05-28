@@ -329,6 +329,139 @@ app.get('/api/revenue', auth, role('operator', 'admin'), (req, res) => {
   }
 })
 
+// ── BOOKINGS (amtrak-style instant reservation) ──────────────────────────────
+
+const PRICE_TABLE = {
+  sedan:        { local: [55, 75],    airport: [75, 110],   long: [150, 220]  },
+  suv:          { local: [75, 100],   airport: [95, 140],   long: [200, 280]  },
+  sprinter_van: { local: [150, 200],  airport: [175, 250],  long: [380, 480]  },
+  mini_bus:     { local: [250, 350],  airport: [300, 400],  long: [600, 800]  },
+  coach:        { local: [500, 700],  airport: [600, 800],  long: [1200, 1600] },
+}
+const AIRPORT_KEYWORDS = ['jfk', 'lga', 'ewr', 'fbo', 'airport', 'laguardia', 'kennedy']
+const LONG_KEYWORDS = ['philadelphia', 'connecticut', 'boston', 'hamptons', 'hartford', 'bridgeport', 'stamford', 'providence', 'new jersey', 'jersey city', 'hoboken', 'trenton', 'princeton', 'newark']
+
+function detectRouteType(pickup, dropoff) {
+  const combined = `${pickup || ''} ${dropoff || ''}`.toLowerCase()
+  if (AIRPORT_KEYWORDS.some(k => combined.includes(k))) return 'airport'
+  if (LONG_KEYWORDS.some(k => combined.includes(k))) return 'long'
+  return 'local'
+}
+
+function priceFor(vehicleType, routeType) {
+  const row = PRICE_TABLE[vehicleType] || PRICE_TABLE.sedan
+  const [low, high] = row[routeType] || row.local
+  return { low, high, point: Math.round((low + high) / 2) }
+}
+
+function makeReference() {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+  const nums = '23456789'
+  let ref = 'EC-'
+  for (let i = 0; i < 3; i++) ref += letters[Math.floor(Math.random() * letters.length)]
+  for (let i = 0; i < 4; i++) ref += nums[Math.floor(Math.random() * nums.length)]
+  return ref
+}
+
+// Instant price estimate for the search results screen
+app.post('/api/quote/estimate', (req, res) => {
+  try {
+    const { pickup, dropoff } = req.body
+    if (!pickup || !dropoff) return res.status(400).json({ message: 'Pickup and dropoff required' })
+    const routeType = detectRouteType(pickup, dropoff)
+    const options = Object.keys(PRICE_TABLE).map(v => ({
+      vehicle_type: v,
+      route_type: routeType,
+      ...priceFor(v, routeType),
+    }))
+    res.json({ success: true, data: { route_type: routeType, options } })
+  } catch (e) {
+    res.status(500).json({ message: 'Estimate failed', error: e.message })
+  }
+})
+
+// Create a confirmed reservation (amtrak-style — instant, no bid wait)
+app.post('/api/bookings', (req, res) => {
+  try {
+    const {
+      pickup, dropoff, pickup_date, pickup_time, passengers,
+      vehicle_type, trip_type, return_date, return_time,
+      name, email, phone, flight_number, child_seats, special_requests,
+    } = req.body
+    if (!pickup || !dropoff) return res.status(400).json({ message: 'Pickup and dropoff required' })
+    if (!name || !email || !phone) return res.status(400).json({ message: 'Contact info required' })
+
+    const routeType = detectRouteType(pickup, dropoff)
+    const price = priceFor(vehicle_type || 'sedan', routeType)
+
+    let reference
+    do { reference = makeReference() } while (db.getBookingByRef(reference))
+
+    const token = req.headers.authorization?.slice(7)
+    let customerId = null
+    try { if (token) customerId = jwt.verify(token, JWT_SECRET).id } catch {}
+
+    const booking = db.createBooking({
+      reference,
+      customer_id: customerId,
+      name, email, phone,
+      pickup, dropoff,
+      pickup_date: pickup_date || '',
+      pickup_time: pickup_time || '',
+      passengers: Number(passengers) || 1,
+      vehicle_type: vehicle_type || 'sedan',
+      trip_type: trip_type || 'oneway',
+      return_date: return_date || '',
+      return_time: return_time || '',
+      route_type: routeType,
+      price_low: price.low,
+      price_high: price.high,
+      price_quoted: price.point,
+      flight_number: flight_number || '',
+      child_seats: Number(child_seats) || 0,
+      special_requests: special_requests || '',
+      status: 'confirmed',
+    })
+
+    sendQuoteConfirmation(name, email, pickup, dropoff, vehicle_type || 'sedan')
+      .catch(err => console.error('[email] booking confirmation failed:', err.message))
+    sendOperatorNotification({
+      name, email, phone, pickup, dropoff,
+      vehicleType: vehicle_type || 'sedan',
+      passengers: Number(passengers) || 1,
+      rideDate: `${pickup_date || ''} ${pickup_time || ''}`.trim(),
+    }).catch(err => console.error('[email] operator notification failed:', err.message))
+
+    res.status(201).json({ success: true, data: booking })
+  } catch (e) {
+    res.status(500).json({ message: 'Booking failed', error: e.message })
+  }
+})
+
+// Lookup by reservation reference (Amtrak-style "Manage Trip")
+app.get('/api/bookings/:ref', (req, res) => {
+  try {
+    const booking = db.getBookingByRef(req.params.ref)
+    if (!booking) return res.status(404).json({ message: 'Reservation not found' })
+    const { email } = req.query
+    if (email && booking.email.toLowerCase() !== String(email).toLowerCase()) {
+      return res.status(403).json({ message: 'Email does not match this reservation' })
+    }
+    res.json({ success: true, data: booking })
+  } catch (e) {
+    res.status(500).json({ message: 'Lookup failed', error: e.message })
+  }
+})
+
+// Operator-facing booking list
+app.get('/api/bookings', auth, role('operator', 'admin'), (req, res) => {
+  try {
+    res.json({ data: db.listBookings(req.query) })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not fetch bookings', error: e.message })
+  }
+})
+
 // ── HEALTH ────────────────────────────────────────────────────────────────────
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date().toISOString() }))

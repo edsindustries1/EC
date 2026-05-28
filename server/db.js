@@ -35,6 +35,7 @@ function seed() {
       { id: 'd2', operator_id: 'u2', name: 'Maria Santos', phone: '+17185550002', vehicle_type: 'suv', vehicle: 'Cadillac Escalade', plate: 'NYC-5678', status: 'available', created_at: new Date().toISOString() },
       { id: 'd3', operator_id: 'u2', name: 'Kevin Brown', phone: '+17185550003', vehicle_type: 'sprinter_van', vehicle: 'Mercedes Sprinter', plate: 'NYC-9012', status: 'on_trip', created_at: new Date().toISOString() },
     ],
+    bookings: [],
     _nextId: 100,
   }
   save(initial)
@@ -98,5 +99,28 @@ export const db = {
     _db.drivers.push(d)
     save(_db)
     return d
+  },
+
+  createBooking: (data) => {
+    if (!_db.bookings) _db.bookings = []
+    const b = { id: nextId(), status: 'confirmed', created_at: new Date().toISOString(), ...data }
+    _db.bookings.push(b)
+    save(_db)
+    return b
+  },
+  getBookingByRef: (ref) => (_db.bookings || []).find(b => b.reference?.toLowerCase() === String(ref).toLowerCase()) || null,
+  listBookings: (filters = {}) => {
+    let list = [...(_db.bookings || [])].reverse()
+    if (filters.status && filters.status !== 'all') list = list.filter(b => b.status === filters.status)
+    if (filters.email) list = list.filter(b => b.email?.toLowerCase() === filters.email.toLowerCase())
+    return list
+  },
+  updateBooking: (id, updates) => {
+    if (!_db.bookings) return null
+    const idx = _db.bookings.findIndex(b => b.id === id)
+    if (idx === -1) return null
+    _db.bookings[idx] = { ..._db.bookings[idx], ...updates, updated_at: new Date().toISOString() }
+    save(_db)
+    return _db.bookings[idx]
   },
 }
