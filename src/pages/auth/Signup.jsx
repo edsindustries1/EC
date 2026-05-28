@@ -1,322 +1,217 @@
-import React, { useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
-import { FiUser, FiMail, FiPhone, FiLock, FiEye, FiEyeOff, FiCheck } from 'react-icons/fi';
+import React, { useState } from 'react'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import toast from 'react-hot-toast'
+import { FiEye, FiEyeOff, FiCheck, FiArrowRight } from 'react-icons/fi'
+import {
+  BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT,
+  btnPrimary, inputStyle,
+} from '../../styles/uber'
 
-const Signup = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { register } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    password_confirm: '',
-  });
+const GREEN = '#16a34a'
+const RED = '#dc2626'
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+function pwStrength(pw) {
+  if (!pw) return { score: 0, label: '', color: GRAY_100 }
+  let s = 0
+  if (pw.length >= 8) s++
+  if (pw.length >= 12) s++
+  if (/[A-Z]/.test(pw)) s++
+  if (/[0-9]/.test(pw)) s++
+  if (/[^A-Za-z0-9]/.test(pw)) s++
+  if (s <= 1) return { score: 33, label: 'Weak',   color: RED }
+  if (s <= 3) return { score: 66, label: 'Medium', color: '#ca8a04' }
+  return        { score: 100, label: 'Strong', color: GREEN }
+}
 
-  // Calculate password strength
-  const getPasswordStrength = () => {
-    const password = formData.password;
-    if (!password) return { level: 'weak', label: '', color: '' };
+export default function Signup() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { register } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [show1, setShow1] = useState(false)
+  const [show2, setShow2] = useState(false)
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '', password: '', password_confirm: '',
+  })
 
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.length >= 12) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
+  const onChange = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+  const strength = pwStrength(form.password)
+  const pwMatch = form.password_confirm && form.password === form.password_confirm
 
-    if (strength <= 1) return { level: 'weak', label: 'Weak', color: 'bg-red-500' };
-    if (strength <= 3) return { level: 'medium', label: 'Medium', color: 'bg-yellow-500' };
-    return { level: 'strong', label: 'Strong', color: 'bg-green-500' };
-  };
-
-  const passwordStrength = getPasswordStrength();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.password_confirm) {
-      toast.error('Please fill in all fields');
-      return;
+  const submit = async (e) => {
+    e.preventDefault()
+    if (!form.name || !form.email || !form.phone || !form.password || !form.password_confirm) {
+      toast.error('Please fill in all fields'); return
     }
-
-    if (formData.password !== formData.password_confirm) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-
-    setLoading(true);
+    if (form.password !== form.password_confirm) { toast.error('Passwords do not match'); return }
+    if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
+    setLoading(true)
     try {
       await register({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-      });
-
+        name: form.name, email: form.email, phone: form.phone, password: form.password,
+      })
       const pending = location.state?.fromBidBoard
         ? location.state
-        : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null; } catch { return null; } })();
-
+        : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null } catch { return null } })()
       if (pending?.fromBidBoard) {
-        try { sessionStorage.removeItem('pendingBidBooking'); } catch {}
-        toast.success('Account created! Taking you to your booking...');
-        setTimeout(() => navigate('/book', { state: pending }), 1200);
+        try { sessionStorage.removeItem('pendingBidBooking') } catch {}
+        toast.success('Account created. Taking you to your booking…')
+        setTimeout(() => navigate('/book', { state: pending }), 1100)
       } else {
-        toast.success('Account created! Redirecting to login...');
-        setTimeout(() => navigate('/login'), 1500);
+        toast.success('Account created. Redirecting to login…')
+        setTimeout(() => navigate('/login'), 1400)
       }
-    } catch (error) {
-      toast.error(error.message || 'Failed to create account');
+    } catch (err) {
+      toast.error(err.message || 'Failed to create account')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a365d] via-[#2d5a8c] to-[#1a365d] flex items-center justify-center px-4 py-12">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-      </div>
+    <div style={{
+      background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em',
+      minHeight: '100vh',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '48px 16px',
+    }}>
+      <div style={{ width: '100%', maxWidth: 460 }}>
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo/Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-[#1a365d] mb-2">Create Your Account</h1>
-            <p className="text-gray-600">Join Everywhere Cars today</p>
-          </div>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <Link to="/" style={{ fontWeight: 800, fontSize: 28, letterSpacing: '-0.02em', color: BLACK, textDecoration: 'none' }}>
+            Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Cars</span>
+          </Link>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Input */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <FiUser className="absolute left-3 top-3.5 text-[#1a365d]" size={20} />
-                <input
-                  id="name"
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="John Doe"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent transition"
-                />
-              </div>
+        <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6 }}>
+          Create your account
+        </h1>
+        <p style={{ color: GRAY_500, fontSize: 15, marginBottom: 24 }}>
+          Track your trips, save addresses, and book in one tap.
+        </p>
+
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <Field label="Full name">
+            <input type="text" value={form.name} onChange={onChange('name')} placeholder="Jane Smith" style={inputStyle()} autoComplete="name"/>
+          </Field>
+
+          <Field label="Email">
+            <input type="email" value={form.email} onChange={onChange('email')} placeholder="you@example.com" style={inputStyle()} autoComplete="email"/>
+          </Field>
+
+          <Field label="Phone">
+            <input type="tel" value={form.phone} onChange={onChange('phone')} placeholder="+1 (212) 555-0100" style={inputStyle()} autoComplete="tel"/>
+          </Field>
+
+          <Field label="Password">
+            <div style={{ position: 'relative' }}>
+              <input
+                type={show1 ? 'text' : 'password'}
+                value={form.password}
+                onChange={onChange('password')}
+                placeholder="••••••••"
+                style={{ ...inputStyle(), paddingRight: 42 }}
+                autoComplete="new-password"
+              />
+              <button type="button" onClick={() => setShow1(v => !v)} aria-label="Toggle password" style={eyeBtn}>
+                {show1 ? <FiEyeOff size={16}/> : <FiEye size={16}/>}
+              </button>
             </div>
 
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-3.5 text-[#1a365d]" size={20} />
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent transition"
-                />
-              </div>
-            </div>
-
-            {/* Phone Input */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                <FiPhone className="absolute left-3 top-3.5 text-[#1a365d]" size={20} />
-                <input
-                  id="phone"
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+1 (555) 123-4567"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent transition"
-                />
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-3.5 text-[#1a365d]" size={20} />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 transition"
-                >
-                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-                </button>
-              </div>
-
-              {/* Password Strength Indicator */}
-              {formData.password && (
-                <div className="mt-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">Password strength:</span>
-                    <span className={`text-xs font-semibold ${passwordStrength.color.replace('bg-', 'text-')}`}>
-                      {passwordStrength.label}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${passwordStrength.color} transition-all`}
-                      style={{
-                        width: passwordStrength.level === 'weak' ? '33%' : passwordStrength.level === 'medium' ? '66%' : '100%',
-                      }}
-                    ></div>
-                  </div>
-                  <ul className="mt-2 text-xs text-gray-600 space-y-1">
-                    <li className="flex items-center">
-                      <FiCheck
-                        size={14}
-                        className={`mr-2 ${formData.password.length >= 8 ? 'text-green-500' : 'text-gray-300'}`}
-                      />
-                      At least 8 characters
-                    </li>
-                    <li className="flex items-center">
-                      <FiCheck
-                        size={14}
-                        className={`mr-2 ${/[A-Z]/.test(formData.password) ? 'text-green-500' : 'text-gray-300'}`}
-                      />
-                      At least one uppercase letter
-                    </li>
-                    <li className="flex items-center">
-                      <FiCheck
-                        size={14}
-                        className={`mr-2 ${/[0-9]/.test(formData.password) ? 'text-green-500' : 'text-gray-300'}`}
-                      />
-                      At least one number
-                    </li>
-                  </ul>
+            {form.password && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
+                  <span style={{ color: GRAY_500 }}>Strength</span>
+                  <span style={{ color: strength.color, fontWeight: 700 }}>{strength.label}</span>
                 </div>
-              )}
-            </div>
-
-            {/* Confirm Password Input */}
-            <div>
-              <label htmlFor="password_confirm" className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-3.5 text-[#1a365d]" size={20} />
-                <input
-                  id="password_confirm"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="password_confirm"
-                  value={formData.password_confirm}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 transition"
-                >
-                  {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-                </button>
+                <div style={{ height: 4, background: GRAY_100, borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${strength.score}%`, background: strength.color, transition: 'width 200ms ease' }}/>
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, marginTop: 8, fontSize: 12, color: GRAY_500, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <Req met={form.password.length >= 8}>At least 8 characters</Req>
+                  <Req met={/[A-Z]/.test(form.password)}>One uppercase letter</Req>
+                  <Req met={/[0-9]/.test(form.password)}>One number</Req>
+                </ul>
               </div>
-              {formData.password_confirm && formData.password !== formData.password_confirm && (
-                <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
-              )}
-              {formData.password_confirm && formData.password === formData.password_confirm && (
-                <p className="text-xs text-green-500 mt-1 flex items-center">
-                  <FiCheck size={14} className="mr-1" />
-                  Passwords match
-                </p>
-              )}
+            )}
+          </Field>
+
+          <Field label="Confirm password">
+            <div style={{ position: 'relative' }}>
+              <input
+                type={show2 ? 'text' : 'password'}
+                value={form.password_confirm}
+                onChange={onChange('password_confirm')}
+                placeholder="••••••••"
+                style={{ ...inputStyle(), paddingRight: 42 }}
+                autoComplete="new-password"
+              />
+              <button type="button" onClick={() => setShow2(v => !v)} aria-label="Toggle password" style={eyeBtn}>
+                {show2 ? <FiEyeOff size={16}/> : <FiEye size={16}/>}
+              </button>
             </div>
+            {form.password_confirm && !pwMatch && <p style={{ fontSize: 12, color: RED, marginTop: 4 }}>Passwords do not match</p>}
+            {pwMatch && <p style={{ fontSize: 12, color: GREEN, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}><FiCheck size={12}/> Passwords match</p>}
+          </Field>
 
-            {/* Create Account Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#1a365d] text-white font-bold py-2.5 rounded-lg hover:bg-[#0f1f3d] transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-            >
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
-          </form>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              ...btnPrimary,
+              justifyContent: 'center', width: '100%',
+              padding: '14px 22px', fontSize: 15,
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              marginTop: 8,
+            }}
+          >
+            {loading ? 'Creating account…' : <>Create account <FiArrowRight size={15}/></>}
+          </button>
+        </form>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center">
-            <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-4 text-sm text-gray-500">or</span>
-            <div className="flex-1 border-t border-gray-300"></div>
-          </div>
-
-          {/* Log In Link */}
-          <div className="text-center">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-[#1a365d] font-semibold hover:underline">
-                Log In
-              </Link>
-            </p>
-          </div>
-
-          {/* Footer Note */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">
-              By creating an account, you agree to our Terms of Service and Privacy Policy
-            </p>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0' }}>
+          <div style={{ flex: 1, height: 1, background: GRAY_100 }}/>
+          <span style={{ fontSize: 12, color: GRAY_500 }}>OR</span>
+          <div style={{ flex: 1, height: 1, background: GRAY_100 }}/>
         </div>
 
-        {/* Help Text */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-200 text-sm">
-            Questions? Contact us at{' '}
-            <a href="mailto:support@everywherecars.com" className="text-white font-semibold hover:underline">
-              support@everywherecars.com
-            </a>
-          </p>
+        <div style={{ textAlign: 'center', fontSize: 14, color: GRAY_500 }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: BLACK, fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 3 }}>
+            Sign in
+          </Link>
         </div>
+
+        <p style={{ fontSize: 11, color: GRAY_500, marginTop: 28, textAlign: 'center', lineHeight: 1.5 }}>
+          By creating an account, you agree to our{' '}
+          <Link to="/terms" style={{ color: BLACK, textDecoration: 'underline' }}>Terms of Service</Link> and{' '}
+          <Link to="/privacy" style={{ color: BLACK, textDecoration: 'underline' }}>Privacy Policy</Link>.
+        </p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Signup;
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{label}</label>
+      {children}
+    </div>
+  )
+}
+function Req({ met, children }) {
+  return (
+    <li style={{ display: 'flex', alignItems: 'center', gap: 6, color: met ? GREEN : GRAY_500 }}>
+      <FiCheck size={12}/> {children}
+    </li>
+  )
+}
+const eyeBtn = {
+  position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+  background: 'transparent', border: 0, padding: 6,
+  color: GRAY_500, cursor: 'pointer',
+  display: 'flex', alignItems: 'center',
+}

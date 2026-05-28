@@ -462,6 +462,96 @@ app.get('/api/bookings', auth, role('operator', 'admin'), (req, res) => {
   }
 })
 
+// Customer-facing — their own trips (bookings + quote requests) by email
+app.get('/api/my-trips', auth, (req, res) => {
+  try {
+    const user = db.getUser(req.user.id)
+    if (!user) return res.status(404).json({ message: 'User not found' })
+    const email = user.email.toLowerCase()
+    const bookings = (db.listBookings({}) || []).filter(b => b.email?.toLowerCase() === email)
+    const quotes = (db.listQuoteRequests({}) || []).filter(q => q.customer_email?.toLowerCase() === email)
+    const items = [
+      ...bookings.map(b => ({ kind: 'booking', ...b })),
+      ...quotes.map(q => ({ kind: 'quote_request', ...q })),
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    res.json({ success: true, data: items })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not fetch trips', error: e.message })
+  }
+})
+
+// ── NOTIFICATIONS (real-time feed for admin/operator) ────────────────────────
+
+// Combined feed of new bookings + quote_requests, newest first.
+// Optional `since` (ISO timestamp) returns only items created after that.
+app.get('/api/notifications/recent', auth, role('operator', 'admin'), (req, res) => {
+  try {
+    const sinceTs = req.query.since ? new Date(req.query.since).getTime() : 0
+    const limit = Number(req.query.limit) || 20
+
+    const bookings = (db.listBookings({}) || []).map(b => ({
+      id: `b_${b.id}`,
+      kind: 'booking',
+      reference: b.reference || null,
+      title: `New reservation · ${b.reference || b.id}`,
+      subtitle: `${b.pickup || ''} → ${b.dropoff || ''}`,
+      meta: `${b.name || 'Guest'} · ${b.vehicle_type || 'sedan'} · ${b.passengers || 1} pax`,
+      name: b.name, email: b.email, phone: b.phone,
+      pickup: b.pickup, dropoff: b.dropoff,
+      pickup_date: b.pickup_date, pickup_time: b.pickup_time,
+      passengers: b.passengers, vehicle_type: b.vehicle_type,
+      flight_number: b.flight_number, special_requests: b.special_requests,
+      price: b.price_quoted, price_low: b.price_low, price_high: b.price_high,
+      status: b.status,
+      created_at: b.created_at,
+      link: `/operator/activity#${b.reference || b.id}`,
+      raw_id: b.id,
+    }))
+
+    const quotes = (db.listQuoteRequests({}) || []).map(q => ({
+      id: `q_${q.id}`,
+      kind: 'quote_request',
+      reference: null,
+      title: `Quote request · ${q.customer_name || 'Guest'}`,
+      subtitle: `${q.pickup || ''} → ${q.dropoff || ''}`,
+      meta: `${q.vehicle_type || 'sedan'} · ${q.passengers || 1} pax · ${q.status || 'pending'}`,
+      name: q.customer_name, email: q.customer_email, phone: q.customer_phone,
+      pickup: q.pickup, dropoff: q.dropoff,
+      pickup_date: q.ride_date, pickup_time: '',
+      passengers: q.passengers, vehicle_type: q.vehicle_type,
+      flight_number: '', special_requests: q.notes || '',
+      price: q.bid_price || null,
+      status: q.status,
+      created_at: q.created_at,
+      link: `/operator/activity#${q.id}`,
+      raw_id: q.id,
+    }))
+
+    const combined = [...bookings, ...quotes]
+      .filter(item => {
+        if (!sinceTs) return true
+        const t = new Date(item.created_at).getTime()
+        return t > sinceTs
+      })
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, limit)
+
+    const newest = combined[0]?.created_at || new Date().toISOString()
+
+    res.json({
+      success: true,
+      data: {
+        items: combined,
+        unread_count: combined.length,
+        newest_at: newest,
+        server_time: new Date().toISOString(),
+      }
+    })
+  } catch (e) {
+    res.status(500).json({ message: 'Notifications failed', error: e.message })
+  }
+})
+
 // ── HEALTH ────────────────────────────────────────────────────────────────────
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date().toISOString() }))

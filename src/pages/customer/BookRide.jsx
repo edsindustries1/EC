@@ -1,180 +1,133 @@
-import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { FiMapPin, FiPhone, FiCheckCircle } from 'react-icons/fi'
-import PlaceAutocomplete from '../../components/PlaceAutocomplete'
+import React, { useEffect } from 'react'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { FiMapPin, FiPhone, FiCheckCircle, FiArrowRight } from 'react-icons/fi'
+import { Page } from '../../components/uber'
+import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, btnPrimary, btnSecondary } from '../../styles/uber'
 
-const BookRide = () => {
+export default function BookRide() {
   const location = useLocation()
   const navigate = useNavigate()
 
   const stateData = location.state || null
   const sessionData = (() => {
-    try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null; } catch { return null; }
+    try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null } catch { return null }
   })()
   const incoming = stateData || sessionData || {}
   const prefillRide = incoming.rideData || null
   const prefillBid = incoming.selectedBid || null
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (incoming.fromBidBoard) {
-      try { sessionStorage.removeItem('pendingBidBooking'); } catch {}
+      try { sessionStorage.removeItem('pendingBidBooking') } catch {}
     }
-  }, [])
+  }, []) // eslint-disable-line
 
-  const [pickup, setPickup] = useState(prefillRide?.pickup || '')
-  const [dropoff, setDropoff] = useState(prefillRide?.dropoff || '')
-
+  // Confirmation view — operator already sent a bid, customer logged in to confirm
   if (prefillBid && prefillRide) {
     return (
-      <div className="min-h-screen bg-gray-50 section-padding" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-        <div className="container-custom max-w-2xl">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Confirm Your Booking</h1>
-          <p className="text-gray-500 mb-8">Review your trip details and selected offer below.</p>
+      <Page narrow>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 'clamp(1.7rem, 3vw, 2.3rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6 }}>
+            Confirm your booking
+          </h1>
+          <p style={{ color: GRAY_500, fontSize: 15, marginBottom: 26 }}>
+            Review your trip details and the offer below.
+          </p>
 
-          <div className="card mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <FiCheckCircle className="text-green-500" /> Trip Summary
-            </h2>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <FiMapPin size={14} className="mt-0.5 text-blue-600 flex-shrink-0" />
-                <div><span className="font-medium">Pickup:</span> {prefillRide.pickup}</div>
-              </div>
-              <div className="flex items-start gap-2">
-                <FiMapPin size={14} className="mt-0.5 text-gray-400 flex-shrink-0" />
-                <div><span className="font-medium">Dropoff:</span> {prefillRide.dropoff}</div>
-              </div>
-              {prefillRide.date && (
-                <div><span className="font-medium">Date/Time:</span> {prefillRide.date} {prefillRide.time}</div>
-              )}
-              {prefillRide.passengers && (
-                <div><span className="font-medium">Passengers:</span> {prefillRide.passengers}</div>
-              )}
-              {prefillRide.vehicle_type && (
-                <div><span className="font-medium">Vehicle:</span> {prefillRide.vehicle_type}</div>
-              )}
+          <Block title="Trip summary" icon={<FiCheckCircle size={16}/>}>
+            <Row label="Pickup"   value={prefillRide.pickup}/>
+            <Row label="Dropoff"  value={prefillRide.dropoff}/>
+            {prefillRide.date     && <Row label="Date / time" value={`${prefillRide.date} ${prefillRide.time || ''}`}/>}
+            {prefillRide.passengers && <Row label="Passengers" value={prefillRide.passengers}/>}
+            {prefillRide.vehicle_type && <Row label="Vehicle" value={prefillRide.vehicle_type}/>}
+          </Block>
+
+          <div style={{
+            background: BLACK, color: WHITE,
+            borderRadius: 12, padding: '22px 24px', marginBottom: 18,
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+              Selected offer
             </div>
-          </div>
-
-          <div className="card mb-6 border-2 border-yellow-400/50 bg-yellow-50">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Selected Offer</h2>
-            <div className="flex items-start justify-between gap-4">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap' }}>
               <div>
-                <div className="font-bold text-gray-900 text-lg">{prefillBid.operator_name || 'Everywhere Cars'}</div>
-                <div className="text-gray-500 text-sm mt-1">{prefillBid.vehicle_type || 'Premium Vehicle'}</div>
-                <div className="text-gray-500 text-sm">Ready in ~{prefillBid.eta_minutes || 30} min</div>
+                <div style={{ fontSize: 20, fontWeight: 700 }}>{prefillBid.operator_name || 'Everywhere Cars'}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{prefillBid.vehicle_type || 'Premium vehicle'}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>Ready in ~{prefillBid.eta_minutes || 30} min</div>
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-yellow-600">${prefillBid.price}</div>
-                <div className="text-gray-400 text-xs">fixed price</div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1 }}>${prefillBid.price}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>flat price</div>
               </div>
             </div>
             {prefillBid.notes && (
-              <p className="mt-3 text-sm text-gray-500 italic bg-white rounded-lg px-3 py-2">
+              <p style={{ marginTop: 14, padding: '10px 12px', background: 'rgba(255,255,255,0.08)', borderRadius: 6, fontSize: 13, fontStyle: 'italic', color: 'rgba(255,255,255,0.85)' }}>
                 "{prefillBid.notes}"
               </p>
             )}
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-sm text-blue-800 mb-6">
-            <p className="font-semibold mb-1">Ready to confirm?</p>
-            <p>Call or message us to complete your booking. Our team will confirm availability and payment details.</p>
+          <div style={{ background: GRAY_50, border: `1px solid ${GRAY_100}`, borderRadius: 8, padding: '14px 16px', marginBottom: 18, fontSize: 13, color: BLACK }}>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>Ready to confirm?</div>
+            <div style={{ color: GRAY_500 }}>Call or message us to complete your booking. Our team will confirm availability and payment details.</div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <a
-              href="tel:+17186586000"
-              className="flex-1 flex items-center justify-center gap-2 bg-[#1a365d] text-white font-bold py-4 rounded-xl hover:bg-[#0f1f3d] transition-colors text-base"
-            >
-              <FiPhone size={16} /> Call to Confirm
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <a href="tel:+17186586000" style={{ ...btnPrimary, flex: 1, justifyContent: 'center', padding: '15px 22px', fontSize: 15 }}>
+              <FiPhone size={15}/> Call to confirm
             </a>
-            <a
-              href="https://wa.me/17182196683"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-500 transition-colors text-base"
-            >
-              WhatsApp Confirm
+            <a href="https://wa.me/17182196683" target="_blank" rel="noopener noreferrer" style={{ ...btnSecondary, flex: 1, justifyContent: 'center', padding: '15px 22px', fontSize: 15 }}>
+              WhatsApp confirm
             </a>
           </div>
 
-          <button
-            onClick={() => navigate('/')}
-            className="mt-4 w-full text-gray-400 hover:text-gray-600 text-sm py-2 transition-colors"
-          >
+          <button onClick={() => navigate('/')} style={{ background: 'transparent', border: 0, color: GRAY_500, marginTop: 18, fontSize: 13, cursor: 'pointer', width: '100%' }}>
             ← Start over
           </button>
         </div>
-      </div>
+      </Page>
     )
   }
 
+  // Default — point to the new uber-style search funnel on Home
   return (
-    <div className="min-h-screen bg-gray-50 section-padding" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-      <div className="container-custom max-w-2xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Book Your Ride</h1>
-
-        <div className="card">
-          <form className="space-y-6">
-            <div>
-              <label htmlFor="bookride-pickup" className="label-base">Pickup Location</label>
-              <PlaceAutocomplete
-                id="bookride-pickup"
-                name="pickup_location"
-                value={pickup}
-                onChange={setPickup}
-                placeholder="Enter pickup location"
-                className="input-base pl-10"
-                icon={<FiMapPin className="w-5 h-5 text-gray-400" />}
-                required
-                aria-label="Pickup location"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="bookride-dropoff" className="label-base">Dropoff Location</label>
-              <PlaceAutocomplete
-                id="bookride-dropoff"
-                name="dropoff_location"
-                value={dropoff}
-                onChange={setDropoff}
-                placeholder="Enter dropoff location"
-                className="input-base pl-10"
-                icon={<FiMapPin className="w-5 h-5 text-gray-400" />}
-                required
-                aria-label="Dropoff location"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="label-base">Ride Type</label>
-                <select className="input-base">
-                  <option>Standard</option>
-                  <option>Premium</option>
-                  <option>Shared</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="label-base">Passengers</label>
-                <select className="input-base">
-                  <option>1 Passenger</option>
-                  <option>2 Passengers</option>
-                  <option>3 Passengers</option>
-                  <option>4+ Passengers</option>
-                </select>
-              </div>
-            </div>
-
-            <button type="submit" className="btn-primary w-full">
-              Get Price Quotes
-            </button>
-          </form>
+    <Page narrow>
+      <div style={{ maxWidth: 540, margin: '40px auto 0', textAlign: 'center' }}>
+        <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 12 }}>
+          Book your ride
+        </h1>
+        <p style={{ color: GRAY_500, fontSize: 16, marginBottom: 28, lineHeight: 1.5 }}>
+          Booking lives on the homepage now. Enter your route, choose a vehicle, and confirm in seconds.
+        </p>
+        <Link to="/" style={{ ...btnPrimary, padding: '14px 24px', fontSize: 15 }}>
+          Go to search <FiArrowRight size={15}/>
+        </Link>
+        <div style={{ marginTop: 22, fontSize: 14, color: GRAY_500 }}>
+          Or view your existing trips on{' '}
+          <Link to="/my-rides" style={{ color: BLACK, fontWeight: 600, textDecoration: 'underline' }}>My trips</Link>.
         </div>
+      </div>
+    </Page>
+  )
+}
+
+function Block({ title, icon, children }) {
+  return (
+    <div style={{ background: WHITE, border: `1px solid ${GRAY_100}`, borderRadius: 8, padding: '20px 22px', marginBottom: 14 }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+        {icon}{title}
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14 }}>
+        {children}
       </div>
     </div>
   )
 }
-
-export default BookRide
+function Row({ label, value }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+      <span style={{ color: GRAY_500 }}>{label}</span>
+      <span style={{ fontWeight: 600, color: BLACK, textAlign: 'right', wordBreak: 'break-word' }}>{value}</span>
+    </div>
+  )
+}

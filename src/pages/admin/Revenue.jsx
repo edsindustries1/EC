@@ -1,57 +1,46 @@
-import React from 'react'
-import { FiDollarSign, FiTrendingUp, FiCalendar } from 'react-icons/fi'
+import React, { useEffect, useState } from 'react'
+import { FiDollarSign, FiTrendingUp, FiCalendar, FiCheckCircle } from 'react-icons/fi'
+import api from '../../utils/api'
+import { Page, PageHeader, Stat, Card } from '../../components/uber'
+import { GRAY_500 } from '../../styles/uber'
 
-const Revenue = () => {
+export default function AdminRevenue() {
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/revenue')
+      .then(res => setStats(res.data?.data))
+      .catch(() => setStats(null))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const total = stats?.total_revenue || 0
+  const completed = stats?.completed_rides || 0
+  const pending = stats?.pending_rides || 0
+  const requests = stats?.total_requests || 0
+
   return (
-    <div className="min-h-screen bg-gray-50 section-padding" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-      <div className="container-custom">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Revenue Reports</h1>
+    <Page>
+      <PageHeader
+        title="Revenue"
+        lead="System-wide revenue and ride volume."
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm mb-2">Total Revenue</p>
-                <p className="text-3xl font-bold text-gray-900">$456,232</p>
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <FiDollarSign className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm mb-2">This Month</p>
-                <p className="text-3xl font-bold text-gray-900">$38,450</p>
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                <FiCalendar className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm mb-2">Growth Rate</p>
-                <p className="text-3xl font-bold text-gray-900">+18%</p>
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                <FiTrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Revenue by Operator</h2>
-          <p className="text-gray-600">Detailed breakdown coming soon...</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 24 }}>
+        <Stat label="Total revenue" value={loading ? '—' : `$${total.toLocaleString()}`} icon={FiDollarSign}/>
+        <Stat label="Completed rides" value={loading ? '—' : completed} icon={FiCheckCircle}/>
+        <Stat label="Pending rides" value={loading ? '—' : pending} icon={FiCalendar}/>
+        <Stat label="Total requests" value={loading ? '—' : requests} icon={FiTrendingUp}/>
       </div>
-    </div>
+
+      <Card>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Revenue breakdown</h3>
+        <p style={{ color: GRAY_500, fontSize: 14, lineHeight: 1.5 }}>
+          Detailed monthly breakdown by operator coming soon. Until then, see the live activity stream
+          to follow individual bookings and quote requests.
+        </p>
+      </Card>
+    </Page>
   )
 }
-
-export default Revenue

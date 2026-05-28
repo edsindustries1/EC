@@ -1,47 +1,35 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft, FiPhone } from 'react-icons/fi'
+import { BLACK, WHITE, GRAY_500, FONT, btnPrimary, btnSecondary } from '../styles/uber'
 
-const NotFound = () => {
+export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f1f3d] via-[#1a365d] to-[#1a3a6b] flex flex-col items-center justify-center text-white px-4 overflow-hidden relative">
-      {/* Decorative blurs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600 opacity-10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-800 opacity-15 rounded-full blur-3xl -translate-x-1/4 translate-y-1/4" />
-      </div>
-
-      <div className="relative z-10 text-center max-w-lg">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <img src="/logo.png?v=3" alt="Everywhere Cars" className="h-14 w-auto" />
+    <div style={{
+      background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em',
+      minHeight: '100vh',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '48px 16px',
+    }}>
+      <div style={{ textAlign: 'center', maxWidth: 480 }}>
+        <div style={{ fontSize: 'clamp(5rem, 16vw, 10rem)', fontWeight: 700, lineHeight: 1, letterSpacing: '-0.05em', marginBottom: 12 }}>
+          404
         </div>
-
-        {/* 404 */}
-        <div className="text-9xl font-bold text-white/20 leading-none mb-2">404</div>
-        <h1 className="text-3xl font-bold mb-4">Page Not Found</h1>
-        <p className="text-blue-200 text-lg mb-10 leading-relaxed">
+        <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 10 }}>
+          Page not found
+        </h1>
+        <p style={{ color: GRAY_500, fontSize: 16, lineHeight: 1.5, marginBottom: 28 }}>
           Sorry, the page you're looking for doesn't exist. Let's get you back on the road.
         </p>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-[#0f1f3d] font-bold px-8 py-4 rounded-xl hover:bg-yellow-300 transition-colors text-base"
-          >
-            <FiArrowLeft size={16} /> Back to Home
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link to="/" style={{ ...btnPrimary, padding: '14px 24px' }}>
+            <FiArrowLeft size={15}/> Back to home
           </Link>
-          <a
-            href="tel:+17186586000"
-            className="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-base"
-          >
-            <FiPhone size={16} /> Call (718) 658-6000
+          <a href="tel:+17186586000" style={{ ...btnSecondary, padding: '14px 24px' }}>
+            <FiPhone size={15}/> (718) 658-6000
           </a>
         </div>
       </div>
     </div>
   )
 }
-
-export default NotFound

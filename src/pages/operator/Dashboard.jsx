@@ -1,356 +1,205 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
-  FiAlertCircle,
-  FiClock,
-  FiCheckCircle,
-  FiNavigation,
-  FiDollarSign,
-  FiList,
-  FiUsers,
-  FiUserPlus,
-  FiChevronRight,
-  FiMessageCircle,
-} from 'react-icons/fi';
-import { format } from 'date-fns';
-import { useAuth } from '../../context/AuthContext';
-import api from '../../utils/api';
-import StatsCard from '../../components/StatsCard';
-import StatusBadge from '../../components/StatusBadge';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import QuoteRequestsTab from '../../components/QuoteRequestsTab';
-import toast from 'react-hot-toast';
+  FiAlertCircle, FiClock, FiCheckCircle, FiNavigation, FiDollarSign,
+  FiList, FiUsers, FiUserPlus, FiArrowRight, FiActivity,
+} from 'react-icons/fi'
+import { format } from 'date-fns'
+import api from '../../utils/api'
+import { Page, PageHeader, Stat, Card, StatusChip, EmptyState } from '../../components/uber'
+import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500 } from '../../styles/uber'
 
-export default function Dashboard() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [dashboardData, setDashboardData] = useState(null);
-  const [recentRequests, setRecentRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [activeTab, setActiveTab] = useState('overview');
+const VEHICLE_LABEL = {
+  sedan: 'Sedan', suv: 'SUV', sprinter_van: 'Sprinter',
+  mini_bus: 'Shuttle', coach: 'Coach', limo: 'Limo',
+}
+
+export default function OperatorDashboard() {
+  const navigate = useNavigate()
+  const [stats, setStats] = useState(null)
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [now, setNow] = useState(new Date())
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    const t = setInterval(() => setNow(new Date()), 30000)
+    return () => clearInterval(t)
+  }, [])
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const [dashboardRes, requestsRes] = await Promise.all([
-          api.get('/operator/dashboard'),
-          api.get('/operator/requests?limit=10&sort=-createdAt'),
-        ]);
+    let active = true
+    Promise.all([
+      api.get('/operator/dashboard').catch(() => null),
+      api.get('/operator/requests?limit=10').catch(() => null),
+    ]).then(([dash, reqs]) => {
+      if (!active) return
+      setStats(dash?.data?.data?.stats)
+      setRequests(reqs?.data?.data || [])
+    }).finally(() => active && setLoading(false))
+    return () => { active = false }
+  }, [])
 
-        setDashboardData(dashboardRes.data.data);
-        setRecentRequests(requestsRes.data.data);
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-        toast.error('Failed to load dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
-
-  if (loading || !dashboardData) {
-    return <LoadingSpinner />;
-  }
-
-  const pendingCount = dashboardData.stats.pending || 0;
-  const quotedCount = dashboardData.stats.quoted || 0;
-  const confirmedCount = dashboardData.stats.confirmed || 0;
-  const activeRidesCount = dashboardData.stats.inProgress || 0;
-  const completedTodayCount = dashboardData.stats.completedToday || 0;
-  const todayRevenue = dashboardData.stats.todayRevenue || 0;
-
-  const handlePendingClick = () => {
-    navigate('/operator/requests?status=pending');
-  };
-
-  const handleQuoteClick = (requestId) => {
-    navigate(`/operator/requests?highlight=${requestId}`);
-  };
-
-  const handleViewAllRequests = () => {
-    navigate('/operator/requests');
-  };
-
-  const handleManageDrivers = () => {
-    navigate('/operator/drivers');
-  };
-
-  const handleAddDriver = () => {
-    navigate('/operator/drivers?action=add');
-  };
+  const pending   = stats?.pending_requests || 0
+  const quoted    = stats?.active_bids       || 0
+  const completed = stats?.completed_rides   || 0
+  const revenue   = stats?.total_revenue     || 0
+  const total     = stats?.total_requests    || 0
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-4xl font-bold text-gray-900">Operations Center</h1>
-        <p className="text-gray-600 mt-1">
-          {format(currentTime, 'EEEE, MMMM d, yyyy h:mm a')}
-        </p>
-      </div>
+    <Page>
+      <PageHeader
+        title="Operations center"
+        lead={format(now, "EEEE, MMMM d · h:mm a")}
+        right={
+          <Link to="/operator/activity" style={{
+            background: BLACK, color: WHITE,
+            padding: '10px 18px', borderRadius: 999, border: 0,
+            fontWeight: 600, fontSize: 13, textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+          }}>
+            <FiActivity size={13}/> Live activity
+          </Link>
+        }
+      />
 
-      {/* Tab Navigation */}
-      <div className="flex gap-2 mb-8 border-b border-gray-200">
+      {/* URGENT */}
+      {pending > 0 && (
         <button
-          onClick={() => setActiveTab('overview')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-            activeTab === 'overview'
-              ? 'border-primary-800 text-primary-800'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
+          onClick={() => navigate('/operator/activity')}
+          style={{
+            width: '100%', textAlign: 'left',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            gap: 16, padding: '20px 24px',
+            background: BLACK, color: WHITE, borderRadius: 8,
+            border: 0, cursor: 'pointer', marginBottom: 20,
+          }}
         >
-          <FiList size={15} />
-          Overview
-        </button>
-        <button
-          onClick={() => setActiveTab('quotes')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-            activeTab === 'quotes'
-              ? 'border-primary-800 text-primary-800'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <FiMessageCircle size={15} />
-          Quote Requests
-        </button>
-      </div>
-
-      {activeTab === 'quotes' && (
-        <QuoteRequestsTab />
-      )}
-
-      {activeTab === 'overview' && (
-      <>
-
-      {/* Urgent Section - Pending Requests */}
-      {pendingCount > 0 && (
-        <div
-          onClick={handlePendingClick}
-          className="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-orange-300 rounded-lg p-6 cursor-pointer hover:shadow-lg hover:border-orange-400 transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-orange-500 text-white rounded-full p-3">
-                <FiAlertCircle size={32} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <FiAlertCircle size={28}/>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.7 }}>
+                Pending requests
               </div>
-              <div>
-                <p className="text-sm text-gray-600 font-medium">PENDING REQUESTS</p>
-                <p className="text-3xl font-bold text-orange-600">{pendingCount}</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  {pendingCount === 1 ? 'Ride' : 'Rides'} waiting for quotes
-                </p>
-              </div>
+              <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, marginTop: 2 }}>{pending}</div>
+              <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{pending === 1 ? 'Ride' : 'Rides'} waiting</div>
             </div>
-            <FiChevronRight size={28} className="text-orange-600" />
           </div>
-        </div>
+          <FiArrowRight size={20}/>
+        </button>
       )}
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <StatsCard
-          title="Pending Requests"
-          value={pendingCount}
-          icon={FiClock}
-          color="yellow"
-          onClick={handlePendingClick}
-        />
-        <StatsCard
-          title="Quoted"
-          value={quotedCount}
-          icon={FiList}
-          color="blue"
-        />
-        <StatsCard
-          title="Confirmed"
-          value={confirmedCount}
-          icon={FiCheckCircle}
-          color="green"
-        />
-        <StatsCard
-          title="Active Rides"
-          value={activeRidesCount}
-          icon={FiNavigation}
-          color="indigo"
-        />
-        <StatsCard
-          title="Completed Today"
-          value={completedTodayCount}
-          icon={FiCheckCircle}
-          color="teal"
-        />
-        <StatsCard
-          title="Today's Revenue"
-          value={`$${todayRevenue.toFixed(0)}`}
-          icon={FiDollarSign}
-          color="emerald"
-        />
+      {/* STATS GRID */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 24 }}>
+        <Stat label="Pending"        value={loading ? '—' : pending}   icon={FiClock}/>
+        <Stat label="Quoted"         value={loading ? '—' : quoted}    icon={FiList}/>
+        <Stat label="Completed"      value={loading ? '—' : completed} icon={FiCheckCircle}/>
+        <Stat label="Total revenue"  value={loading ? '—' : `$${revenue.toLocaleString()}`} icon={FiDollarSign}/>
       </div>
 
-      {/* Recent Requests and Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Recent Requests Table */}
-        <div className="lg:col-span-3">
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Requests</h2>
-            </div>
+      {/* RECENT + QUICK ACTIONS */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-            {recentRequests.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <p className="text-gray-500">No recent requests</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Time
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Customer
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Route
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Pass.
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Vehicle
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentRequests.map((request) => (
-                      <tr
-                        key={request._id}
-                        className={`border-b border-gray-200 hover:bg-gray-50 transition ${
-                          request.status === 'pending' ? 'bg-yellow-50' : ''
-                        }`}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {format(new Date(request.createdAt), 'HH:mm')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {request.customer?.name || 'N/A'}
-                        </td>
-                        <td
-                          className="px-6 py-4 text-sm text-gray-600 cursor-pointer hover:text-blue-600 max-w-xs truncate"
-                          onClick={() => handleQuoteClick(request._id)}
-                          title={`${request.pickupLocation} → ${request.destination}`}
-                        >
-                          {request.pickupLocation?.substring(0, 20)}...
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {request.passengers}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {request.vehicleType}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <StatusBadge status={request.status} />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          {request.status === 'pending' && (
-                            <button
-                              onClick={() => handleQuoteClick(request._id)}
-                              className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded hover:bg-blue-600 transition"
-                            >
-                              Quote
-                            </button>
-                          )}
-                          {request.status === 'confirmed' && (
-                            <button
-                              onClick={() => handleQuoteClick(request._id)}
-                              className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded hover:bg-green-600 transition"
-                            >
-                              Assign
-                            </button>
-                          )}
-                          {['quoted', 'assigned', 'in_progress', 'completed', 'cancelled'].includes(
-                            request.status
-                          ) && (
-                            <span className="text-xs text-gray-500">—</span>
-                          )}
-                        </td>
-                      </tr>
+        <Card style={{ gridColumn: 'span 2', padding: 0, overflow: 'hidden' }}>
+          <div style={{ padding: '18px 22px', borderBottom: `1px solid ${GRAY_100}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700 }}>Recent requests</h3>
+            <Link to="/operator/activity" style={{ color: BLACK, fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              View all <FiArrowRight size={12}/>
+            </Link>
+          </div>
+
+          {requests.length === 0 ? (
+            <div style={{ padding: 32 }}>
+              <EmptyState
+                icon={FiList}
+                title="No recent requests"
+                description="When a customer books or requests a quote, it'll appear here."
+              />
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: GRAY_50 }}>
+                    {['Time', 'Customer', 'Route', 'Pax', 'Vehicle', 'Status'].map(h => (
+                      <th key={h} style={{
+                        padding: '12px 16px', textAlign: 'left',
+                        fontSize: 11, fontWeight: 700, color: GRAY_500,
+                        textTransform: 'uppercase', letterSpacing: '0.08em',
+                        borderBottom: `1px solid ${GRAY_100}`,
+                      }}>{h}</th>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <div className="px-6 py-4 border-t border-gray-200">
-              <button
-                onClick={handleViewAllRequests}
-                className="text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center gap-2"
-              >
-                View All Requests <FiChevronRight size={16} />
-              </button>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map(r => (
+                    <tr key={r.id} style={{ cursor: 'pointer' }}
+                      onClick={() => navigate('/operator/activity')}
+                      onMouseEnter={(e) => e.currentTarget.style.background = GRAY_50}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <td style={cell}>{r.created_at ? format(new Date(r.created_at), 'HH:mm') : '—'}</td>
+                      <td style={{ ...cell, fontWeight: 600 }}>{r.name || r.customer_name || 'Guest'}</td>
+                      <td style={{ ...cell, maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {(r.pickup || '').slice(0, 24)}{r.pickup?.length > 24 ? '…' : ''} → {(r.dropoff || '').slice(0, 24)}
+                      </td>
+                      <td style={cell}>{r.passengers}</td>
+                      <td style={cell}>{VEHICLE_LABEL[r.vehicle_type] || r.vehicle_type}</td>
+                      <td style={cell}><StatusChip status={r.status}/></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
+          )}
+        </Card>
 
-        {/* Quick Actions Sidebar */}
-        <div className="space-y-4">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">
-              Quick Actions
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Card>
+            <h3 style={{ fontSize: 12, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>
+              Quick actions
             </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Quick to="/operator/activity" icon={FiActivity} label="Live activity"/>
+              <Quick to="/operator/requests" icon={FiList} label="All requests"/>
+              <Quick to="/operator/drivers" icon={FiUsers} label="Manage drivers"/>
+              <Quick to="/operator/drivers?action=add" icon={FiUserPlus} label="Add driver"/>
+            </div>
+          </Card>
 
-            <button
-              onClick={handleViewAllRequests}
-              className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 mb-3"
-            >
-              <FiList size={18} />
-              View All Requests
-            </button>
-
-            <button
-              onClick={handleManageDrivers}
-              className="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2 mb-3"
-            >
-              <FiUsers size={18} />
-              Manage Drivers
-            </button>
-
-            <button
-              onClick={handleAddDriver}
-              className="w-full px-4 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
-            >
-              <FiUserPlus size={18} />
-              Add New Driver
-            </button>
-          </div>
-
-          {/* Info Card */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 text-sm mb-2">Welcome back!</h4>
-            <p className="text-sm text-blue-800">
-              You have {pendingCount} {pendingCount === 1 ? 'request' : 'requests'} waiting for quotes.
+          <Card style={{ background: GRAY_50 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Tip</div>
+            <p style={{ fontSize: 13, color: GRAY_500, lineHeight: 1.5 }}>
+              Use Live activity to see new bookings and quote requests as they arrive in real time — no refresh needed.
             </p>
-          </div>
+          </Card>
         </div>
       </div>
-      </>
-      )}
-    </div>
-  );
+    </Page>
+  )
+}
+
+function Quick({ to, icon: Icon, label }) {
+  return (
+    <Link to={to}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 12px', borderRadius: 6,
+        background: GRAY_50, color: BLACK, textDecoration: 'none',
+        fontSize: 14, fontWeight: 600,
+        transition: 'background 150ms ease',
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.background = GRAY_100}
+      onMouseLeave={(e) => e.currentTarget.style.background = GRAY_50}
+    >
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+        <Icon size={14}/> {label}
+      </span>
+      <FiArrowRight size={14}/>
+    </Link>
+  )
+}
+
+const cell = {
+  padding: '13px 16px', fontSize: 14, color: BLACK,
+  borderBottom: `1px solid ${GRAY_100}`,
 }

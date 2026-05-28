@@ -1,60 +1,100 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { FiLogOut, FiUser, FiMail, FiPhone, FiShield, FiArrowRight } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
-import { LoadingSpinner } from '../components'
+import { Page, PageHeader, Card } from '../components/uber'
+import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500 } from '../styles/uber'
 
-const Profile = () => {
+export default function Profile() {
   const { user, logout } = useAuth()
-  const [isEditing, setIsEditing] = useState(false)
+  const navigate = useNavigate()
 
   if (!user) {
-    return <LoadingSpinner />
+    return <Page><Card><div style={{ color: GRAY_500, textAlign: 'center', padding: 32 }}>Loading…</div></Card></Page>
   }
 
+  const handleLogout = () => { logout(); navigate('/') }
+
   return (
-    <div className="min-h-screen bg-gray-50 section-padding" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-      <div className="container-custom max-w-2xl">
-        <div className="card">
-          <div className="flex items-start justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="btn-secondary text-sm"
-            >
-              {isEditing ? 'Cancel' : 'Edit'}
-            </button>
-          </div>
+    <Page narrow>
+      <div style={{ maxWidth: 640, margin: '0 auto' }}>
+        <PageHeader title="My profile" lead="Account details and preferences."/>
 
-          <div className="space-y-4">
+        <Card>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: BLACK, color: WHITE,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, fontSize: 22,
+            }}>{user.name?.charAt(0)?.toUpperCase() || '?'}</div>
             <div>
-              <label className="label-base">Name</label>
-              <p className="text-gray-700">{user.name}</p>
-            </div>
-            <div>
-              <label className="label-base">Email</label>
-              <p className="text-gray-700">{user.email}</p>
-            </div>
-            <div>
-              <label className="label-base">Phone</label>
-              <p className="text-gray-700">{user.phone || 'Not provided'}</p>
-            </div>
-            <div>
-              <label className="label-base">Role</label>
-              <p className="text-gray-700 capitalize">{user.role}</p>
+              <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em' }}>{user.name}</div>
+              <div style={{ fontSize: 13, color: GRAY_500 }}>{user.email}</div>
             </div>
           </div>
 
-          <div className="border-t border-gray-200 mt-6 pt-6">
-            <button
-              onClick={logout}
-              className="btn-secondary text-red-600 border-red-200 hover:bg-red-50 w-full"
-            >
-              Logout
-            </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14 }}>
+            <DetailRow icon={FiUser}   label="Name"  value={user.name}/>
+            <DetailRow icon={FiMail}   label="Email" value={user.email}/>
+            <DetailRow icon={FiPhone}  label="Phone" value={user.phone || 'Not provided'}/>
+            <DetailRow icon={FiShield} label="Role"  value={user.role}/>
           </div>
-        </div>
+        </Card>
+
+        {(user.role === 'customer') && (
+          <Card style={{ marginTop: 14 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Quick actions</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <QuickLink to="/my-rides" label="View my trips"/>
+              <QuickLink to="/" label="Book a new ride"/>
+            </div>
+          </Card>
+        )}
+
+        <button
+          onClick={handleLogout}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', marginTop: 18,
+            padding: '14px 22px', borderRadius: 4,
+            background: 'transparent', color: '#b91c1c',
+            border: `1px solid ${GRAY_100}`,
+            fontWeight: 600, fontSize: 14, cursor: 'pointer',
+          }}
+        >
+          <FiLogOut size={14}/> Log out
+        </button>
+      </div>
+    </Page>
+  )
+}
+
+function DetailRow({ icon: Icon, label, value }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <Icon size={14} style={{ color: GRAY_500 }}/>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+        <span style={{ color: GRAY_500 }}>{label}</span>
+        <span style={{ fontWeight: 600, color: BLACK, textAlign: 'right', textTransform: label === 'Role' ? 'capitalize' : 'none' }}>{value}</span>
       </div>
     </div>
   )
 }
 
-export default Profile
+function QuickLink({ to, label }) {
+  return (
+    <Link to={to} style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '10px 12px', borderRadius: 6,
+      background: GRAY_50, color: BLACK, textDecoration: 'none',
+      fontSize: 14, fontWeight: 600,
+    }}
+      onMouseEnter={(e) => e.currentTarget.style.background = GRAY_100}
+      onMouseLeave={(e) => e.currentTarget.style.background = GRAY_50}
+    >
+      {label}
+      <FiArrowRight size={14}/>
+    </Link>
+  )
+}

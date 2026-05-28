@@ -1,79 +1,48 @@
 import React from 'react'
+import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT } from '../styles/uber'
 
-const Privacy = () => {
+const SECTIONS = [
+  { title: 'Introduction',                  body: 'Everywhere Cars ("we", "our", "us") operates this website and mobile application. This page describes how we collect, use, and protect your personal information when you use our service.' },
+  { title: 'Information we collect',        body: 'We collect a small set of personal information to provide and improve our service: your name, email, phone number, and pickup / drop-off addresses; usage data (pages visited, device and browser info); and payment details (processed securely by our payment providers — we never store full card numbers).' },
+  { title: 'How we use it',                 body: 'We use this data to confirm and dispatch your rides, notify you about changes to your trip, improve our service, and meet legal obligations. We do not sell your personal information.' },
+  { title: 'Security',                      body: 'We use commercially reasonable encryption, access controls, and monitoring to protect your data. No system is 100% secure, but we treat every reservation as a duty of care obligation.' },
+  { title: 'Your rights',                   body: 'You can request a copy of the personal data we hold about you, ask us to correct or delete it, or opt out of marketing communications at any time by emailing privacy@everywherecars.com.' },
+  { title: 'Contact',                       body: 'Questions? Email privacy@everywherecars.com or call (718) 658-6000.' },
+]
+
+export default function Privacy() {
+  return <Legal title="Privacy Policy" lead="How Everywhere Cars collects, uses and protects your personal information." sections={SECTIONS}/>
+}
+
+export function Legal({ title, lead, sections }) {
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-
-      {/* Branded Hero */}
-      <section className="relative bg-gradient-to-br from-[#0f1f3d] via-[#1a365d] to-[#1a3a6b] text-white overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600 opacity-10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-800 opacity-15 rounded-full blur-3xl -translate-x-1/4 translate-y-1/4" />
-        </div>
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <div className="flex justify-center mb-6">
-            <img src="/logo.png?v=3" alt="Everywhere Cars" className="h-14 w-auto" />
-          </div>
-          <h1 className="text-5xl font-bold tracking-tight mb-4">Privacy Policy</h1>
-          <p className="text-blue-200 text-lg max-w-xl mx-auto">
-            How Everywhere Cars collects, uses, and protects your personal information.
-          </p>
+    <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em', minHeight: '100vh' }}>
+      <section style={{ background: BLACK, color: WHITE }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0', textAlign: 'center' }}>
+          <h1 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 12 }}>
+            {title}
+          </h1>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 560, margin: '0 auto' }}>{lead}</p>
         </div>
       </section>
 
-      {/* Body */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-card p-8 sm:p-10 space-y-8">
-
-            <section>
-              <h2 className="text-2xl font-bold text-[#1a365d] mb-4 pb-2 border-b border-gray-100">1. Introduction</h2>
-              <p className="text-gray-700 leading-relaxed">
-                Everywhere Cars ("Company", "we", "our", or "us") operates the website and mobile application. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-[#1a365d] mb-4 pb-2 border-b border-gray-100">2. Information Collection and Use</h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                We collect several different types of information for various purposes to provide and improve our Service to you.
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-gray-700">
-                <li>Personal Data: Name, email address, phone number, location data</li>
-                <li>Usage Data: Pages visited, time spent, device information, browser information</li>
-                <li>Payment Information: Transaction details (processed securely by third parties)</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-[#1a365d] mb-4 pb-2 border-b border-gray-100">3. Use of Data</h2>
-              <p className="text-gray-700 leading-relaxed">
-                Everywhere Cars uses the collected data for various purposes, including providing and maintaining our Service, notifying you about changes to our Service, allowing you to participate in interactive features, and for analysis and improvement of our Service.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-[#1a365d] mb-4 pb-2 border-b border-gray-100">4. Security of Data</h2>
-              <p className="text-gray-700 leading-relaxed">
-                The security of your data is important to us but remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-[#1a365d] mb-4 pb-2 border-b border-gray-100">5. Contact Us</h2>
-              <p className="text-gray-700 leading-relaxed">
-                If you have any questions about this Privacy Policy, please contact us at{' '}
-                <a href="mailto:privacy@everywherecars.com" className="text-[#1a365d] font-semibold hover:underline">
-                  privacy@everywherecars.com
-                </a>
-              </p>
-            </section>
-
+      <section style={{ background: GRAY_50 }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '64px 0' }}>
+          <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${GRAY_100}`, padding: '40px 36px', display: 'flex', flexDirection: 'column', gap: 28 }}>
+            {sections.map((s, i) => (
+              <div key={s.title}>
+                <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 10, paddingBottom: 8, borderBottom: `1px solid ${GRAY_100}` }}>
+                  {i + 1}. {s.title}
+                </h2>
+                <p style={{ fontSize: 15, color: GRAY_500, lineHeight: 1.65 }}>{s.body}</p>
+              </div>
+            ))}
+            <p style={{ fontSize: 12, color: GRAY_500, marginTop: 8 }}>
+              Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
           </div>
         </div>
       </section>
     </div>
   )
 }
-
-export default Privacy

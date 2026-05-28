@@ -5,6 +5,7 @@ import {
   FiLogOut, FiSettings, FiUser,
 } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from './NotificationBell'
 
 const BLACK = '#000'
 const WHITE = '#fff'
@@ -88,6 +89,7 @@ export default function Navbar() {
           {(user?.role === 'operator' || user?.role === 'admin' ? (
             <>
               <NavLink to="/operator/dashboard">Dashboard</NavLink>
+              <NavLink to="/operator/activity">Activity</NavLink>
               <NavLink to="/operator/requests">Requests</NavLink>
               <NavLink to="/operator/drivers">Drivers</NavLink>
               {user?.role === 'admin' && (
@@ -111,6 +113,9 @@ export default function Navbar() {
 
         {/* Right CTAs */}
         <div className="hidden md:flex items-center" style={{ gap: 10 }}>
+          {isAuthenticated && (user?.role === 'operator' || user?.role === 'admin') && (
+            <NotificationBell />
+          )}
           {isAuthenticated && user ? (
             <div style={{ position: 'relative' }} ref={profileRef}>
               <button
@@ -192,6 +197,7 @@ export default function Navbar() {
             {(user?.role === 'operator' || user?.role === 'admin' ? (
               <>
                 <MobileLink to="/operator/dashboard">Dashboard</MobileLink>
+                <MobileLink to="/operator/activity">Activity</MobileLink>
                 <MobileLink to="/operator/requests">Requests</MobileLink>
                 <MobileLink to="/operator/drivers">Drivers</MobileLink>
                 {user?.role === 'admin' && (
