@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs'
 import { fileURLToPath } from 'url'
 import { join, dirname } from 'path'
 import { existsSync } from 'fs'
-import { db } from './db.js'
+import { db, initDb } from './db.js'
 import { sendWelcomeEmail, sendQuoteConfirmation, sendOperatorNotification } from './emailService.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -69,9 +69,9 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password, phone } = req.body
     if (!name || !email || !password) return res.status(400).json({ message: 'Name, email and password required' })
-    if (db.getUserByEmail(email)) return res.status(409).json({ message: 'Email already registered' })
+    if (await db.getUserByEmail(email)) return res.status(409).json({ message: 'Email already registered' })
     const hashed = bcrypt.hashSync(password, 10)
-    const user = db.createUser({ name, email, password: hashed, phone: phone || '', role: 'customer' })
+    const user = await db.createUser({ name, email, password: hashed, phone: phone || '', role: 'customer' })
     sendWelcomeEmail(name, email).catch(err => console.error('[email] welcome failed:', err.message))
     res.status(201).json(sign(user))
   } catch (e) {
@@ -82,7 +82,7 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body
-    const user = db.getUserByEmail(email)
+    const user = await db.getUserByEmail(email)
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
@@ -92,15 +92,19 @@ app.post('/api/auth/login', async (req, res) => {
   }
 })
 
-app.get('/api/auth/me', auth, (req, res) => {
-  const user = db.getUser(req.user.id)
-  if (!user) return res.status(404).json({ message: 'User not found' })
-  res.json({ user: safe(user) })
+app.get('/api/auth/me', auth, async (req, res) => {
+  try {
+    const user = await db.getUser(req.user.id)
+    if (!user) return res.status(404).json({ message: 'User not found' })
+    res.json({ user: safe(user) })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not fetch user', error: e.message })
+  }
 })
 
 // ── QUOTE REQUESTS ────────────────────────────────────────────────────────────
 
-app.post('/api/quote-requests', (req, res) => {
+app.post('/api/quote-requests', async (req, res) => {
   try {
     const { name, phone, email, pickup, dropoff, ride_date, passengers, vehicle_type } = req.body
     if (!pickup || !dropoff) return res.status(400).json({ message: 'Pickup and dropoff required' })
@@ -109,7 +113,7 @@ app.post('/api/quote-requests', (req, res) => {
     let customerId = null
     try { if (token) { const d = jwt.verify(token, JWT_SECRET); customerId = d.id } } catch {}
 
-    const qr = db.createQuoteRequest({
+    const qr = await db.createQuoteRequest({
       customer_name: name || 'Guest',
       customer_phone: phone || '',
       customer_email: email || '',
@@ -141,35 +145,36 @@ app.post('/api/quote-requests', (req, res) => {
   }
 })
 
-app.get('/api/quote-requests', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/quote-requests', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const { status, search, page = 1, limit = 20 } = req.query
-    let list = db.listQuoteRequests({ status, search })
+    const list = await db.listQuoteRequests({ status, search })
     const total = list.length
     const totalPages = Math.ceil(total / Number(limit)) || 1
     const start = (Number(page) - 1) * Number(limit)
-    const items = list.slice(start, start + Number(limit)).map(qr => ({
+    const sliced = list.slice(start, start + Number(limit))
+    const items = await Promise.all(sliced.map(async qr => ({
       ...qrToLead(qr),
-      bids: db.getBidsForRequest(qr.id),
-    }))
+      bids: await db.getBidsForRequest(qr.id),
+    })))
     res.json({ data: items, pagination: { total, totalPages, page: Number(page), limit: Number(limit) } })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch requests', error: e.message })
   }
 })
 
-app.get('/api/quote-requests/:id', (req, res) => {
+app.get('/api/quote-requests/:id', async (req, res) => {
   try {
-    const qr = db.getQuoteRequest(req.params.id)
+    const qr = await db.getQuoteRequest(req.params.id)
     if (!qr) return res.status(404).json({ message: 'Quote request not found' })
-    const bids = db.getBidsForRequest(qr.id)
+    const bids = await db.getBidsForRequest(qr.id)
     res.json({ success: true, data: { ...qrToLead(qr), bids } })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch quote request', error: e.message })
   }
 })
 
-app.patch('/api/quote-requests/:id', auth, role('operator', 'admin'), (req, res) => {
+app.patch('/api/quote-requests/:id', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const { bid_price, eta_minutes, notes, status, vehicle_type, ...rest } = req.body
     const updates = { ...rest }
@@ -180,8 +185,8 @@ app.patch('/api/quote-requests/:id', auth, role('operator', 'admin'), (req, res)
     if (notes !== undefined) updates.notes = notes
 
     if (bid_price) {
-      const operator = db.getUser(req.user.id)
-      db.createBid({
+      const operator = await db.getUser(req.user.id)
+      await db.createBid({
         quote_request_id: req.params.id,
         operator_id: req.user.id,
         operator_name: operator?.name || 'Everywhere Cars',
@@ -194,7 +199,7 @@ app.patch('/api/quote-requests/:id', auth, role('operator', 'admin'), (req, res)
       if (!status) updates.status = 'quoted'
     }
 
-    const updated = db.updateQuoteRequest(req.params.id, updates)
+    const updated = await db.updateQuoteRequest(req.params.id, updates)
     if (!updated) return res.status(404).json({ message: 'Not found' })
     res.json({ success: true, data: qrToLead(updated) })
   } catch (e) {
@@ -202,10 +207,10 @@ app.patch('/api/quote-requests/:id', auth, role('operator', 'admin'), (req, res)
   }
 })
 
-app.patch('/api/quote-requests/:id/status', auth, role('operator', 'admin'), (req, res) => {
+app.patch('/api/quote-requests/:id/status', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const { status } = req.body
-    const updated = db.updateQuoteRequest(req.params.id, { status })
+    const updated = await db.updateQuoteRequest(req.params.id, { status })
     if (!updated) return res.status(404).json({ message: 'Not found' })
     res.json({ success: true, data: qrToLead(updated) })
   } catch (e) {
@@ -215,14 +220,14 @@ app.patch('/api/quote-requests/:id/status', auth, role('operator', 'admin'), (re
 
 // ── BIDS ──────────────────────────────────────────────────────────────────────
 
-app.post('/api/quote-requests/:id/bids', auth, role('operator', 'admin'), (req, res) => {
+app.post('/api/quote-requests/:id/bids', auth, role('operator', 'admin'), async (req, res) => {
   try {
-    const qr = db.getQuoteRequest(req.params.id)
+    const qr = await db.getQuoteRequest(req.params.id)
     if (!qr) return res.status(404).json({ message: 'Quote request not found' })
-    const operator = db.getUser(req.user.id)
+    const operator = await db.getUser(req.user.id)
     const { price, vehicle_type, eta_minutes, message, notes } = req.body
     if (!price) return res.status(400).json({ message: 'Price required' })
-    const bid = db.createBid({
+    const bid = await db.createBid({
       quote_request_id: qr.id,
       operator_id: req.user.id,
       operator_name: operator?.name || 'Operator',
@@ -232,7 +237,7 @@ app.post('/api/quote-requests/:id/bids', auth, role('operator', 'admin'), (req, 
       message: message || notes || '',
       notes: message || notes || '',
     })
-    db.updateQuoteRequest(qr.id, { status: 'quoted', bid_price: Number(price) })
+    await db.updateQuoteRequest(qr.id, { status: 'quoted', bid_price: Number(price) })
     res.status(201).json({ success: true, data: bid })
   } catch (e) {
     res.status(500).json({ message: 'Could not submit bid', error: e.message })
@@ -241,14 +246,15 @@ app.post('/api/quote-requests/:id/bids', auth, role('operator', 'admin'), (req, 
 
 // ── OPERATOR DASHBOARD ────────────────────────────────────────────────────────
 
-app.get('/api/operator/dashboard', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/operator/dashboard', auth, role('operator', 'admin'), async (req, res) => {
   try {
-    const all = db.listQuoteRequests()
+    const all = await db.listQuoteRequests()
     const pending = all.filter(r => r.status === 'pending' || r.status === 'new').length
     const quoted = all.filter(r => r.status === 'quoted' || r.status === 'contacted').length
     const completed = all.filter(r => r.status === 'completed' || r.status === 'booked').length
-    const bids = all.flatMap(r => db.getBidsForRequest(r.id))
-    const revenue = bids.reduce((s, b) => s + (b.price || 0), 0)
+    const bidLists = await Promise.all(all.map(r => db.getBidsForRequest(r.id)))
+    const bids = bidLists.flat()
+    const revenue = bids.reduce((s, b) => s + (Number(b.price) || 0), 0)
     res.json({
       data: {
         stats: {
@@ -265,11 +271,15 @@ app.get('/api/operator/dashboard', auth, role('operator', 'admin'), (req, res) =
   }
 })
 
-app.get('/api/operator/requests', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/operator/requests', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const { limit = 10, status, search } = req.query
-    let list = db.listQuoteRequests({ status, search }).slice(0, Number(limit))
-    res.json({ data: list.map(qr => ({ ...qrToLead(qr), bids: db.getBidsForRequest(qr.id) })) })
+    const list = (await db.listQuoteRequests({ status, search })).slice(0, Number(limit))
+    const enriched = await Promise.all(list.map(async qr => ({
+      ...qrToLead(qr),
+      bids: await db.getBidsForRequest(qr.id),
+    })))
+    res.json({ data: enriched })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch requests', error: e.message })
   }
@@ -277,20 +287,20 @@ app.get('/api/operator/requests', auth, role('operator', 'admin'), (req, res) =>
 
 // ── DRIVERS ───────────────────────────────────────────────────────────────────
 
-app.get('/api/drivers', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/drivers', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const opId = req.user.role === 'admin' ? undefined : req.user.id
-    res.json({ data: db.listDrivers(opId) })
+    res.json({ data: await db.listDrivers(opId) })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch drivers', error: e.message })
   }
 })
 
-app.post('/api/drivers', auth, role('operator', 'admin'), (req, res) => {
+app.post('/api/drivers', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const { name, phone, vehicle_type, vehicle, plate } = req.body
     if (!name || !phone) return res.status(400).json({ message: 'Name and phone required' })
-    const driver = db.createDriver({ operator_id: req.user.id, name, phone, vehicle_type: vehicle_type || 'sedan', vehicle: vehicle || '', plate: plate || '', status: 'available' })
+    const driver = await db.createDriver({ operator_id: req.user.id, name, phone, vehicle_type: vehicle_type || 'sedan', vehicle: vehicle || '', plate: plate || '', status: 'available' })
     res.status(201).json({ success: true, data: driver })
   } catch (e) {
     res.status(500).json({ message: 'Could not create driver', error: e.message })
@@ -299,9 +309,10 @@ app.post('/api/drivers', auth, role('operator', 'admin'), (req, res) => {
 
 // ── USERS (admin) ─────────────────────────────────────────────────────────────
 
-app.get('/api/users', auth, role('admin'), (req, res) => {
+app.get('/api/users', auth, role('admin'), async (req, res) => {
   try {
-    res.json({ data: db.listUsers().map(safe) })
+    const users = await db.listUsers()
+    res.json({ data: users.map(safe) })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch users', error: e.message })
   }
@@ -309,12 +320,13 @@ app.get('/api/users', auth, role('admin'), (req, res) => {
 
 // ── REVENUE ───────────────────────────────────────────────────────────────────
 
-app.get('/api/revenue', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/revenue', auth, role('operator', 'admin'), async (req, res) => {
   try {
-    const requests = db.listQuoteRequests()
+    const requests = await db.listQuoteRequests()
     const completed = requests.filter(r => r.status === 'completed' || r.status === 'booked')
-    const bids = completed.flatMap(r => db.getBidsForRequest(r.id))
-    const total = bids.reduce((s, b) => s + (b.price || 0), 0)
+    const bidLists = await Promise.all(completed.map(r => db.getBidsForRequest(r.id)))
+    const bids = bidLists.flat()
+    const total = bids.reduce((s, b) => s + (Number(b.price) || 0), 0)
     res.json({
       data: {
         total_revenue: total,
@@ -381,7 +393,7 @@ app.post('/api/quote/estimate', (req, res) => {
 })
 
 // Create a confirmed reservation (amtrak-style — instant, no bid wait)
-app.post('/api/bookings', (req, res) => {
+app.post('/api/bookings', async (req, res) => {
   try {
     const {
       pickup, dropoff, pickup_date, pickup_time, passengers,
@@ -395,13 +407,18 @@ app.post('/api/bookings', (req, res) => {
     const price = priceFor(vehicle_type || 'sedan', routeType)
 
     let reference
-    do { reference = makeReference() } while (db.getBookingByRef(reference))
+    let collisions = 0
+    do {
+      reference = makeReference()
+      collisions++
+      if (collisions > 10) throw new Error('Could not generate unique reference')
+    } while (await db.getBookingByRef(reference))
 
     const token = req.headers.authorization?.slice(7)
     let customerId = null
     try { if (token) customerId = jwt.verify(token, JWT_SECRET).id } catch {}
 
-    const booking = db.createBooking({
+    const booking = await db.createBooking({
       reference,
       customer_id: customerId,
       name, email, phone,
@@ -439,9 +456,9 @@ app.post('/api/bookings', (req, res) => {
 })
 
 // Lookup by reservation reference (Amtrak-style "Manage Trip")
-app.get('/api/bookings/:ref', (req, res) => {
+app.get('/api/bookings/:ref', async (req, res) => {
   try {
-    const booking = db.getBookingByRef(req.params.ref)
+    const booking = await db.getBookingByRef(req.params.ref)
     if (!booking) return res.status(404).json({ message: 'Reservation not found' })
     const { email } = req.query
     if (email && booking.email.toLowerCase() !== String(email).toLowerCase()) {
@@ -454,22 +471,26 @@ app.get('/api/bookings/:ref', (req, res) => {
 })
 
 // Operator-facing booking list
-app.get('/api/bookings', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/bookings', auth, role('operator', 'admin'), async (req, res) => {
   try {
-    res.json({ data: db.listBookings(req.query) })
+    res.json({ data: await db.listBookings(req.query) })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch bookings', error: e.message })
   }
 })
 
 // Customer-facing — their own trips (bookings + quote requests) by email
-app.get('/api/my-trips', auth, (req, res) => {
+app.get('/api/my-trips', auth, async (req, res) => {
   try {
-    const user = db.getUser(req.user.id)
+    const user = await db.getUser(req.user.id)
     if (!user) return res.status(404).json({ message: 'User not found' })
     const email = user.email.toLowerCase()
-    const bookings = (db.listBookings({}) || []).filter(b => b.email?.toLowerCase() === email)
-    const quotes = (db.listQuoteRequests({}) || []).filter(q => q.customer_email?.toLowerCase() === email)
+    const [allBookings, allQuotes] = await Promise.all([
+      db.listBookings({}),
+      db.listQuoteRequests({}),
+    ])
+    const bookings = (allBookings || []).filter(b => b.email?.toLowerCase() === email)
+    const quotes = (allQuotes || []).filter(q => q.customer_email?.toLowerCase() === email)
     const items = [
       ...bookings.map(b => ({ kind: 'booking', ...b })),
       ...quotes.map(q => ({ kind: 'quote_request', ...q })),
@@ -484,12 +505,17 @@ app.get('/api/my-trips', auth, (req, res) => {
 
 // Combined feed of new bookings + quote_requests, newest first.
 // Optional `since` (ISO timestamp) returns only items created after that.
-app.get('/api/notifications/recent', auth, role('operator', 'admin'), (req, res) => {
+app.get('/api/notifications/recent', auth, role('operator', 'admin'), async (req, res) => {
   try {
     const sinceTs = req.query.since ? new Date(req.query.since).getTime() : 0
     const limit = Number(req.query.limit) || 20
 
-    const bookings = (db.listBookings({}) || []).map(b => ({
+    const [allBookings, allQuotes] = await Promise.all([
+      db.listBookings({}),
+      db.listQuoteRequests({}),
+    ])
+
+    const bookings = (allBookings || []).map(b => ({
       id: `b_${b.id}`,
       kind: 'booking',
       reference: b.reference || null,
@@ -508,7 +534,7 @@ app.get('/api/notifications/recent', auth, role('operator', 'admin'), (req, res)
       raw_id: b.id,
     }))
 
-    const quotes = (db.listQuoteRequests({}) || []).map(q => ({
+    const quotes = (allQuotes || []).map(q => ({
       id: `q_${q.id}`,
       kind: 'quote_request',
       reference: null,
@@ -569,8 +595,19 @@ app.use((req, res) => {
 
 // ── START ─────────────────────────────────────────────────────────────────────
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[API] Server running on port ${PORT}`)
-  console.log(`[API] Serving frontend from: ${DIST}`)
-  console.log(`[API] NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
-})
+async function start() {
+  try {
+    await initDb()
+  } catch (err) {
+    console.error('[FATAL] Database init failed:', err.message)
+    process.exit(1)
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[API] Server running on port ${PORT}`)
+    console.log(`[API] Serving frontend from: ${DIST}`)
+    console.log(`[API] NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
+  })
+}
+
+start()
