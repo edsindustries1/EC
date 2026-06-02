@@ -41,31 +41,37 @@ export default function Signup() {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.phone || !form.password || !form.password_confirm) {
-      toast.error('Please fill in all fields'); return
-    }
-    if (form.password !== form.password_confirm) { toast.error('Passwords do not match'); return }
+    if (!form.name.trim()) { toast.error('Please enter your name'); return }
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) { toast.error('Please enter a valid email'); return }
+    if (!form.phone.trim()) { toast.error('Please enter your phone number'); return }
     if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
+    if (form.password !== form.password_confirm) { toast.error('Passwords do not match'); return }
+
     setLoading(true)
-    try {
-      await register({
-        name: form.name, email: form.email, phone: form.phone, password: form.password,
-      })
-      const pending = location.state?.fromBidBoard
-        ? location.state
-        : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null } catch { return null } })()
-      if (pending?.fromBidBoard) {
-        try { sessionStorage.removeItem('pendingBidBooking') } catch {}
-        toast.success('Account created. Taking you to your booking…')
-        setTimeout(() => navigate('/book', { state: pending }), 1100)
-      } else {
-        toast.success('Account created. Redirecting to login…')
-        setTimeout(() => navigate('/login'), 1400)
-      }
-    } catch (err) {
-      toast.error(err.message || 'Failed to create account')
-    } finally {
-      setLoading(false)
+    const res = await register({
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+      phone: form.phone.trim(),
+      password: form.password,
+    })
+    setLoading(false)
+
+    if (!res.ok) {
+      toast.error(res.error || 'Failed to create account')
+      return
+    }
+
+    // Successful registration auto-logs in via AuthContext. Now navigate.
+    const pending = location.state?.fromBidBoard
+      ? location.state
+      : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null } catch { return null } })()
+    if (pending?.fromBidBoard) {
+      try { sessionStorage.removeItem('pendingBidBooking') } catch {}
+      toast.success('Account created — taking you to your booking')
+      navigate('/book', { state: pending })
+    } else {
+      toast.success(`Welcome, ${form.name.trim().split(' ')[0]} 👋`)
+      navigate('/')
     }
   }
 
@@ -93,15 +99,44 @@ export default function Signup() {
 
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Field label="Full name">
-            <input type="text" value={form.name} onChange={onChange('name')} placeholder="Jane Smith" style={inputStyle()} autoComplete="name"/>
+            <input
+              type="text"
+              value={form.name}
+              onChange={onChange('name')}
+              placeholder="Jane Smith"
+              style={inputStyle()}
+              autoComplete="name"
+              autoCapitalize="words"
+              autoCorrect="off"
+              spellCheck={false}
+            />
           </Field>
 
           <Field label="Email">
-            <input type="email" value={form.email} onChange={onChange('email')} placeholder="you@example.com" style={inputStyle()} autoComplete="email"/>
+            <input
+              type="email"
+              value={form.email}
+              onChange={onChange('email')}
+              placeholder="you@example.com"
+              style={inputStyle()}
+              autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+            />
           </Field>
 
           <Field label="Phone">
-            <input type="tel" value={form.phone} onChange={onChange('phone')} placeholder="+1 (212) 555-0100" style={inputStyle()} autoComplete="tel"/>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={onChange('phone')}
+              placeholder="+1 (212) 555-0100"
+              style={inputStyle()}
+              autoComplete="tel"
+              inputMode="tel"
+            />
           </Field>
 
           <Field label="Password">

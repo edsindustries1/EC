@@ -20,30 +20,34 @@ export default function Login() {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!form.email || !form.password) { toast.error('Please fill in all fields'); return }
+    if (!form.email.trim() || !form.password) { toast.error('Please fill in all fields'); return }
     setLoading(true)
-    try {
-      const res = await login(form.email, form.password)
-      toast.success('Welcome back')
+    const res = await login({
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+    })
+    setLoading(false)
 
-      const pending = location.state?.fromBidBoard
-        ? location.state
-        : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null } catch { return null } })()
-
-      if (pending?.fromBidBoard) {
-        try { sessionStorage.removeItem('pendingBidBooking') } catch {}
-        navigate('/book', { state: pending })
-        return
-      }
-
-      if (res?.user?.role === 'customer') navigate('/my-rides')
-      else if (res?.user?.role === 'operator' || res?.user?.role === 'admin') navigate('/operator/dashboard')
-      else navigate('/my-rides')
-    } catch (err) {
-      toast.error(err.message || 'Invalid email or password')
-    } finally {
-      setLoading(false)
+    if (!res.ok) {
+      toast.error(res.error || 'Invalid email or password')
+      return
     }
+
+    toast.success('Welcome back')
+
+    const pending = location.state?.fromBidBoard
+      ? location.state
+      : (() => { try { const s = sessionStorage.getItem('pendingBidBooking'); return s ? JSON.parse(s) : null } catch { return null } })()
+
+    if (pending?.fromBidBoard) {
+      try { sessionStorage.removeItem('pendingBidBooking') } catch {}
+      navigate('/book', { state: pending })
+      return
+    }
+
+    const role = res.user?.role
+    if (role === 'operator' || role === 'admin') navigate('/operator/dashboard')
+    else navigate('/')
   }
 
   return (
@@ -77,6 +81,10 @@ export default function Login() {
               placeholder="you@example.com"
               style={inputStyle()}
               autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
             />
           </Field>
 
