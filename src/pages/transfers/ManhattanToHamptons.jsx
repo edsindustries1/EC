@@ -6,7 +6,7 @@ export default function ManhattanToHamptons() {
     <RoutePageTemplate
       slug="manhattan-to-hamptons"
       h1="Manhattan to Hamptons Car Service"
-      metaTitle="Manhattan to Hamptons Car Service | Everywhere Cars NYC"
+      metaTitle="Manhattan to Hamptons Car Service | Everywhere Transfers NYC"
       metaDescription="Luxury Manhattan to Hamptons car service. Travel in style to the Hamptons with fixed pricing, experienced chauffeurs, and door-to-door service. Book your quote now."
       priceRange="$250–$450"
       travelTime="2–3.5 hrs"

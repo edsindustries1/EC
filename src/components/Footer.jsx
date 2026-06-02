@@ -33,7 +33,7 @@ const COLUMNS = [
     links: [
       { to: '/quote', label: 'Get a quote' },
       { href: 'tel:+17186586000', label: '(718) 658-6000' },
-      { href: 'mailto:reservations@everywherecars.com', label: 'reservations@everywherecars.com' },
+      { href: 'mailto:reservations@everywheretransfers.com', label: 'reservations@everywheretransfers.com' },
       { to: '/privacy', label: 'Privacy' },
       { to: '/terms', label: 'Terms' },
     ],
@@ -51,7 +51,7 @@ export default function Footer() {
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 24, marginBottom: 48, paddingBottom: 32, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 26, letterSpacing: '-0.02em' }}>
-              Everywhere<span style={{ color: GRAY_300, fontWeight: 500 }}> Cars</span>
+              Everywhere<span style={{ color: GRAY_300, fontWeight: 500 }}> Transfers</span>
             </div>
             <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 15, marginTop: 8, maxWidth: 420 }}>
               Premium chauffeur service across the Northeast. Sedans, SUVs, vans, shuttles, coaches.
@@ -92,7 +92,7 @@ export default function Footer() {
 
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16, alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-            © {new Date().getFullYear()} Everywhere Cars. All rights reserved.
+            © {new Date().getFullYear()} Everywhere Transfers. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: 18 }}>
             <Link to="/privacy" style={{ ...linkStyle, fontSize: 13 }}>Privacy</Link>

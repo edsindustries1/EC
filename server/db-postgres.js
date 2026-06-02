@@ -45,15 +45,15 @@ async function seed() {
       ('EC Operator',   $2, $5, '+17186586001', 'operator'),
       ('Demo Customer', $3, $6, '+12125550001', 'customer')
   `, [
-    process.env.ADMIN_EMAIL    || 'admin@everywherecars.com',
-    process.env.OPERATOR_EMAIL || 'operator@everywherecars.com',
+    process.env.ADMIN_EMAIL    || 'admin@everywheretransfers.com',
+    process.env.OPERATOR_EMAIL || 'operator@everywheretransfers.com',
     'customer@test.com',
     adminHash, opHash, custHash,
   ])
 
   const { rows: [operator] } = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
-    [process.env.OPERATOR_EMAIL || 'operator@everywherecars.com']
+    [process.env.OPERATOR_EMAIL || 'operator@everywheretransfers.com']
   )
 
   await pool.query(`

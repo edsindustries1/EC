@@ -90,7 +90,7 @@ export default function RoutePageTemplate({
                 <div style={{ height: 220, background: GRAY_100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <img
                     src={fleetImage || '/images/fleet-sedan.png'}
-                    alt={`${h1} — Everywhere Cars fleet`}
+                    alt={`${h1} — Everywhere Transfers fleet`}
                     onError={(e) => { e.currentTarget.style.display = 'none' }}
                     style={{ maxWidth: '88%', maxHeight: 180, objectFit: 'contain' }}
                   />

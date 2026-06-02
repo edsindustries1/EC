@@ -6,7 +6,7 @@ export default function NYCToBoston() {
     <RoutePageTemplate
       slug="nyc-to-boston"
       h1="NYC to Boston Car Service"
-      metaTitle="NYC to Boston Car Service | Everywhere Cars NYC"
+      metaTitle="NYC to Boston Car Service | Everywhere Transfers NYC"
       metaDescription="Luxury NYC to Boston car service. Door-to-door, fixed pricing, professional chauffeurs. The premium alternative to Amtrak and bus travel. Get a free quote."
       priceRange="$380–$580"
       travelTime="4–5 hrs"

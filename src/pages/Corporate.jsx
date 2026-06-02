@@ -57,7 +57,7 @@ export default function Corporate() {
       <Section bg={WHITE}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <FadeIn className="lg:col-span-7">
-            <p style={EYEBROW}>Everywhere Cars for Business</p>
+            <p style={EYEBROW}>Everywhere Transfers for Business</p>
             <h1 style={H1}>Move your team like<br/>the executives they are.</h1>
             <p style={LEAD}>One account. Hundreds of travellers. Centralised billing, automated expensing, and priority dispatch — across every city we serve.</p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>

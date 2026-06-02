@@ -6,7 +6,7 @@ export default function NYCToPhiladelphia() {
     <RoutePageTemplate
       slug="nyc-to-philadelphia"
       h1="NYC to Philadelphia Car Service"
-      metaTitle="NYC to Philadelphia Car Service | Everywhere Cars NYC"
+      metaTitle="NYC to Philadelphia Car Service | Everywhere Transfers NYC"
       metaDescription="Reliable NYC to Philadelphia car service. Fixed pricing, professional chauffeurs, door-to-door service. Beat the Amtrak with style. Get a free quote today."
       priceRange="$180–$280"
       travelTime="1.5–2.5 hrs"

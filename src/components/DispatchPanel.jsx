@@ -96,7 +96,7 @@ function BidCard({ bid, onSelect, index, isLowest }) {
             alt="" className="w-full h-full object-cover" loading="lazy" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{bid.operator_name || 'Everywhere Cars'}</div>
+          <div className="font-bold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{bid.operator_name || 'Everywhere Transfers'}</div>
           <div className="flex items-center gap-0.5 mt-0.5">
             {[1,2,3,4,5].map(i => (
               <FiStar key={i} size={10} style={{ color: i <= Math.round(bid.rating || 5) ? GOLD : 'var(--text-muted)', fill: i <= Math.round(bid.rating || 5) ? GOLD : 'transparent' }} />
@@ -303,7 +303,7 @@ export default function DispatchPanel({ onRouteChange, presetVehicle, hideStats 
           const res = await api.get(`/quote-requests/${postedRide.id}`)
           const data = res.data?.data || res.data
           if (data?.bids?.length) setBids(data.bids)
-          else if (data?.bid_price) setBids([{ id: 1, operator_name: 'Everywhere Cars', price: data.bid_price, vehicle_type: data.vehicle_type, rating: 4.9, eta_minutes: data.eta_minutes || 30, notes: data.notes }])
+          else if (data?.bid_price) setBids([{ id: 1, operator_name: 'Everywhere Transfers', price: data.bid_price, vehicle_type: data.vehicle_type, rating: 4.9, eta_minutes: data.eta_minutes || 30, notes: data.notes }])
         } catch {}
       }
       poll()
@@ -507,7 +507,7 @@ export default function DispatchPanel({ onRouteChange, presetVehicle, hideStats 
               {phase === 'idle' && (
                 <div className="mb-7">
                   <div className="text-center mb-7">
-                    <img src="/logo.png?v=3" alt="Everywhere Cars" className="h-11 w-auto mx-auto mb-5 opacity-95" />
+                    <img src="/logo.png?v=3" alt="Everywhere Transfers" className="h-11 w-auto mx-auto mb-5 opacity-95" />
                     <h1 className="font-black mb-2" style={{ color: 'var(--text-primary)', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', letterSpacing: '-0.02em', lineHeight: 1.15 }}>
                       Your Ride,{' '}
                       <span style={{ color: GOLD }}>Your Price.</span>

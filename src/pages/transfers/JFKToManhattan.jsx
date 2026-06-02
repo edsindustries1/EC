@@ -6,7 +6,7 @@ export default function JFKToManhattan() {
     <RoutePageTemplate
       slug="jfk-to-manhattan"
       h1="JFK Airport to Manhattan Car Service"
-      metaTitle="JFK Airport to Manhattan Car Service | Everywhere Cars NYC"
+      metaTitle="JFK Airport to Manhattan Car Service | Everywhere Transfers NYC"
       metaDescription="Book reliable JFK Airport to Manhattan car service. Fixed prices, professional drivers, meet & greet. Sedans, SUVs, and vans available 24/7. Get a free quote now."
       priceRange="$75–$120"
       travelTime="45–75 min"

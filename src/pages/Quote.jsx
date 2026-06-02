@@ -12,7 +12,7 @@ const TRUST = [
 
 export default function Quote() {
   useEffect(() => {
-    document.title = 'Get a free quote · Everywhere Cars'
+    document.title = 'Get a free quote · Everywhere Transfers'
     let meta = document.querySelector('meta[name="description"]')
     if (!meta) {
       meta = document.createElement('meta')

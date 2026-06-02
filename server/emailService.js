@@ -3,8 +3,10 @@ import { buildWelcomeEmail } from './emailTemplates/welcome.js'
 import { buildQuoteConfirmationEmail } from './emailTemplates/quoteConfirmation.js'
 import { buildOperatorNotificationEmail } from './emailTemplates/operatorNotification.js'
 
-const BASE_URL = process.env.BASE_URL || 'https://everywherecars.com'
-const OPERATOR_EMAIL = process.env.GMAIL_USER || 'booking@everywherecars.com'
+const BASE_URL = process.env.BASE_URL || 'https://everywheretransfers.com'
+// Lead notifications go to this address. Falls back to the sending account.
+const OPERATOR_EMAIL = process.env.OPERATOR_EMAIL || process.env.GMAIL_USER || 'reservations@everywheretransfers.com'
+const FROM_NAME = process.env.FROM_NAME || 'Everywhere Transfers'
 
 function createTransport() {
   const user = process.env.GMAIL_USER
@@ -26,7 +28,7 @@ async function send(to, subject, html) {
   const transport = createTransport()
   if (!transport) return
   const info = await transport.sendMail({
-    from: `"Everywhere Cars" <${process.env.GMAIL_USER}>`,
+    from: `"${FROM_NAME}" <${process.env.GMAIL_USER}>`,
     to,
     subject,
     html,

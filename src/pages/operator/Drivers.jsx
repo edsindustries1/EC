@@ -144,7 +144,7 @@ export default function OperatorDrivers() {
               <input value={form.phone} onChange={onChange('phone')} placeholder="+1 (212) 555-0100" style={inputStyle()}/>
             </Field>
             <Field label="Email">
-              <input type="email" value={form.email} onChange={onChange('email')} placeholder="james@everywherecars.com" style={inputStyle()}/>
+              <input type="email" value={form.email} onChange={onChange('email')} placeholder="james@everywheretransfers.com" style={inputStyle()}/>
             </Field>
             <Field label="Vehicle type">
               <select value={form.vehicle_type} onChange={onChange('vehicle_type')} style={inputStyle()}>

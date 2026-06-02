@@ -3,13 +3,13 @@ export function buildWelcomeEmail(name, baseUrl) {
   const bookUrl = `${baseUrl}/#book`
 
   return {
-    subject: 'Welcome to Everywhere Cars \u2014 Your NYC Travel Partner \uD83D\uDE97',
+    subject: 'Welcome to Everywhere Transfers \u2014 Your NYC Travel Partner \uD83D\uDE97',
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Everywhere Cars</title>
+  <title>Welcome to Everywhere Transfers</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f6f9;padding:32px 0;">
@@ -20,7 +20,7 @@ export function buildWelcomeEmail(name, baseUrl) {
           <!-- HEADER -->
           <tr>
             <td style="background-color:#0f1f3d;padding:32px 40px 28px;text-align:center;border-bottom:3px solid #F6C90E;">
-              <img src="${baseUrl}/logo.png" alt="Everywhere Cars" width="180" style="display:block;margin:0 auto;max-width:180px;" />
+              <img src="${baseUrl}/logo.png" alt="Everywhere Transfers" width="180" style="display:block;margin:0 auto;max-width:180px;" />
             </td>
           </tr>
 
@@ -42,7 +42,7 @@ export function buildWelcomeEmail(name, baseUrl) {
             <td style="background-color:#ffffff;padding:36px 40px 24px;">
               <p style="margin:0 0 12px;color:#0f1f3d;font-size:17px;font-weight:700;">Hi ${name},</p>
               <p style="margin:0 0 12px;color:#374151;font-size:15px;line-height:1.7;">
-                Thank you for joining Everywhere Cars. We are New York City's premier luxury chauffeur marketplace — connecting you with professional, licensed drivers and a fleet of over 250 premium vehicles.
+                Thank you for joining Everywhere Transfers. We are New York City's premier luxury chauffeur marketplace — connecting you with professional, licensed drivers and a fleet of over 250 premium vehicles.
               </p>
               <p style="margin:0;color:#374151;font-size:15px;line-height:1.7;">
                 Whether you need an airport transfer, a corporate ride, or a full-size coach for a group event, we have the right vehicle and driver for your journey.
@@ -140,13 +140,13 @@ export function buildWelcomeEmail(name, baseUrl) {
               <p style="margin:0 0 8px;color:#c8d6ea;font-size:13px;">
                 <a href="tel:+17186586000" style="color:#F6C90E;text-decoration:none;font-weight:700;">+1 (718) 658-6000</a>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
-                <a href="mailto:booking@everywherecars.com" style="color:#c8d6ea;text-decoration:none;">booking@everywherecars.com</a>
+                <a href="mailto:booking@everywheretransfers.com" style="color:#c8d6ea;text-decoration:none;">booking@everywheretransfers.com</a>
               </p>
               <p style="margin:0 0 12px;color:#c8d6ea;font-size:13px;">
                 <a href="https://wa.me/17182196683" style="color:#c8d6ea;text-decoration:none;">WhatsApp: +1 (718) 219-6683</a>
               </p>
               <p style="margin:0;color:#5a7494;font-size:11px;">
-                &copy; ${year} Everywhere Cars &mdash; Everywhere Transfers. All rights reserved.<br />
+                &copy; ${year} Everywhere Transfers &mdash; Everywhere Transfers. All rights reserved.<br />
                 New York City Luxury Chauffeur Service
               </p>
             </td>

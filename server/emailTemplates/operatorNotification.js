@@ -21,7 +21,7 @@ export function buildOperatorNotificationEmail(lead, baseUrl) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New Lead — Everywhere Cars</title>
+  <title>New Lead — Everywhere Transfers</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f6f9;padding:24px 0;">
@@ -35,7 +35,7 @@ export function buildOperatorNotificationEmail(lead, baseUrl) {
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td>
-                    <img src="${baseUrl}/logo.png" alt="Everywhere Cars" height="36" style="display:block;" />
+                    <img src="${baseUrl}/logo.png" alt="Everywhere Transfers" height="36" style="display:block;" />
                   </td>
                   <td align="right">
                     <span style="display:inline-block;background-color:#F6C90E;color:#0f1f3d;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">New Lead</span>
@@ -146,7 +146,7 @@ export function buildOperatorNotificationEmail(lead, baseUrl) {
           <tr>
             <td style="background-color:#0f1f3d;padding:20px 32px;text-align:center;">
               <p style="margin:0;color:#5a7494;font-size:11px;">
-                &copy; ${year} Everywhere Cars &mdash; Internal Notification<br />
+                &copy; ${year} Everywhere Transfers &mdash; Internal Notification<br />
                 This email was sent to the operator account.
               </p>
             </td>

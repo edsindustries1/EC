@@ -81,7 +81,7 @@ export default function Navbar() {
             textDecoration: 'none',
           }}
         >
-          Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Cars</span>
+          Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Transfers</span>
         </Link>
 
         {/* Desktop links */}

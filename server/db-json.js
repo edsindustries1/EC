@@ -22,8 +22,8 @@ function seed() {
   const adminHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD    || 'admin123',    10)
   const opHash    = bcrypt.hashSync(process.env.OPERATOR_PASSWORD || 'operator123', 10)
   const custHash  = bcrypt.hashSync('customer123', 10)
-  const adminEmail = process.env.ADMIN_EMAIL    || 'admin@everywherecars.com'
-  const opEmail    = process.env.OPERATOR_EMAIL || 'operator@everywherecars.com'
+  const adminEmail = process.env.ADMIN_EMAIL    || 'admin@everywheretransfers.com'
+  const opEmail    = process.env.OPERATOR_EMAIL || 'operator@everywheretransfers.com'
   const initial = {
     users: [
       { id: 'u1', name: 'Admin',         email: adminEmail,           password: adminHash, phone: '+17186586000', role: 'admin',    created_at: new Date().toISOString() },

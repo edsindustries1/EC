@@ -6,7 +6,7 @@ export default function EWRToManhattan() {
     <RoutePageTemplate
       slug="ewr-to-manhattan"
       h1="Newark Airport to Manhattan Car Service"
-      metaTitle="Newark Airport to Manhattan Car Service | Everywhere Cars NYC"
+      metaTitle="Newark Airport to Manhattan Car Service | Everywhere Transfers NYC"
       metaDescription="Premium Newark Airport (EWR) to Manhattan car service. Fixed prices, professional chauffeurs, no tolls surprise. Get your free quote for EWR transfers."
       priceRange="$80–$130"
       travelTime="40–70 min"

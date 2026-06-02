@@ -51,7 +51,7 @@ export default function BookRide() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 20, fontWeight: 700 }}>{prefillBid.operator_name || 'Everywhere Cars'}</div>
+                <div style={{ fontSize: 20, fontWeight: 700 }}>{prefillBid.operator_name || 'Everywhere Transfers'}</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{prefillBid.vehicle_type || 'Premium vehicle'}</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>Ready in ~{prefillBid.eta_minutes || 30} min</div>
               </div>

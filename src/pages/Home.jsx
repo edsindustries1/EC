@@ -94,7 +94,7 @@ export default function Home() {
               letterSpacing: '-0.03em',
               marginBottom: '1.75rem',
             }}>
-              Go anywhere with<br/>Everywhere Cars
+              Go anywhere with<br/>Everywhere Transfers
             </h1>
 
             <form onSubmit={handleSearch} className="space-y-3" style={{ maxWidth: 540 }}>
@@ -303,7 +303,7 @@ export default function Home() {
       <Section bg={GRAY_50}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <FadeIn>
-            <p style={eyebrowStyle(BLACK)}>Everywhere Cars for Business</p>
+            <p style={eyebrowStyle(BLACK)}>Everywhere Transfers for Business</p>
             <h2 style={h2Style}>Built for businesses of any size</h2>
             <p style={{ color: GRAY_500, fontSize: 18, lineHeight: 1.5, maxWidth: 520, marginBottom: '1.75rem' }}>
               Centralised billing, traveller management, expense automation, and white-glove support for your entire team.

@@ -6,7 +6,7 @@ export default function NYCToConnecticut() {
     <RoutePageTemplate
       slug="nyc-to-connecticut"
       h1="NYC to Connecticut Car Service"
-      metaTitle="NYC to Connecticut Car Service | Everywhere Cars NYC"
+      metaTitle="NYC to Connecticut Car Service | Everywhere Transfers NYC"
       metaDescription="Premium NYC to Connecticut car service. Greenwich, Stamford, New Haven, Hartford, and more. Fixed pricing, professional chauffeurs. Book your free quote now."
       priceRange="$120–$280"
       travelTime="1–2.5 hrs"

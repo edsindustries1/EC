@@ -6,7 +6,7 @@ export default function LGAToManhattan() {
     <RoutePageTemplate
       slug="lga-to-manhattan"
       h1="LaGuardia Airport to Manhattan Car Service"
-      metaTitle="LaGuardia Airport to Manhattan Car Service | Everywhere Cars NYC"
+      metaTitle="LaGuardia Airport to Manhattan Car Service | Everywhere Transfers NYC"
       metaDescription="Reliable LaGuardia Airport (LGA) to Manhattan car service. Fixed prices, professional drivers, meet & greet included. Book your free quote today."
       priceRange="$55–$90"
       travelTime="25–50 min"

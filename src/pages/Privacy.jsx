@@ -2,16 +2,16 @@ import React from 'react'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT } from '../styles/uber'
 
 const SECTIONS = [
-  { title: 'Introduction',                  body: 'Everywhere Cars ("we", "our", "us") operates this website and mobile application. This page describes how we collect, use, and protect your personal information when you use our service.' },
+  { title: 'Introduction',                  body: 'Everywhere Transfers ("we", "our", "us") operates this website and mobile application. This page describes how we collect, use, and protect your personal information when you use our service.' },
   { title: 'Information we collect',        body: 'We collect a small set of personal information to provide and improve our service: your name, email, phone number, and pickup / drop-off addresses; usage data (pages visited, device and browser info); and payment details (processed securely by our payment providers — we never store full card numbers).' },
   { title: 'How we use it',                 body: 'We use this data to confirm and dispatch your rides, notify you about changes to your trip, improve our service, and meet legal obligations. We do not sell your personal information.' },
   { title: 'Security',                      body: 'We use commercially reasonable encryption, access controls, and monitoring to protect your data. No system is 100% secure, but we treat every reservation as a duty of care obligation.' },
-  { title: 'Your rights',                   body: 'You can request a copy of the personal data we hold about you, ask us to correct or delete it, or opt out of marketing communications at any time by emailing privacy@everywherecars.com.' },
-  { title: 'Contact',                       body: 'Questions? Email privacy@everywherecars.com or call (718) 658-6000.' },
+  { title: 'Your rights',                   body: 'You can request a copy of the personal data we hold about you, ask us to correct or delete it, or opt out of marketing communications at any time by emailing privacy@everywheretransfers.com.' },
+  { title: 'Contact',                       body: 'Questions? Email privacy@everywheretransfers.com or call (718) 658-6000.' },
 ]
 
 export default function Privacy() {
-  return <Legal title="Privacy Policy" lead="How Everywhere Cars collects, uses and protects your personal information." sections={SECTIONS}/>
+  return <Legal title="Privacy Policy" lead="How Everywhere Transfers collects, uses and protects your personal information." sections={SECTIONS}/>
 }
 
 export function Legal({ title, lead, sections }) {

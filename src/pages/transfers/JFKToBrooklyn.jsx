@@ -6,7 +6,7 @@ export default function JFKToBrooklyn() {
     <RoutePageTemplate
       slug="jfk-to-brooklyn"
       h1="JFK Airport to Brooklyn Car Service"
-      metaTitle="JFK Airport to Brooklyn Car Service | Everywhere Cars NYC"
+      metaTitle="JFK Airport to Brooklyn Car Service | Everywhere Transfers NYC"
       metaDescription="Book JFK Airport to Brooklyn car service. Fixed prices, professional drivers, all Brooklyn neighborhoods covered. Get a free quote — no registration needed."
       priceRange="$55–$85"
       travelTime="30–60 min"

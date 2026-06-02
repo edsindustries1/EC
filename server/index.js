@@ -189,7 +189,7 @@ app.patch('/api/quote-requests/:id', auth, role('operator', 'admin'), async (req
       await db.createBid({
         quote_request_id: req.params.id,
         operator_id: req.user.id,
-        operator_name: operator?.name || 'Everywhere Cars',
+        operator_name: operator?.name || 'Everywhere Transfers',
         price: Number(bid_price),
         vehicle_type: vehicle_type || 'sedan',
         eta_minutes: eta_minutes ? Number(eta_minutes) : 30,

@@ -57,7 +57,7 @@ export default function Login() {
 
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Link to="/" style={{ fontWeight: 800, fontSize: 28, letterSpacing: '-0.02em', color: BLACK, textDecoration: 'none' }}>
-            Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Cars</span>
+            Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Transfers</span>
           </Link>
         </div>
 
