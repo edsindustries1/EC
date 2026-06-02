@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Everywhere Transfers</string>
+    <string name="title_activity_main">Everywhere Transfers</string>
+    <string name="package_name">com.everywheretransfers.app</string>
+    <string name="custom_url_scheme">com.everywheretransfers.app</string>
+</resources>

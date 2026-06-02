@@ -12,6 +12,51 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+   NATIVE MOBILE (Capacitor) overrides
+   - safe-area insets for iPhone notch / Android nav bar
+   - disable rubber-band bounce that fights with internal scrolling
+   - prevent text-selection on tap targets (feels native)
+   - tap-highlight transparent (no grey flash)
+   ───────────────────────────────────────────────────────────────────── */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  overscroll-behavior-y: none;
+}
+
+body.capacitor-native {
+  /* Native safe-area padding — top for notch/dynamic island, bottom for home indicator */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Lock the body so internal scroll regions handle gestures cleanly */
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+body.capacitor-native > #root {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Bigger tap targets on touch devices — 44px minimum per Apple HIG */
+@media (pointer: coarse) {
+  button, a, [role="button"], input[type="submit"] {
+    min-height: 44px;
+  }
+}
+
+/* Disable iOS auto-zoom on input focus (fires when font-size < 16px) */
+@media (pointer: coarse) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
 :root,
 [data-theme='dark'] {
   --bg-page: #050a0f;
