@@ -57,6 +57,52 @@ body.capacitor-native > #root {
   }
 }
 
+/* Mobile location autocomplete input — sits inside the LocationField card */
+.ec-mobile-place-input {
+  width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #000 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  letter-spacing: -0.01em !important;
+}
+.ec-mobile-place-input::placeholder {
+  color: #6B6B6B !important;
+  font-weight: 500 !important;
+}
+
+/* Google Places dropdown (pac-container) — restyle to match B&W theme */
+.pac-container {
+  border-radius: 12px !important;
+  border: 1px solid #EEEEEE !important;
+  box-shadow: 0 12px 28px -8px rgba(0,0,0,0.18) !important;
+  margin-top: 6px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif !important;
+  background: #FFF !important;
+}
+.pac-item {
+  padding: 12px 14px !important;
+  border-top: 1px solid #F6F6F6 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  min-height: 44px !important;
+  line-height: 1.4 !important;
+}
+.pac-item:first-child { border-top: 0 !important; }
+.pac-item:hover, .pac-item-selected {
+  background: #F6F6F6 !important;
+}
+.pac-icon { display: none !important; }
+.pac-item-query {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #000 !important;
+}
+
 :root,
 [data-theme='dark'] {
   --bg-page: #050a0f;
