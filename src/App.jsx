@@ -58,10 +58,15 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 import AdminRevenue from './pages/admin/Revenue'
 
+// Native shell
+import MobileTabBar from './components/mobile/MobileTabBar'
+import { isNative } from './native'
+
 function AppContent() {
+  const native = isNative()
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
-      <Navbar />
+      {!native && <Navbar />}
       <main className="flex-grow">
           <Routes>
             {/* Public Routes */}
@@ -226,10 +231,10 @@ function AppContent() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-        <Footer />
-        <WhatsAppWidget />
+        {native ? <MobileTabBar /> : <Footer />}
+        {!native && <WhatsAppWidget />}
         <Toaster
-          position="top-right"
+          position={native ? 'top-center' : 'top-right'}
           toastOptions={{
             duration: 4000,
             style: {

@@ -7,6 +7,8 @@ import {
 import PlaceAutocomplete from '../components/PlaceAutocomplete'
 import FleetCarousel from '../components/FleetCarousel'
 import { FadeIn } from '../hooks/useFadeIn'
+import MobileHome from './mobile/MobileHome'
+import { isNative } from '../native'
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const BLACK = '#000000'
@@ -48,6 +50,9 @@ function defaultDate() {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function Home() {
+  // Native (iOS / Android) gets a focused booking-first home — no marketing
+  if (isNative()) return <MobileHome />
+
   const navigate = useNavigate()
 
   const [tripType, setTripType]     = useState('oneway')
