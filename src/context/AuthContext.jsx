@@ -97,7 +97,21 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false)
   }
 
-  const value = { user, loading, isAuthenticated, login, register, logout }
+  /**
+   * Imperatively set the session — used by flows that obtain a JWT outside of
+   * the standard login() / register() calls (e.g. passwordless OTP).
+   */
+  const setSession = ({ token, user: nextUser }) => {
+    if (!token || !nextUser) return
+    try {
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(nextUser))
+    } catch {}
+    setUser(nextUser)
+    setIsAuthenticated(true)
+  }
+
+  const value = { user, loading, isAuthenticated, login, register, logout, setSession }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

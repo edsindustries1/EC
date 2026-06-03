@@ -38,9 +38,9 @@ export default function MobileTabBar() {
       }}>
         {TABS.map(t => {
           const active = t.match(location.pathname)
-          // Tab routes "Account" to /profile if logged in, /login if not
+          // Tab routes "Account" to /profile if logged in, /verify (OTP flow) if not
           const to = t.to === '/account'
-            ? (isAuthenticated ? '/profile' : '/login')
+            ? (isAuthenticated ? '/profile' : '/verify')
             : t.to
           return (
             <Link

@@ -129,4 +129,61 @@ export const db = {
     save(_db)
     return _db.bookings[idx]
   },
+
+  // OTP CODES ──────────────────────────────────────────────────────────────
+  createOtp: ({ email, code, ttlSeconds = 600 }) => {
+    if (!_db.otp_codes) _db.otp_codes = []
+    const now = new Date()
+    const otp = {
+      id: nextId(),
+      email: email.toLowerCase(),
+      code,
+      expires_at: new Date(now.getTime() + ttlSeconds * 1000).toISOString(),
+      attempts: 0,
+      consumed_at: null,
+      created_at: now.toISOString(),
+    }
+    _db.otp_codes.push(otp)
+    save(_db)
+    return otp
+  },
+
+  countRecentOtpRequests: (email, withinSeconds = 60) => {
+    if (!_db.otp_codes) return 0
+    const cutoff = Date.now() - withinSeconds * 1000
+    return _db.otp_codes.filter(
+      (o) => o.email === email.toLowerCase() && new Date(o.created_at).getTime() > cutoff
+    ).length
+  },
+
+  getActiveOtp: (email) => {
+    if (!_db.otp_codes) return null
+    const now = Date.now()
+    const matches = _db.otp_codes
+      .filter(
+        (o) =>
+          o.email === email.toLowerCase() &&
+          !o.consumed_at &&
+          new Date(o.expires_at).getTime() > now
+      )
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    return matches[0] || null
+  },
+
+  consumeOtp: (id) => {
+    if (!_db.otp_codes) return
+    const idx = _db.otp_codes.findIndex((o) => o.id === id)
+    if (idx === -1) return
+    _db.otp_codes[idx].consumed_at = new Date().toISOString()
+    save(_db)
+  },
+
+  incrementOtpAttempts: (id) => {
+    if (!_db.otp_codes) return 0
+    const idx = _db.otp_codes.findIndex((o) => o.id === id)
+    if (idx === -1) return 0
+    _db.otp_codes[idx].attempts = (_db.otp_codes[idx].attempts || 0) + 1
+    save(_db)
+    return _db.otp_codes[idx].attempts
+  },
 }

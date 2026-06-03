@@ -130,11 +130,27 @@ export default function Login() {
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
           <div style={{ flex: 1, height: 1, background: GRAY_100 }}/>
           <span style={{ fontSize: 12, color: GRAY_500 }}>OR</span>
           <div style={{ flex: 1, height: 1, background: GRAY_100 }}/>
         </div>
+
+        <Link
+          to="/verify"
+          state={location.state}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', padding: '13px 22px',
+            background: WHITE, color: BLACK,
+            border: `1px solid ${BLACK}`,
+            borderRadius: 4,
+            fontWeight: 600, fontSize: 14,
+            textDecoration: 'none', marginBottom: 18,
+          }}
+        >
+          ✉️ Continue with email code
+        </Link>
 
         <div style={{ textAlign: 'center', fontSize: 14, color: GRAY_500 }}>
           Don't have an account?{' '}

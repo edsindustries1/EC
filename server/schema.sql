@@ -90,3 +90,16 @@ CREATE INDEX IF NOT EXISTS idx_quote_requests_status     ON quote_requests(statu
 CREATE INDEX IF NOT EXISTS idx_quote_requests_created_at ON quote_requests(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_bids_quote_request_id     ON bids(quote_request_id);
 CREATE INDEX IF NOT EXISTS idx_drivers_operator_id       ON drivers(operator_id);
+
+-- Passwordless email OTP codes
+CREATE TABLE IF NOT EXISTS otp_codes (
+  id          SERIAL PRIMARY KEY,
+  email       TEXT NOT NULL,
+  code        TEXT NOT NULL,
+  expires_at  TIMESTAMPTZ NOT NULL,
+  attempts    INTEGER NOT NULL DEFAULT 0,
+  consumed_at TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_otp_codes_email_created ON otp_codes(email, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_otp_codes_expires_at    ON otp_codes(expires_at);

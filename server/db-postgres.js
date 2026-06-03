@@ -332,4 +332,55 @@ export const db = {
     )
     return rowToObject(rows[0])
   },
+
+  // OTP CODES (passwordless auth) ──────────────────────────────────────────
+  createOtp: async ({ email, code, ttlSeconds = 600 }) => {
+    const { rows } = await pool.query(
+      `INSERT INTO otp_codes (email, code, expires_at)
+       VALUES (LOWER($1), $2, now() + ($3 || ' seconds')::interval)
+       RETURNING *`,
+      [email, code, String(ttlSeconds)]
+    )
+    return rowToObject(rows[0])
+  },
+
+  countRecentOtpRequests: async (email, withinSeconds = 60) => {
+    const { rows } = await pool.query(
+      `SELECT COUNT(*)::int AS n FROM otp_codes
+       WHERE LOWER(email) = LOWER($1)
+       AND created_at > now() - ($2 || ' seconds')::interval`,
+      [email, String(withinSeconds)]
+    )
+    return rows[0].n
+  },
+
+  // Returns the newest unconsumed OTP whose expiry is in the future.
+  getActiveOtp: async (email) => {
+    const { rows } = await pool.query(
+      `SELECT * FROM otp_codes
+       WHERE LOWER(email) = LOWER($1)
+       AND consumed_at IS NULL
+       AND expires_at > now()
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [email]
+    )
+    return rowToObject(rows[0])
+  },
+
+  consumeOtp: async (id) => {
+    await pool.query(
+      `UPDATE otp_codes SET consumed_at = now() WHERE id = $1`,
+      [idParam(id)]
+    )
+  },
+
+  incrementOtpAttempts: async (id) => {
+    const { rows } = await pool.query(
+      `UPDATE otp_codes SET attempts = attempts + 1
+       WHERE id = $1 RETURNING attempts`,
+      [idParam(id)]
+    )
+    return rows[0]?.attempts || 0
+  },
 }

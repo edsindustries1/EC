@@ -6,7 +6,12 @@ import { fileURLToPath } from 'url'
 import { join, dirname } from 'path'
 import { existsSync } from 'fs'
 import { db, initDb } from './db.js'
-import { sendWelcomeEmail, sendQuoteConfirmation, sendOperatorNotification } from './emailService.js'
+import {
+  sendWelcomeEmail,
+  sendQuoteConfirmation,
+  sendOperatorNotification,
+  sendOtpEmail,
+} from './emailService.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -89,6 +94,137 @@ app.post('/api/auth/login', async (req, res) => {
     res.json(sign(user))
   } catch (e) {
     res.status(500).json({ message: 'Login failed', error: e.message })
+  }
+})
+
+// ── PASSWORDLESS OTP AUTH ────────────────────────────────────────────────────
+
+function generateOtp() {
+  // 6-digit numeric code, leading zeros allowed
+  return String(Math.floor(100000 + Math.random() * 900000))
+}
+
+function isValidEmail(email) {
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+// 1) Request a code — sends 6-digit code to the email via Resend
+app.post('/api/auth/request-otp', async (req, res) => {
+  try {
+    const email = String(req.body?.email || '').trim().toLowerCase()
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: 'Please enter a valid email address' })
+    }
+
+    // Rate limit — max 3 codes per email per 60s
+    const recent = await db.countRecentOtpRequests(email, 60)
+    if (recent >= 3) {
+      return res.status(429).json({
+        message: 'Too many requests. Wait a minute and try again.',
+      })
+    }
+
+    const code = generateOtp()
+    await db.createOtp({ email, code, ttlSeconds: 600 })
+
+    // Fire-and-forget email — don't block the response on it
+    sendOtpEmail(email, code).catch((err) =>
+      console.error('[email] OTP send failed:', err.message)
+    )
+
+    // Always return success even if email doesn't exist (don't leak account existence)
+    res.json({ ok: true, message: 'Code sent. Check your email.' })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not send code', error: e.message })
+  }
+})
+
+// 2) Verify code — logs in if user exists, returns signup_token if new
+app.post('/api/auth/verify-otp', async (req, res) => {
+  try {
+    const email = String(req.body?.email || '').trim().toLowerCase()
+    const code = String(req.body?.code || '').trim()
+    if (!isValidEmail(email) || !/^\d{6}$/.test(code)) {
+      return res.status(400).json({ message: 'Email and 6-digit code required' })
+    }
+
+    const otp = await db.getActiveOtp(email)
+    if (!otp) {
+      return res.status(400).json({ message: 'Code expired or not found. Request a new one.' })
+    }
+    if ((otp.attempts || 0) >= 5) {
+      return res.status(400).json({ message: 'Too many wrong attempts. Request a new code.' })
+    }
+    if (otp.code !== code) {
+      await db.incrementOtpAttempts(otp.id)
+      return res.status(400).json({ message: 'Incorrect code. Try again.' })
+    }
+
+    // Code is valid — consume it
+    await db.consumeOtp(otp.id)
+
+    // Existing user → log them in
+    const existing = await db.getUserByEmail(email)
+    if (existing) {
+      const { token, user } = sign(existing)
+      return res.json({ ok: true, token, user })
+    }
+
+    // New user — issue a short-lived signup token they'll exchange for an account
+    const signupToken = jwt.sign(
+      { email, purpose: 'signup' },
+      JWT_SECRET,
+      { expiresIn: '10m' }
+    )
+    res.json({ ok: true, needs_profile: true, signup_token: signupToken, email })
+  } catch (e) {
+    res.status(500).json({ message: 'Verification failed', error: e.message })
+  }
+})
+
+// 3) Complete signup — exchange signup_token + profile data for a real account
+app.post('/api/auth/complete-signup', async (req, res) => {
+  try {
+    const { signup_token, name, phone } = req.body || {}
+    if (!signup_token) return res.status(400).json({ message: 'Missing signup token' })
+    if (!name?.trim()) return res.status(400).json({ message: 'Name required' })
+
+    let payload
+    try {
+      payload = jwt.verify(signup_token, JWT_SECRET)
+    } catch {
+      return res.status(401).json({ message: 'Signup link expired. Request a new code.' })
+    }
+    if (payload.purpose !== 'signup' || !payload.email) {
+      return res.status(401).json({ message: 'Invalid signup token' })
+    }
+
+    // Defensive — guard against someone signing up twice in parallel
+    const existing = await db.getUserByEmail(payload.email)
+    if (existing) {
+      const { token, user } = sign(existing)
+      return res.json({ ok: true, token, user })
+    }
+
+    const created = await db.createUser({
+      name: name.trim(),
+      email: payload.email,
+      phone: (phone || '').trim(),
+      // No password — passwordless account. We store a random unguessable hash
+      // so the password column stays NOT NULL and traditional /auth/login is
+      // safely impossible (no one can ever match a 64-byte random hash).
+      password: bcrypt.hashSync(Math.random().toString(36) + Date.now(), 10),
+      role: 'customer',
+    })
+
+    sendWelcomeEmail(created.name, created.email).catch((err) =>
+      console.error('[email] welcome failed:', err.message)
+    )
+
+    const { token, user } = sign(created)
+    res.status(201).json({ ok: true, token, user })
+  } catch (e) {
+    res.status(500).json({ message: 'Signup failed', error: e.message })
   }
 })
 

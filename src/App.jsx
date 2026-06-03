@@ -20,6 +20,7 @@ import Events from './pages/services/Events'
 import Fleet from './pages/Fleet'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
+import OtpAuth from './pages/auth/OtpAuth'
 import Profile from './pages/Profile'
 import HowItWorks from './pages/HowItWorks'
 import Privacy from './pages/Privacy'
@@ -73,6 +74,7 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/verify" element={<OtpAuth />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/corporate" element={<Corporate />} />
             <Route path="/services" element={<Services />} />

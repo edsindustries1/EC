@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { buildWelcomeEmail } from './emailTemplates/welcome.js'
 import { buildQuoteConfirmationEmail } from './emailTemplates/quoteConfirmation.js'
 import { buildOperatorNotificationEmail } from './emailTemplates/operatorNotification.js'
+import { buildOtpEmail } from './emailTemplates/otpCode.js'
 
 const BASE_URL       = process.env.BASE_URL    || 'https://everywheretransfers.com'
 const FROM_EMAIL     = process.env.FROM_EMAIL  || 'reservations@everywheretransfers.com'
@@ -67,4 +68,12 @@ export async function sendOperatorNotification(lead) {
     replyTo: lead?.email || FROM_EMAIL,
   })
   if (id) console.log('[email] Operator notification sent to', OPERATOR_EMAIL, id)
+}
+
+export async function sendOtpEmail(email, code) {
+  if (!email || !code) return null
+  const { subject, html } = buildOtpEmail(code, BASE_URL)
+  const id = await send({ to: email, subject, html })
+  if (id) console.log('[email] OTP sent to', email, id)
+  return id
 }
