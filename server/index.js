@@ -747,3 +747,5 @@ async function start() {
 }
 
 start()
+
+// Build trigger: force Railway to rebuild from source so VITE_ env vars are picked up at build time.
