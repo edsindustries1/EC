@@ -716,6 +716,65 @@ app.get('/api/notifications/recent', auth, role('operator', 'admin'), async (req
   }
 })
 
+// ── GOOGLE PLACES PROXY ──────────────────────────────────────────────────────
+//
+// Calls Google Places Autocomplete REST API server-side. This avoids the
+// retired client-side AutocompleteService widget AND eliminates the
+// HTTP-referrer cross-origin pain on Capacitor (capacitor://localhost
+// doesn't reliably match referrer restrictions).
+//
+// Key resolution:
+//   - GOOGLE_PLACES_API_KEY    — preferred, dedicated server key (no
+//                                referrer restriction, IP-restricted)
+//   - VITE_GOOGLE_MAPS_API_KEY — fallback (the existing client key)
+//
+// If the client key has HTTP referrer restrictions, server calls will
+// 403. In that case, set GOOGLE_PLACES_API_KEY to a separate key with
+// no application restriction (server-side).
+
+const GOOGLE_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.VITE_GOOGLE_MAPS_API_KEY || ''
+
+app.get('/api/places/autocomplete', async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim()
+    if (!q || q.length < 2) return res.json({ success: true, data: [] })
+    if (!GOOGLE_KEY) return res.json({ success: true, data: [], fallback: 'photon' })
+
+    const params = new URLSearchParams({
+      input: q,
+      key: GOOGLE_KEY,
+      // No `types` filter — Google rejects mixed types and returns nothing
+    })
+    // Optional session token from client (helps Google bill cheaper)
+    if (req.query.session) params.set('sessiontoken', String(req.query.session))
+
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`
+    const resp = await fetch(url)
+    const data = await resp.json()
+
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      console.warn('[places] non-OK:', data.status, data.error_message || '')
+      return res.json({
+        success: false,
+        status: data.status,
+        error: data.error_message,
+        data: [],
+      })
+    }
+
+    const items = (data.predictions || []).map(p => ({
+      key:   p.place_id,
+      label: p.structured_formatting?.main_text || p.description,
+      sub:   p.structured_formatting?.secondary_text || '',
+      full:  p.description,
+    }))
+    res.json({ success: true, status: data.status, data: items })
+  } catch (e) {
+    console.error('[places] proxy error:', e.message)
+    res.json({ success: false, error: e.message, data: [] })
+  }
+})
+
 // ── BID MARKETPLACE (GetTransfer-style) ──────────────────────────────────────
 
 function makeReferenceUnique() {
