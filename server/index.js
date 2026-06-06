@@ -168,11 +168,13 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     // Existing user → log them in
     const existing = await db.getUserByEmail(email)
     if (existing) {
+      console.log(`[auth] verify-otp OK — existing user logged in: ${email} (id=${existing.id})`)
       const { token, user } = sign(existing)
       return res.json({ ok: true, token, user })
     }
 
     // New user — issue a short-lived signup token they'll exchange for an account
+    console.log(`[auth] verify-otp OK — new user, requires profile: ${email}`)
     const signupToken = jwt.sign(
       { email, purpose: 'signup' },
       JWT_SECRET,
@@ -204,20 +206,35 @@ app.post('/api/auth/complete-signup', async (req, res) => {
     // Defensive — guard against someone signing up twice in parallel
     const existing = await db.getUserByEmail(payload.email)
     if (existing) {
+      console.log(`[auth] complete-signup short-circuit — user already exists: ${payload.email} (id=${existing.id})`)
       const { token, user } = sign(existing)
       return res.json({ ok: true, token, user })
     }
 
-    const created = await db.createUser({
-      name: name.trim(),
-      email: payload.email,
-      phone: (phone || '').trim(),
-      // No password — passwordless account. We store a random unguessable hash
-      // so the password column stays NOT NULL and traditional /auth/login is
-      // safely impossible (no one can ever match a 64-byte random hash).
-      password: bcrypt.hashSync(Math.random().toString(36) + Date.now(), 10),
-      role: 'customer',
-    })
+    let created
+    try {
+      created = await db.createUser({
+        name: name.trim(),
+        email: payload.email,
+        phone: (phone || '').trim(),
+        // No password — passwordless account. We store a random unguessable hash
+        // so the password column stays NOT NULL and traditional /auth/login is
+        // safely impossible (no one can ever match a 64-byte random hash).
+        password: bcrypt.hashSync(Math.random().toString(36) + Date.now(), 10),
+        role: 'customer',
+      })
+    } catch (insertErr) {
+      // Most likely cause: race condition (parallel signup) hit the UNIQUE
+      // email constraint. Recover by fetching the row that just won the race.
+      console.warn(`[auth] complete-signup insert failed (${insertErr.message}) — recovering by re-fetching`)
+      const recovered = await db.getUserByEmail(payload.email)
+      if (recovered) {
+        const { token, user } = sign(recovered)
+        return res.json({ ok: true, token, user })
+      }
+      throw insertErr
+    }
+    console.log(`[auth] complete-signup OK — new user created: ${created.email} (id=${created.id})`)
 
     sendWelcomeEmail(created.name, created.email).catch((err) =>
       console.error('[email] welcome failed:', err.message)
@@ -453,6 +470,20 @@ app.get('/api/users', auth, role('admin'), async (req, res) => {
     res.json({ data: users.map(safe) })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch users', error: e.message })
+  }
+})
+
+// Admin-only diagnostic: look up a single user by email — case insensitive.
+// Used to debug "the system doesn't recognize my account" reports.
+app.get('/api/users/by-email', auth, role('admin'), async (req, res) => {
+  try {
+    const email = String(req.query.email || '').trim().toLowerCase()
+    if (!email) return res.status(400).json({ message: 'email query param required' })
+    const user = await db.getUserByEmail(email)
+    if (!user) return res.json({ found: false, normalised_lookup: email })
+    res.json({ found: true, normalised_lookup: email, user: safe(user) })
+  } catch (e) {
+    res.status(500).json({ message: 'Lookup failed', error: e.message })
   }
 })
 
