@@ -169,8 +169,19 @@ export default function Home() {
                 <PrimaryButton type="submit">
                   See prices <FiArrowRight size={16} />
                 </PrimaryButton>
-                <Link to="/login" style={textLinkStyle}>Log in to see your activity</Link>
+                <Link to="/post-ride" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '14px 22px', borderRadius: 4,
+                  background: 'transparent', color: BLACK,
+                  border: `1.5px solid ${BLACK}`,
+                  fontWeight: 600, fontSize: 14, textDecoration: 'none',
+                }}>
+                  Or post your ride for offers
+                </Link>
               </div>
+              <p style={{ fontSize: 12, color: GRAY_500, marginTop: 6 }}>
+                Instant booking with fixed price, or post your ride and let our operators bid for the best price.
+              </p>
             </form>
           </FadeIn>
 

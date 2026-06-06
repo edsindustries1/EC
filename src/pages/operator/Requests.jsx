@@ -149,9 +149,13 @@ function BidModal({ req, onClose, onSubmitted }) {
     if (!price) { toast.error('Price required'); return }
     setSubmitting(true)
     try {
-      await api.patch(`/quote-requests/${req.id}`, {
-        bid_price: Number(price),
+      // Use the new bid-marketplace endpoint — generates a Payroc payment
+      // session + emails the customer the offer with a payment link.
+      await api.post(`/operator/bids`, {
+        quote_request_id: req.id,
+        price: Number(price),
         eta_minutes: Number(eta) || 30,
+        vehicle_type: req.vehicle_type || 'sedan',
         notes,
       })
       toast.success('Bid sent')

@@ -24,9 +24,31 @@ export default function MyRides() {
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
-    api.get('/my-trips')
-      .then(res => setTrips(res.data?.data || []))
-      .catch(() => toast.error('Failed to load your trips'))
+    Promise.all([
+      api.get('/my-trips').catch(() => ({ data: { data: [] } })),
+      api.get('/ride-requests/my').catch(() => ({ data: { data: [] } })),
+    ]).then(([tripsRes, requestsRes]) => {
+      const trips = tripsRes.data?.data || []
+      const requests = (requestsRes.data?.data || [])
+        .filter(r => r.status !== 'confirmed') // confirmed ones already show as bookings
+        .map(r => ({
+          kind: 'ride_request',
+          ride_request_id: r.id,
+          pickup: r.pickup,
+          dropoff: r.dropoff,
+          pickup_date: r.ride_date,
+          pickup_time: r.pickup_time,
+          passengers: r.passengers,
+          vehicle_type: r.vehicle_type,
+          status: r.status,
+          created_at: r.created_at,
+          bids_count: (r.bids || []).length,
+        }))
+      const combined = [...trips, ...requests].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      )
+      setTrips(combined)
+    }).catch(() => toast.error('Failed to load your trips'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -92,6 +114,7 @@ export default function MyRides() {
 
 function TripCard({ t }) {
   const isBooking = t.kind === 'booking'
+  const isRideRequest = t.kind === 'ride_request'
   const date = t.pickup_date || t.ride_date
   const time = t.pickup_time || ''
   const dateStr = date ? format(new Date(`${date}T${time || '12:00'}`), 'EEE MMM d · h:mm a') : ''
@@ -120,8 +143,17 @@ function TripCard({ t }) {
                 </button>
               )}
               <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: GRAY_500 }}>
-                {isBooking ? 'Booking' : 'Quote request'}
+                {isBooking ? 'Booking' : isRideRequest ? 'Ride request' : 'Quote request'}
               </span>
+              {isRideRequest && t.bids_count > 0 && (
+                <span style={{
+                  background: BLACK, color: WHITE,
+                  padding: '2px 8px', borderRadius: 999,
+                  fontSize: 11, fontWeight: 700,
+                }}>
+                  {t.bids_count} offer{t.bids_count === 1 ? '' : 's'}
+                </span>
+              )}
               <StatusChip status={t.status}/>
             </div>
             <div style={{ fontSize: 12, color: GRAY_500 }}>{dateStr}</div>
@@ -150,13 +182,16 @@ function TripCard({ t }) {
         </div>
 
         {isBooking && t.reference ? (
-          <Link to={`/reservation/${t.reference}?email=${encodeURIComponent(t.email || '')}`} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '8px 14px', borderRadius: 4,
-            background: GRAY_50, color: BLACK, textDecoration: 'none',
-            fontSize: 13, fontWeight: 600,
-          }}>
+          <Link to={`/reservation/${t.reference}?email=${encodeURIComponent(t.email || '')}`} style={ctaLink}>
             View reservation <FiArrowRight size={12}/>
+          </Link>
+        ) : isRideRequest ? (
+          <Link to={`/ride-request/${t.ride_request_id}`} style={{
+            ...ctaLink,
+            background: BLACK, color: WHITE,
+          }}>
+            {t.bids_count > 0 ? `View ${t.bids_count} offer${t.bids_count === 1 ? '' : 's'}` : 'View request'}
+            <FiArrowRight size={12}/>
           </Link>
         ) : (
           <div style={{ fontSize: 12, color: GRAY_500 }}>
@@ -169,3 +204,9 @@ function TripCard({ t }) {
 }
 
 const meta = { display: 'inline-flex', alignItems: 'center', gap: 4 }
+const ctaLink = {
+  display: 'inline-flex', alignItems: 'center', gap: 6,
+  padding: '8px 14px', borderRadius: 4,
+  background: GRAY_50, color: BLACK, textDecoration: 'none',
+  fontSize: 13, fontWeight: 600,
+}

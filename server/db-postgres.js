@@ -375,6 +375,81 @@ export const db = {
     )
   },
 
+  // BID MARKETPLACE ────────────────────────────────────────────────────────
+  // Returns ride requests visible to operators (not yet confirmed).
+  listOpenRideRequests: async () => {
+    const { rows } = await pool.query(
+      `SELECT * FROM quote_requests
+       WHERE status IN ('pending', 'quoted', 'open')
+       AND (accepted_bid_id IS NULL)
+       ORDER BY created_at DESC`
+    )
+    return mapRows(rows)
+  },
+
+  // Returns all ride requests by a particular customer (signed in).
+  listMyRideRequests: async (customerId) => {
+    const n = idParam(customerId)
+    if (n == null) return []
+    const { rows } = await pool.query(
+      `SELECT * FROM quote_requests
+       WHERE customer_id = $1
+       ORDER BY created_at DESC`,
+      [n]
+    )
+    return mapRows(rows)
+  },
+
+  // Marks the winning bid + cancels others on the same request, and
+  // records the booking_reference linking them.
+  acceptBid: async (bidId, bookingReference) => {
+    const n = idParam(bidId)
+    if (n == null) return null
+    const { rows: [bid] } = await pool.query(
+      `UPDATE bids
+       SET status = 'paid', payment_status = 'paid', paid_at = now(),
+           booking_reference = $2
+       WHERE id = $1 RETURNING *`,
+      [n, bookingReference]
+    )
+    if (!bid) return null
+    // Cancel sibling bids on the same request
+    await pool.query(
+      `UPDATE bids SET status = 'declined'
+       WHERE quote_request_id = $1 AND id <> $2 AND status NOT IN ('paid')`,
+      [bid.quote_request_id, n]
+    )
+    // Mark the request as confirmed
+    await pool.query(
+      `UPDATE quote_requests
+       SET status = 'confirmed', accepted_bid_id = $1, booking_reference = $2, updated_at = now()
+       WHERE id = $3`,
+      [n, bookingReference, bid.quote_request_id]
+    )
+    return rowToObject(bid)
+  },
+
+  // Lookup the bid by Payroc session ID (used by webhook handler)
+  getBidByPaymentSession: async (sessionId) => {
+    const { rows } = await pool.query(
+      `SELECT * FROM bids WHERE payment_session_id = $1 LIMIT 1`,
+      [sessionId]
+    )
+    return rowToObject(rows[0])
+  },
+
+  // Update payment fields on a bid (after creating a Payroc session)
+  setBidPayment: async (bidId, { paymentSessionId, paymentLink, expiresAt }) => {
+    const n = idParam(bidId)
+    if (n == null) return null
+    const { rows } = await pool.query(
+      `UPDATE bids SET payment_session_id = $2, payment_link = $3, expires_at = $4
+       WHERE id = $1 RETURNING *`,
+      [n, paymentSessionId, paymentLink, expiresAt || null]
+    )
+    return rowToObject(rows[0])
+  },
+
   incrementOtpAttempts: async (id) => {
     const { rows } = await pool.query(
       `UPDATE otp_codes SET attempts = attempts + 1

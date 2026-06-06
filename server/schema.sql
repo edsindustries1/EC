@@ -91,6 +91,23 @@ CREATE INDEX IF NOT EXISTS idx_quote_requests_created_at ON quote_requests(creat
 CREATE INDEX IF NOT EXISTS idx_bids_quote_request_id     ON bids(quote_request_id);
 CREATE INDEX IF NOT EXISTS idx_drivers_operator_id       ON drivers(operator_id);
 
+-- Bid marketplace extensions (idempotent — safe to re-run on every boot)
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS payment_session_id  TEXT;
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS payment_link        TEXT;
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS payment_status      TEXT NOT NULL DEFAULT 'pending';
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS paid_at             TIMESTAMPTZ;
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS expires_at          TIMESTAMPTZ;
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS booking_reference   TEXT;
+ALTER TABLE bids ADD COLUMN IF NOT EXISTS status              TEXT NOT NULL DEFAULT 'open';
+
+ALTER TABLE quote_requests ADD COLUMN IF NOT EXISTS accepted_bid_id  INTEGER;
+ALTER TABLE quote_requests ADD COLUMN IF NOT EXISTS booking_reference TEXT;
+ALTER TABLE quote_requests ADD COLUMN IF NOT EXISTS budget_max       NUMERIC;
+ALTER TABLE quote_requests ADD COLUMN IF NOT EXISTS pickup_time      TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bids_status         ON bids(status);
+CREATE INDEX IF NOT EXISTS idx_bids_payment_status ON bids(payment_status);
+
 -- Passwordless email OTP codes
 CREATE TABLE IF NOT EXISTS otp_codes (
   id          SERIAL PRIMARY KEY,

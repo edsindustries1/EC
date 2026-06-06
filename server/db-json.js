@@ -178,6 +178,66 @@ export const db = {
     save(_db)
   },
 
+  // BID MARKETPLACE ──────────────────────────────────────────────────────
+  listOpenRideRequests: () => {
+    return _db.quote_requests
+      .filter(q => ['pending', 'quoted', 'open'].includes(q.status) && !q.accepted_bid_id)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+  },
+
+  listMyRideRequests: (customerId) => {
+    return _db.quote_requests
+      .filter(q => q.customer_id === customerId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+  },
+
+  acceptBid: (bidId, bookingReference) => {
+    const idx = _db.bids.findIndex(b => b.id === bidId)
+    if (idx === -1) return null
+    const bid = _db.bids[idx]
+    _db.bids[idx] = {
+      ...bid,
+      status: 'paid',
+      payment_status: 'paid',
+      paid_at: new Date().toISOString(),
+      booking_reference: bookingReference,
+    }
+    _db.bids.forEach((b, i) => {
+      if (b.quote_request_id === bid.quote_request_id && b.id !== bidId && b.status !== 'paid') {
+        _db.bids[i] = { ..._db.bids[i], status: 'declined' }
+      }
+    })
+    const qidx = _db.quote_requests.findIndex(q => q.id === bid.quote_request_id)
+    if (qidx !== -1) {
+      _db.quote_requests[qidx] = {
+        ..._db.quote_requests[qidx],
+        status: 'confirmed',
+        accepted_bid_id: bidId,
+        booking_reference: bookingReference,
+        updated_at: new Date().toISOString(),
+      }
+    }
+    save(_db)
+    return _db.bids[idx]
+  },
+
+  getBidByPaymentSession: (sessionId) => {
+    return _db.bids.find(b => b.payment_session_id === sessionId) || null
+  },
+
+  setBidPayment: (bidId, { paymentSessionId, paymentLink, expiresAt }) => {
+    const idx = _db.bids.findIndex(b => b.id === bidId)
+    if (idx === -1) return null
+    _db.bids[idx] = {
+      ..._db.bids[idx],
+      payment_session_id: paymentSessionId,
+      payment_link: paymentLink,
+      expires_at: expiresAt || null,
+    }
+    save(_db)
+    return _db.bids[idx]
+  },
+
   incrementOtpAttempts: (id) => {
     if (!_db.otp_codes) return 0
     const idx = _db.otp_codes.findIndex((o) => o.id === id)

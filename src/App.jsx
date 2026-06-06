@@ -21,6 +21,9 @@ import Fleet from './pages/Fleet'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import OtpAuth from './pages/auth/OtpAuth'
+import PostRide from './pages/PostRide'
+import RideRequestDetail from './pages/RideRequestDetail'
+import MockPay from './pages/MockPay'
 import Profile from './pages/Profile'
 import HowItWorks from './pages/HowItWorks'
 import Privacy from './pages/Privacy'
@@ -75,6 +78,9 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify" element={<OtpAuth />} />
+            <Route path="/post-ride" element={<PostRide />} />
+            <Route path="/ride-request/:id" element={<RideRequestDetail />} />
+            <Route path="/mock-pay" element={<MockPay />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/corporate" element={<Corporate />} />
             <Route path="/services" element={<Services />} />

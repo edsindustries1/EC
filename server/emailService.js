@@ -3,6 +3,7 @@ import { buildWelcomeEmail } from './emailTemplates/welcome.js'
 import { buildQuoteConfirmationEmail } from './emailTemplates/quoteConfirmation.js'
 import { buildOperatorNotificationEmail } from './emailTemplates/operatorNotification.js'
 import { buildOtpEmail } from './emailTemplates/otpCode.js'
+import { buildBidReceivedEmail } from './emailTemplates/bidReceived.js'
 
 const BASE_URL       = process.env.BASE_URL    || 'https://everywheretransfers.com'
 const FROM_EMAIL     = process.env.FROM_EMAIL  || 'reservations@everywheretransfers.com'
@@ -68,6 +69,14 @@ export async function sendOperatorNotification(lead) {
     replyTo: lead?.email || FROM_EMAIL,
   })
   if (id) console.log('[email] Operator notification sent to', OPERATOR_EMAIL, id)
+}
+
+export async function sendBidReceivedEmail({ to, customerName, pickup, dropoff, operatorName, amount, etaMinutes, paymentUrl, expiresInMinutes }) {
+  if (!to) return null
+  const { subject, html } = buildBidReceivedEmail({ customerName, pickup, dropoff, operatorName, amount, etaMinutes, paymentUrl, expiresInMinutes })
+  const id = await send({ to, subject, html })
+  if (id) console.log('[email] Bid offer sent to', to, id)
+  return id
 }
 
 export async function sendOtpEmail(email, code) {

@@ -201,10 +201,25 @@ export default function MobileHome() {
           border: 0, borderRadius: 12,
           fontSize: 16, fontWeight: 700, cursor: 'pointer',
           boxShadow: '0 10px 30px -10px rgba(0,0,0,0.35)',
+          marginBottom: 10,
+        }}
+      >
+        Book instantly · See prices <FiArrowRight size={17}/>
+      </button>
+
+      {/* "Post your ride" alternative — auth required */}
+      <button
+        onClick={() => navigate('/post-ride')}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          width: '100%', padding: '14px',
+          background: WHITE, color: BLACK,
+          border: `1.5px solid ${BLACK}`, borderRadius: 12,
+          fontSize: 14, fontWeight: 600, cursor: 'pointer',
           marginBottom: 24,
         }}
       >
-        See prices <FiArrowRight size={17}/>
+        Or post your ride for offers
       </button>
 
       {/* ── Saved places ─────────────────────────────────────────────── */}
