@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom'
 import { FiArrowLeft, FiArrowRight, FiMapPin, FiCalendar, FiUsers, FiCheck, FiShield, FiLock } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import api from '../utils/api'
@@ -19,7 +19,20 @@ export default function BookTrip() {
   const { vehicleId } = useParams()
   const [params] = useSearchParams()
   const navigate = useNavigate()
-  const { user } = useAuth() || {}
+  const location = useLocation()
+  const { user, isAuthenticated, loading: authLoading } = useAuth() || {}
+
+  // Auth gate — sign-in/up is mandatory to make any reservation.
+  // Preserve the URL the user landed on (with all the trip parameters)
+  // so OTP completion sends them right back to the same form.
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/verify', {
+        replace: true,
+        state: { returnTo: `${location.pathname}${location.search}` },
+      })
+    }
+  }, [authLoading, isAuthenticated, location.pathname, location.search, navigate])
 
   const from = params.get('from') || ''
   const to   = params.get('to')   || ''
@@ -94,6 +107,16 @@ export default function BookTrip() {
       <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, padding: '5rem 1.5rem', textAlign: 'center', minHeight: '100vh' }}>
         <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Missing trip details</h2>
         <Link to="/" style={primaryBtnStyle}><FiArrowLeft size={16}/> Start over</Link>
+      </div>
+    )
+  }
+
+  // While we redirect unauthenticated users, render a quick placeholder so
+  // there's no flash of the form before the navigation kicks in.
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, padding: '5rem 1.5rem', textAlign: 'center', minHeight: '100vh' }}>
+        <p style={{ color: GRAY_500, fontSize: 14 }}>Sign in to complete your reservation…</p>
       </div>
     )
   }

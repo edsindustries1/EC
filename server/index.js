@@ -561,8 +561,9 @@ app.post('/api/quote/estimate', (req, res) => {
   }
 })
 
-// Create a confirmed reservation (amtrak-style — instant, no bid wait)
-app.post('/api/bookings', async (req, res) => {
+// Create a confirmed reservation (amtrak-style — instant, no bid wait).
+// Auth required — a customer account is mandatory before any reservation.
+app.post('/api/bookings', auth, async (req, res) => {
   try {
     const {
       pickup, dropoff, pickup_date, pickup_time, passengers,
@@ -583,9 +584,9 @@ app.post('/api/bookings', async (req, res) => {
       if (collisions > 10) throw new Error('Could not generate unique reference')
     } while (await db.getBookingByRef(reference))
 
-    const token = req.headers.authorization?.slice(7)
-    let customerId = null
-    try { if (token) customerId = jwt.verify(token, JWT_SECRET).id } catch {}
+    // JWT user is the authoritative customer_id, even if name/email/phone
+    // in the form differ (e.g. customer booking on behalf of someone else)
+    const customerId = req.user.id
 
     const booking = await db.createBooking({
       reference,

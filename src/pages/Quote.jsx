@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FiArrowRight, FiPhone, FiShield, FiClock, FiCheck } from 'react-icons/fi'
 import QuoteForm from '../components/QuoteForm'
+import { useAuth } from '../context/AuthContext'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT, btnPrimary } from '../styles/uber'
 
 const TRUST = [
@@ -11,6 +12,20 @@ const TRUST = [
 ]
 
 export default function Quote() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { isAuthenticated, loading: authLoading } = useAuth() || {}
+
+  // Auth gate — must be signed in to request a quote / make a reservation
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/verify', {
+        replace: true,
+        state: { returnTo: `${location.pathname}${location.search}` },
+      })
+    }
+  }, [authLoading, isAuthenticated, location.pathname, location.search, navigate])
+
   useEffect(() => {
     document.title = 'Get a free quote · Everywhere Transfers'
     let meta = document.querySelector('meta[name="description"]')
@@ -19,8 +34,16 @@ export default function Quote() {
       meta.name = 'description'
       document.head.appendChild(meta)
     }
-    meta.setAttribute('content', 'Get an instant quote for NYC airport transfers, car service to JFK, LGA, EWR, and more. No registration required. Fixed prices, professional chauffeurs.')
+    meta.setAttribute('content', 'Get an instant quote for NYC airport transfers, car service to JFK, LGA, EWR, and more. Premium chauffeurs, fixed prices.')
   }, [])
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, padding: '5rem 1.5rem', textAlign: 'center', minHeight: '100vh' }}>
+        <p style={{ color: GRAY_500, fontSize: 14 }}>Sign in to request a quote…</p>
+      </div>
+    )
+  }
 
   return (
     <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em', minHeight: '100vh' }}>

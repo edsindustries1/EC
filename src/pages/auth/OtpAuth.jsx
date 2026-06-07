@@ -52,6 +52,14 @@ export default function OtpAuth() {
     setSession({ token, user })
     toast.success(user?.name ? `Welcome, ${user.name.split(' ')[0]} 👋` : 'Signed in')
 
+    // Highest priority: a `returnTo` URL passed via navigation state
+    // (e.g. /book-trip redirected here because the user wasn't signed in).
+    const returnTo = location.state?.returnTo
+    if (returnTo) {
+      navigate(returnTo, { replace: true })
+      return
+    }
+
     const pending = location.state?.fromBidBoard ? location.state : null
     if (pending?.fromBidBoard) {
       navigate('/book', { state: pending })
