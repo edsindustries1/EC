@@ -450,6 +450,84 @@ export const db = {
     return rowToObject(rows[0])
   },
 
+  // CUSTOM PAYMENT LINKS ────────────────────────────────────────────────
+  createPaymentLink: async (data) => {
+    const cols = [
+      'session_id', 'payment_url',
+      'customer_email', 'customer_name',
+      'amount_cents', 'currency', 'description',
+      'related_bid_id', 'related_booking_reference', 'related_ride_request_id',
+      'created_by_operator_id', 'expires_at',
+    ]
+    const values = [
+      data.session_id, data.payment_url,
+      data.customer_email, data.customer_name || null,
+      data.amount_cents, data.currency || 'USD', data.description || null,
+      idParam(data.related_bid_id),
+      data.related_booking_reference || null,
+      idParam(data.related_ride_request_id),
+      idParam(data.created_by_operator_id),
+      data.expires_at || null,
+    ]
+    const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ')
+    const { rows } = await pool.query(
+      `INSERT INTO payment_links (${cols.join(', ')})
+       VALUES (${placeholders}) RETURNING *`,
+      values
+    )
+    return rowToObject(rows[0])
+  },
+
+  listPaymentLinks: async ({ operator_id, limit = 50 } = {}) => {
+    let sql = `SELECT * FROM payment_links`
+    const params = []
+    if (operator_id != null) {
+      params.push(idParam(operator_id))
+      sql += ` WHERE created_by_operator_id = $${params.length}`
+    }
+    sql += ` ORDER BY created_at DESC LIMIT ${Math.min(Number(limit) || 50, 200)}`
+    const { rows } = await pool.query(sql, params)
+    return mapRows(rows)
+  },
+
+  getPaymentLink: async (id) => {
+    const n = idParam(id)
+    if (n == null) return null
+    const { rows } = await pool.query(`SELECT * FROM payment_links WHERE id = $1`, [n])
+    return rowToObject(rows[0])
+  },
+
+  getPaymentLinkBySession: async (sessionId) => {
+    const { rows } = await pool.query(
+      `SELECT * FROM payment_links WHERE session_id = $1 LIMIT 1`,
+      [sessionId]
+    )
+    return rowToObject(rows[0])
+  },
+
+  markPaymentLinkPaid: async (sessionId) => {
+    const { rows } = await pool.query(
+      `UPDATE payment_links SET status = 'paid', paid_at = now()
+       WHERE session_id = $1 AND status = 'pending' RETURNING *`,
+      [sessionId]
+    )
+    return rowToObject(rows[0])
+  },
+
+  cancelPaymentLink: async (id, operatorId) => {
+    const n = idParam(id)
+    if (n == null) return null
+    const { rows } = await pool.query(
+      `UPDATE payment_links SET status = 'cancelled', cancelled_at = now()
+       WHERE id = $1
+       AND status = 'pending'
+       AND ($2::integer IS NULL OR created_by_operator_id = $2)
+       RETURNING *`,
+      [n, idParam(operatorId)]
+    )
+    return rowToObject(rows[0])
+  },
+
   incrementOtpAttempts: async (id) => {
     const { rows } = await pool.query(
       `UPDATE otp_codes SET attempts = attempts + 1

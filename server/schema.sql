@@ -108,6 +108,32 @@ ALTER TABLE quote_requests ADD COLUMN IF NOT EXISTS pickup_time      TEXT;
 CREATE INDEX IF NOT EXISTS idx_bids_status         ON bids(status);
 CREATE INDEX IF NOT EXISTS idx_bids_payment_status ON bids(payment_status);
 
+-- Custom payment links — operator creates a payment session for any
+-- amount, system emails the link to the customer, webhook flips status
+-- when paid.
+CREATE TABLE IF NOT EXISTS payment_links (
+  id                          SERIAL PRIMARY KEY,
+  session_id                  TEXT NOT NULL UNIQUE,
+  payment_url                 TEXT NOT NULL,
+  customer_email              TEXT NOT NULL,
+  customer_name               TEXT,
+  amount_cents                INTEGER NOT NULL,
+  currency                    TEXT NOT NULL DEFAULT 'USD',
+  description                 TEXT,
+  status                      TEXT NOT NULL DEFAULT 'pending',
+  related_bid_id              INTEGER REFERENCES bids(id) ON DELETE SET NULL,
+  related_booking_reference   TEXT,
+  related_ride_request_id     INTEGER REFERENCES quote_requests(id) ON DELETE SET NULL,
+  created_by_operator_id      INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at                  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  paid_at                     TIMESTAMPTZ,
+  expires_at                  TIMESTAMPTZ,
+  cancelled_at                TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_payment_links_status     ON payment_links(status);
+CREATE INDEX IF NOT EXISTS idx_payment_links_session_id ON payment_links(session_id);
+CREATE INDEX IF NOT EXISTS idx_payment_links_created_at ON payment_links(created_at DESC);
+
 -- Passwordless email OTP codes
 CREATE TABLE IF NOT EXISTS otp_codes (
   id          SERIAL PRIMARY KEY,

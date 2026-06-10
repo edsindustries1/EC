@@ -53,6 +53,7 @@ import RideDetails from './pages/customer/RideDetails'
 import OperatorDashboard from './pages/operator/Dashboard'
 import OperatorRequests from './pages/operator/Requests'
 import OperatorActivity from './pages/operator/Activity'
+import OperatorPaymentLinks from './pages/operator/PaymentLinks'
 import OperatorDrivers from './pages/operator/Drivers'
 import OperatorRevenue from './pages/operator/Revenue'
 import OperatorUsers from './pages/operator/Users'
@@ -173,6 +174,14 @@ function AppContent() {
               element={
                 <ProtectedRoute allowedRoles={['operator', 'admin']}>
                   <OperatorActivity />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/operator/payment-links"
+              element={
+                <ProtectedRoute allowedRoles={['operator', 'admin']}>
+                  <OperatorPaymentLinks />
                 </ProtectedRoute>
               }
             />

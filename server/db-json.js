@@ -238,6 +238,64 @@ export const db = {
     return _db.bids[idx]
   },
 
+  // CUSTOM PAYMENT LINKS ──────────────────────────────────────────────
+  createPaymentLink: (data) => {
+    if (!_db.payment_links) _db.payment_links = []
+    const pl = {
+      id: nextId(),
+      session_id: data.session_id,
+      payment_url: data.payment_url,
+      customer_email: data.customer_email,
+      customer_name: data.customer_name || null,
+      amount_cents: data.amount_cents,
+      currency: data.currency || 'USD',
+      description: data.description || null,
+      status: 'pending',
+      related_bid_id: data.related_bid_id || null,
+      related_booking_reference: data.related_booking_reference || null,
+      related_ride_request_id: data.related_ride_request_id || null,
+      created_by_operator_id: data.created_by_operator_id || null,
+      created_at: new Date().toISOString(),
+      paid_at: null,
+      expires_at: data.expires_at || null,
+      cancelled_at: null,
+    }
+    _db.payment_links.push(pl)
+    save(_db)
+    return pl
+  },
+
+  listPaymentLinks: ({ operator_id, limit = 50 } = {}) => {
+    let list = [...(_db.payment_links || [])].reverse()
+    if (operator_id != null) list = list.filter(p => String(p.created_by_operator_id) === String(operator_id))
+    return list.slice(0, Math.min(Number(limit) || 50, 200))
+  },
+
+  getPaymentLink: (id) => (_db.payment_links || []).find(p => String(p.id) === String(id)) || null,
+
+  getPaymentLinkBySession: (sessionId) => (_db.payment_links || []).find(p => p.session_id === sessionId) || null,
+
+  markPaymentLinkPaid: (sessionId) => {
+    if (!_db.payment_links) return null
+    const idx = _db.payment_links.findIndex(p => p.session_id === sessionId && p.status === 'pending')
+    if (idx === -1) return null
+    _db.payment_links[idx] = { ..._db.payment_links[idx], status: 'paid', paid_at: new Date().toISOString() }
+    save(_db)
+    return _db.payment_links[idx]
+  },
+
+  cancelPaymentLink: (id, operatorId) => {
+    if (!_db.payment_links) return null
+    const idx = _db.payment_links.findIndex(p =>
+      String(p.id) === String(id) && p.status === 'pending' &&
+      (operatorId == null || String(p.created_by_operator_id) === String(operatorId))
+    )
+    if (idx === -1) return null
+    _db.payment_links[idx] = { ..._db.payment_links[idx], status: 'cancelled', cancelled_at: new Date().toISOString() }
+    save(_db)
+    return _db.payment_links[idx]
+  },
+
   incrementOtpAttempts: (id) => {
     if (!_db.otp_codes) return 0
     const idx = _db.otp_codes.findIndex((o) => o.id === id)

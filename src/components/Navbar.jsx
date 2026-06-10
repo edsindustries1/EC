@@ -91,6 +91,7 @@ export default function Navbar() {
               <NavLink to="/operator/dashboard">Dashboard</NavLink>
               <NavLink to="/operator/activity">Activity</NavLink>
               <NavLink to="/operator/requests">Requests</NavLink>
+              <NavLink to="/operator/payment-links">Payments</NavLink>
               <NavLink to="/operator/drivers">Drivers</NavLink>
               {user?.role === 'admin' && (
                 <>
@@ -199,6 +200,7 @@ export default function Navbar() {
                 <MobileLink to="/operator/dashboard">Dashboard</MobileLink>
                 <MobileLink to="/operator/activity">Activity</MobileLink>
                 <MobileLink to="/operator/requests">Requests</MobileLink>
+                <MobileLink to="/operator/payment-links">Payments</MobileLink>
                 <MobileLink to="/operator/drivers">Drivers</MobileLink>
                 {user?.role === 'admin' && (
                   <>

@@ -12,6 +12,7 @@ import {
   sendOperatorNotification,
   sendOtpEmail,
   sendBidReceivedEmail,
+  sendPaymentLinkEmail,
 } from './emailService.js'
 import * as Payroc from './payroc.js'
 
@@ -748,6 +749,118 @@ app.get('/api/notifications/recent', auth, role('operator', 'admin'), async (req
   }
 })
 
+// ── CUSTOM PAYMENT LINKS (operator-driven) ──────────────────────────────────
+//
+// Operator UI calls these endpoints to:
+//   1. POST   /api/operator/payment-link        — create + email a custom link
+//   2. GET    /api/operator/payment-links       — see what's pending / paid
+//   3. POST   /api/operator/payment-links/:id/cancel — kill a stale link
+//
+// Webhook handler below also marks the linked record paid once Payroc
+// (or mock-pay) confirms the transaction.
+
+const PAYMENT_LINK_TTL_HOURS = 24
+
+app.post('/api/operator/payment-link', auth, role('operator', 'admin'), async (req, res) => {
+  try {
+    const {
+      customer_email,
+      customer_name,
+      amount,
+      description,
+      related_bid_id,
+      related_booking_reference,
+      related_ride_request_id,
+    } = req.body || {}
+
+    if (!customer_email || !/\S+@\S+\.\S+/.test(customer_email)) {
+      return res.status(400).json({ message: 'Valid customer_email required' })
+    }
+    const amountNum = Number(amount)
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      return res.status(400).json({ message: 'amount must be a positive number' })
+    }
+    if (!description?.trim()) {
+      return res.status(400).json({ message: 'description required (shown on the invoice)' })
+    }
+
+    const operator = await db.getUser(req.user.id)
+    const amountCents = Math.round(amountNum * 100)
+    const expiresAt = new Date(Date.now() + PAYMENT_LINK_TTL_HOURS * 60 * 60 * 1000).toISOString()
+
+    // Create Payroc session (mock-mode-aware via server/payroc.js)
+    const session = await Payroc.createPaymentSession({
+      amountCents,
+      currency: 'USD',
+      description: description.trim(),
+      customerEmail: customer_email.trim().toLowerCase(),
+      customerName: customer_name || '',
+      metadata: {
+        kind: 'custom_payment_link',
+        operator_id: String(req.user.id),
+        related_bid_id: related_bid_id ? String(related_bid_id) : null,
+        related_booking_reference: related_booking_reference || null,
+      },
+      successReturnUrl: `${process.env.BASE_URL || 'https://www.everywheretransfers.com'}/payment-return`,
+    })
+
+    const link = await db.createPaymentLink({
+      session_id: session.sessionId,
+      payment_url: session.paymentUrl,
+      customer_email: customer_email.trim().toLowerCase(),
+      customer_name: customer_name?.trim() || null,
+      amount_cents: amountCents,
+      currency: 'USD',
+      description: description.trim(),
+      related_bid_id: related_bid_id || null,
+      related_booking_reference: related_booking_reference || null,
+      related_ride_request_id: related_ride_request_id || null,
+      created_by_operator_id: req.user.id,
+      expires_at: expiresAt,
+    })
+
+    sendPaymentLinkEmail({
+      to: customer_email,
+      customerName: customer_name || '',
+      amount: amountNum,
+      currency: 'USD',
+      description: description.trim(),
+      paymentUrl: session.paymentUrl,
+      expiresAt,
+      operatorName: operator?.name || 'Everywhere Transfers',
+    }).catch(err => console.error('[email] payment link email failed:', err.message))
+
+    res.status(201).json({
+      success: true,
+      data: link,
+      payroc_mode: Payroc.environmentLabel(),
+    })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not create payment link', error: e.message })
+  }
+})
+
+app.get('/api/operator/payment-links', auth, role('operator', 'admin'), async (req, res) => {
+  try {
+    const filter = req.user.role === 'admin' ? {} : { operator_id: req.user.id }
+    const links = await db.listPaymentLinks({ ...filter, limit: Number(req.query.limit) || 50 })
+    res.json({ success: true, data: links })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not fetch links', error: e.message })
+  }
+})
+
+app.post('/api/operator/payment-links/:id/cancel', auth, role('operator', 'admin'), async (req, res) => {
+  try {
+    const operatorScope = req.user.role === 'admin' ? null : req.user.id
+    const cancelled = await db.cancelPaymentLink(req.params.id, operatorScope)
+    if (!cancelled) return res.status(404).json({ message: 'Link not found, already paid, or not yours' })
+    res.json({ success: true, data: cancelled })
+  } catch (e) {
+    res.status(500).json({ message: 'Cancel failed', error: e.message })
+  }
+})
+
 // ── GOOGLE PLACES PROXY ──────────────────────────────────────────────────────
 //
 // Calls Google Places Autocomplete REST API server-side. This avoids the
@@ -1001,8 +1114,16 @@ app.post('/api/payments/payroc/webhook', express.json({ verify: (req, res, buf) 
     if (!session_id) return res.status(400).json({ message: 'session_id required' })
     if (status !== 'paid' && status !== 'succeeded') return res.json({ ok: true, ignored: true })
 
+    // First check if this session was a CUSTOM payment link (operator-issued)
+    const customLink = await db.getPaymentLinkBySession(session_id)
+    if (customLink) {
+      const updated = await db.markPaymentLinkPaid(session_id)
+      console.log(`[payments] custom link marked paid: id=${customLink.id} session=${session_id}`)
+      return res.json({ ok: true, kind: 'custom_payment_link', link_id: updated?.id })
+    }
+
     const bid = await db.getBidByPaymentSession(session_id)
-    if (!bid) return res.status(404).json({ message: 'Bid not found for session' })
+    if (!bid) return res.status(404).json({ message: 'Session not associated with any bid or payment link' })
 
     const reference = makeReferenceUnique()
     await db.acceptBid(bid.id, reference)
@@ -1041,6 +1162,20 @@ app.post('/api/payments/payroc/webhook', express.json({ verify: (req, res, buf) 
 app.get('/api/mock-pay/info', async (req, res) => {
   const sessionId = String(req.query.session || '')
   if (!sessionId) return res.status(400).json({ message: 'session required' })
+
+  // Custom payment link path
+  const customLink = await db.getPaymentLinkBySession(sessionId)
+  if (customLink) {
+    return res.json({ success: true, data: {
+      session: sessionId,
+      amount: Number(customLink.amount_cents) / 100,
+      description: customLink.description || 'Reservation',
+      customer_email: customLink.customer_email,
+      kind: 'custom_payment_link',
+    } })
+  }
+
+  // Bid-based payment path
   const bid = await db.getBidByPaymentSession(sessionId)
   if (!bid) return res.status(404).json({ message: 'Session not found' })
   const qr = await db.getQuoteRequest(bid.quote_request_id)
@@ -1049,6 +1184,7 @@ app.get('/api/mock-pay/info', async (req, res) => {
     amount: Number(bid.price),
     description: `${qr?.pickup} → ${qr?.dropoff}`,
     customer_email: qr?.customer_email,
+    kind: 'bid',
   } })
 })
 
@@ -1060,6 +1196,14 @@ app.post('/api/mock-pay/complete', async (req, res) => {
 
     if (!succeeded) {
       return res.json({ ok: true, status: 'cancelled' })
+    }
+
+    // First check if this is a custom payment link
+    const customLink = await db.getPaymentLinkBySession(session_id)
+    if (customLink) {
+      const updated = await db.markPaymentLinkPaid(session_id)
+      console.log(`[mock-pay] custom link marked paid: id=${customLink.id}`)
+      return res.json({ ok: true, status: 'paid', kind: 'custom_payment_link', link_id: updated?.id })
     }
 
     const bid = await db.getBidByPaymentSession(session_id)
