@@ -33,9 +33,11 @@ app.use(express.static(DIST))
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
+// 365-day JWT — "never logged out automatically" UX. For sensitive ops
+// (refunds, account deletion) require re-verification via OTP.
 function sign(user) {
   const { password, ...safe } = user
-  return { token: jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' }), user: safe }
+  return { token: jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '365d' }), user: safe }
 }
 
 function auth(req, res, next) {
@@ -255,6 +257,35 @@ app.get('/api/auth/me', auth, async (req, res) => {
     res.json({ user: safe(user) })
   } catch (e) {
     res.status(500).json({ message: 'Could not fetch user', error: e.message })
+  }
+})
+
+// ── DELETE ACCOUNT (Apple App Store requirement) ────────────────────────────
+//
+// Apple requires any app that lets users create accounts to also offer a
+// way to delete them, in-app, easily, and without contacting support
+// (App Store Review Guideline 5.1.1(v)).
+//
+// We hard-delete the user row. Bookings and ride requests are PRESERVED
+// but their customer_id is set to NULL — the operator still has the
+// historical record but the user's PII (name/email/phone) is cleared from
+// each booking row too.
+app.delete('/api/auth/me', auth, async (req, res) => {
+  try {
+    const userId = req.user.id
+    const user = await db.getUser(userId)
+    if (!user) return res.status(404).json({ message: 'User not found' })
+
+    if (db.deleteUserAndAnonymizeData) {
+      await db.deleteUserAndAnonymizeData(userId)
+    } else {
+      return res.status(503).json({ message: 'Account deletion temporarily unavailable. Contact support.' })
+    }
+
+    console.log(`[auth] account deleted: ${user.email} (id=${userId})`)
+    res.json({ success: true, message: 'Account deleted. Your bookings have been anonymized.' })
+  } catch (e) {
+    res.status(500).json({ message: 'Could not delete account', error: e.message })
   }
 })
 

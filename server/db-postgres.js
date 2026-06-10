@@ -475,6 +475,39 @@ export const db = {
     return rowToObject(rows[0])
   },
 
+  // Used by DELETE /api/auth/me — Apple App Store requires in-app account
+  // deletion. We anonymize the user's bookings and ride requests first so
+  // operator history is preserved, then hard-delete the user row.
+  deleteUserAndAnonymizeData: async (id) => {
+    const n = idParam(id)
+    if (n == null) return null
+    // Anonymize bookings — strip PII, keep the row for operator records
+    await pool.query(
+      `UPDATE bookings SET
+         name = 'Deleted user', email = NULL, phone = NULL, customer_id = NULL
+       WHERE customer_id = $1`,
+      [n]
+    )
+    // Anonymize quote_requests
+    await pool.query(
+      `UPDATE quote_requests SET
+         customer_name = 'Deleted user', customer_email = NULL,
+         customer_phone = NULL, customer_id = NULL
+       WHERE customer_id = $1`,
+      [n]
+    )
+    // Cancel any pending payment links tied to this user
+    await pool.query(
+      `UPDATE payment_links SET status = 'cancelled', cancelled_at = now()
+       WHERE customer_email IN (SELECT email FROM users WHERE id = $1)
+         AND status = 'pending'`,
+      [n]
+    )
+    // Hard-delete the user row
+    await pool.query(`DELETE FROM users WHERE id = $1`, [n])
+    return true
+  },
+
   // Used by /api/setup/ensure-test-accounts to reset operator/admin creds
   updateUserCredentials: async (id, { password, role }) => {
     const n = idParam(id)

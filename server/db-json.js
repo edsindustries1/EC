@@ -248,6 +248,38 @@ export const db = {
     return _db.users[idx]
   },
 
+  // Used by DELETE /api/auth/me — Apple App Store requires in-app account
+  // deletion. Anonymizes user's bookings + quote_requests, cancels pending
+  // payment links, then deletes user row.
+  deleteUserAndAnonymizeData: (id) => {
+    const sId = String(id)
+    const user = _db.users.find(u => String(u.id) === sId)
+    if (!user) return null
+
+    if (_db.bookings) {
+      _db.bookings = _db.bookings.map(b =>
+        String(b.customer_id) === sId
+          ? { ...b, name: 'Deleted user', email: null, phone: null, customer_id: null }
+          : b
+      )
+    }
+    _db.quote_requests = _db.quote_requests.map(q =>
+      String(q.customer_id) === sId
+        ? { ...q, customer_name: 'Deleted user', customer_email: null, customer_phone: null, customer_id: null }
+        : q
+    )
+    if (_db.payment_links) {
+      _db.payment_links = _db.payment_links.map(p =>
+        p.customer_email === user.email && p.status === 'pending'
+          ? { ...p, status: 'cancelled', cancelled_at: new Date().toISOString() }
+          : p
+      )
+    }
+    _db.users = _db.users.filter(u => String(u.id) !== sId)
+    save(_db)
+    return true
+  },
+
   // CUSTOM PAYMENT LINKS ──────────────────────────────────────────────
   createPaymentLink: (data) => {
     if (!_db.payment_links) _db.payment_links = []
