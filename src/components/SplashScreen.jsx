@@ -24,7 +24,7 @@
 import React, { useEffect, useState } from 'react'
 import { isNative } from '../native'
 
-const HOLD_MS = 2500
+const HOLD_MS = 3000
 const FADE_MS = 500
 const SESSION_KEY = 'et:splash:seen-v3'
 
@@ -144,16 +144,62 @@ function Splash({ fading }) {
         ET
       </div>
 
+      {/* Premium sedan silhouette — slides in 1.5s, settles by 2.0s.
+          Pure white with a subtle drop shadow to match the ET sculpt
+          aesthetic. Sits between the ET and the wordmark. */}
       <div
         style={{
-          marginTop: 38,
+          marginTop: 32,
+          width: 'clamp(140px, 38vw, 200px)',
+          opacity: 0,
+          animation: 'et-car-in 500ms 1500ms cubic-bezier(0.16, 1, 0.3, 1) both',
+          filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.45)) drop-shadow(0 2px 4px rgba(0,0,0,0.35))',
+        }}
+      >
+        <svg viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', display: 'block' }}>
+          {/* Premium sedan silhouette — long hood, sleek roof, low profile */}
+          <path
+            d="M 8 44
+               L 22 36
+               C 26 32, 32 28, 42 26
+               L 55 23
+               C 62 17, 73 14, 90 13
+               L 124 13
+               C 138 14, 148 18, 154 24
+               L 168 31
+               C 178 33, 186 37, 190 44
+               L 190 49
+               C 190 50, 189 51, 188 51
+               L 174 51
+               C 174 45, 169 41, 163 41
+               C 157 41, 152 45, 152 51
+               L 60 51
+               C 60 45, 55 41, 49 41
+               C 43 41, 38 45, 38 51
+               L 12 51
+               C 11 51, 10 50, 10 49
+               Z"
+            fill="#ffffff"
+          />
+          {/* Front wheel */}
+          <circle cx="49" cy="51" r="6.5" fill="#ffffff"/>
+          <circle cx="49" cy="51" r="2.5" fill="#0a0a0a"/>
+          {/* Rear wheel */}
+          <circle cx="163" cy="51" r="6.5" fill="#ffffff"/>
+          <circle cx="163" cy="51" r="2.5" fill="#0a0a0a"/>
+        </svg>
+      </div>
+
+      <div
+        style={{
+          marginTop: 22,
           color: 'rgba(255,255,255,0.95)',
           fontSize: 'clamp(15px, 3.5vw, 19px)',
           fontWeight: 700,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
           textShadow: '0 2px 8px rgba(0,0,0,0.5)',
-          animation: 'et-wordmark-in 750ms 550ms cubic-bezier(0.16, 1, 0.3, 1) both',
+          animation: 'et-wordmark-in 750ms 1750ms cubic-bezier(0.16, 1, 0.3, 1) both',
         }}
       >
         Everywhere Transfers
@@ -166,7 +212,7 @@ function Splash({ fading }) {
           fontSize: 'clamp(12px, 2.8vw, 14px)',
           fontWeight: 500,
           letterSpacing: '0.04em',
-          animation: 'et-wordmark-in 750ms 850ms cubic-bezier(0.16, 1, 0.3, 1) both',
+          animation: 'et-wordmark-in 750ms 2000ms cubic-bezier(0.16, 1, 0.3, 1) both',
         }}
       >
         Premium chauffeur service
@@ -208,6 +254,19 @@ function Splash({ fading }) {
         @keyframes et-wordmark-in {
           0%   { opacity: 0; transform: translateY(10px); }
           100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes et-car-in {
+          0% {
+            opacity: 0;
+            transform: translateY(40px) scale(0.92);
+          }
+          60% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
         @keyframes et-shimmer {
           0%   { opacity: 0; background-position: -100% 0; }
