@@ -144,49 +144,80 @@ function Splash({ fading }) {
         ET
       </div>
 
-      {/* Premium sedan silhouette — slides in 1.5s, settles by 2.0s.
-          Pure white with a subtle drop shadow to match the ET sculpt
-          aesthetic. Sits between the ET and the wordmark. */}
+      {/* Mercedes S-Class style luxury sedan silhouette — slides in 1.5s.
+          Long hood (~30% of length), steep raked windshield, sweeping
+          fastback roof, low profile, large wheels with subtle hubs.
+          Pure white to match the ET sculpt. */}
       <div
         style={{
           marginTop: 32,
-          width: 'clamp(140px, 38vw, 200px)',
+          width: 'clamp(180px, 50vw, 260px)',
           opacity: 0,
           animation: 'et-car-in 500ms 1500ms cubic-bezier(0.16, 1, 0.3, 1) both',
-          filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.45)) drop-shadow(0 2px 4px rgba(0,0,0,0.35))',
+          filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))',
         }}
       >
-        <svg viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', display: 'block' }}>
-          {/* Premium sedan silhouette — long hood, sleek roof, low profile */}
+        <svg
+          viewBox="0 0 280 75"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: '100%', height: 'auto', display: 'block' }}
+        >
+          {/* Body — single path with proper S-Class proportions:
+              long hood, steep windshield, swept roof, fastback rear,
+              wheel arch cutouts at bottom */}
           <path
-            d="M 8 44
-               L 22 36
-               C 26 32, 32 28, 42 26
-               L 55 23
-               C 62 17, 73 14, 90 13
-               L 124 13
-               C 138 14, 148 18, 154 24
-               L 168 31
-               C 178 33, 186 37, 190 44
-               L 190 49
-               C 190 50, 189 51, 188 51
-               L 174 51
-               C 174 45, 169 41, 163 41
-               C 157 41, 152 45, 152 51
-               L 60 51
-               C 60 45, 55 41, 49 41
-               C 43 41, 38 45, 38 51
-               L 12 51
-               C 11 51, 10 50, 10 49
-               Z"
+            d="
+              M 16 52
+              L 16 48
+              C 16 45, 18 42, 22 41
+              L 36 38
+              C 50 36, 62 34, 76 33
+              L 88 30
+              C 93 27, 96 23, 100 18
+              L 109 9
+              C 113 5, 120 3, 128 3
+              L 178 3
+              C 186 3, 192 7, 196 13
+              L 210 28
+              L 232 31
+              C 246 33, 256 36, 264 41
+              L 268 44
+              C 270 45, 272 47, 272 50
+              L 272 53
+              C 272 54, 271 55, 270 55
+              L 256 55
+              C 255 46, 248 39, 240 39
+              C 232 39, 225 46, 224 55
+              L 78 55
+              C 77 46, 70 39, 62 39
+              C 54 39, 47 46, 46 55
+              L 19 55
+              C 17 55, 16 54, 16 52
+              Z
+            "
             fill="#ffffff"
           />
+
+          {/* Subtle beltline — the line where windows meet body.
+              Adds character without visual noise. */}
+          <path
+            d="M 88 30 L 200 22 L 224 32"
+            stroke="rgba(0,0,0,0.18)"
+            strokeWidth="0.8"
+            strokeLinecap="round"
+            fill="none"
+          />
+
           {/* Front wheel */}
-          <circle cx="49" cy="51" r="6.5" fill="#ffffff"/>
-          <circle cx="49" cy="51" r="2.5" fill="#0a0a0a"/>
+          <circle cx="62" cy="55" r="12" fill="#ffffff"/>
+          <circle cx="62" cy="55" r="4.5" fill="#0a0a0a"/>
+          <circle cx="62" cy="55" r="1.5" fill="#ffffff"/>
+
           {/* Rear wheel */}
-          <circle cx="163" cy="51" r="6.5" fill="#ffffff"/>
-          <circle cx="163" cy="51" r="2.5" fill="#0a0a0a"/>
+          <circle cx="240" cy="55" r="12" fill="#ffffff"/>
+          <circle cx="240" cy="55" r="4.5" fill="#0a0a0a"/>
+          <circle cx="240" cy="55" r="1.5" fill="#ffffff"/>
         </svg>
       </div>
 
