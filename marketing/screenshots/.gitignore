@@ -1,2 +1,3 @@
 *.png
 !app-store-*.png
+!ipad-*.png
