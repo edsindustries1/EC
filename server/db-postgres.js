@@ -30,7 +30,32 @@ export async function init(connectionString) {
 
   // Seed if empty
   const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM users')
-  if (rows[0].n === 0) await seed()
+  if (rows[0].n === 0) {
+    await seed()
+  } else {
+    // DB already has users (customer signups). Make sure baseline operator +
+    // admin accounts exist so the team can always log in. Idempotent — if an
+    // account already exists with this email, we leave its password alone.
+    await ensureBaselineAccounts()
+  }
+}
+
+async function ensureBaselineAccounts() {
+  const accounts = [
+    { email: 'operator@everywheretransfers.com', name: 'EC Operator', role: 'operator', password: 'Operator@2026', phone: '+17186586001' },
+    { email: 'admin@everywheretransfers.com',    name: 'EC Admin',    role: 'admin',    password: 'Admin@2026',    phone: '+17186586000' },
+  ]
+  for (const a of accounts) {
+    const { rows } = await pool.query('SELECT id FROM users WHERE email = $1 LIMIT 1', [a.email])
+    if (rows.length === 0) {
+      const hash = bcrypt.hashSync(a.password, 10)
+      await pool.query(
+        `INSERT INTO users (name, email, password, phone, role) VALUES ($1,$2,$3,$4,$5)`,
+        [a.name, a.email, hash, a.phone, a.role]
+      )
+      console.log(`[db] created baseline ${a.role}: ${a.email}`)
+    }
+  }
 }
 
 async function seed() {
@@ -446,6 +471,19 @@ export const db = {
       `UPDATE bids SET payment_session_id = $2, payment_link = $3, expires_at = $4
        WHERE id = $1 RETURNING *`,
       [n, paymentSessionId, paymentLink, expiresAt || null]
+    )
+    return rowToObject(rows[0])
+  },
+
+  // Used by /api/setup/ensure-test-accounts to reset operator/admin creds
+  updateUserCredentials: async (id, { password, role }) => {
+    const n = idParam(id)
+    if (n == null) return null
+    const { rows } = await pool.query(
+      `UPDATE users SET password = COALESCE($2, password),
+                        role     = COALESCE($3, role)
+       WHERE id = $1 RETURNING *`,
+      [n, password || null, role || null]
     )
     return rowToObject(rows[0])
   },

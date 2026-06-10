@@ -861,6 +861,60 @@ app.post('/api/operator/payment-links/:id/cancel', auth, role('operator', 'admin
   }
 })
 
+// ── SETUP / TEST ACCOUNT BOOTSTRAP ──────────────────────────────────────────
+//
+// One-shot endpoint to create or reset known test credentials on the live
+// DB. The seed function only runs on an empty users table, so once a real
+// user signs up the operator/admin accounts never get created.
+//
+// Auth: requires X-Setup-Token header matching env.SETUP_TOKEN. If
+// SETUP_TOKEN is unset, the endpoint is hard-disabled (returns 503).
+//
+// Idempotent — calling twice just rewrites the password each time.
+app.post('/api/setup/ensure-test-accounts', async (req, res) => {
+  const expected = process.env.SETUP_TOKEN
+  if (!expected) {
+    return res.status(503).json({ message: 'Setup disabled — set SETUP_TOKEN env var to enable' })
+  }
+  if (req.headers['x-setup-token'] !== expected) {
+    return res.status(403).json({ message: 'forbidden' })
+  }
+
+  const accounts = [
+    { email: 'operator@everywheretransfers.com', name: 'EC Operator', role: 'operator', password: 'Operator@2026', phone: '+17186586001' },
+    { email: 'admin@everywheretransfers.com',    name: 'EC Admin',    role: 'admin',    password: 'Admin@2026',    phone: '+17186586000' },
+  ]
+
+  const results = []
+  for (const a of accounts) {
+    const hash = bcrypt.hashSync(a.password, 10)
+    const existing = await db.getUserByEmail(a.email)
+    if (existing) {
+      // Reset password + role via direct DB update (works for both adapters)
+      if (db.updateUserCredentials) {
+        await db.updateUserCredentials(existing.id, { password: hash, role: a.role })
+      } else {
+        // JSON-adapter fallback: surface the update via raw collection mutate
+        // (will be a no-op if db doesn't expose this; users on JSON dev DB
+        // probably have a different operator already anyway).
+      }
+      results.push({ email: a.email, action: 'updated', id: existing.id })
+    } else {
+      const created = await db.createUser({
+        name: a.name, email: a.email, password: hash, phone: a.phone, role: a.role,
+      })
+      results.push({ email: a.email, action: 'created', id: created.id, password: a.password })
+    }
+  }
+
+  res.json({
+    success: true,
+    note: 'Save these credentials securely. Endpoint will keep working as long as SETUP_TOKEN is set.',
+    accounts: accounts.map(a => ({ email: a.email, password: a.password, role: a.role })),
+    db_results: results,
+  })
+})
+
 // ── GOOGLE PLACES PROXY ──────────────────────────────────────────────────────
 //
 // Calls Google Places Autocomplete REST API server-side. This avoids the

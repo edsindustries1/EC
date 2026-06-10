@@ -57,7 +57,7 @@ function nextId() {
 }
 
 export const db = {
-  getUser: (id) => _db.users.find(u => u.id === id) || null,
+  getUser: (id) => _db.users.find(u => String(u.id) === String(id)) || null,
   getUserByEmail: (email) => _db.users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null,
   createUser: (data) => {
     const user = { id: nextId(), created_at: new Date().toISOString(), ...data }
@@ -73,7 +73,7 @@ export const db = {
     save(_db)
     return qr
   },
-  getQuoteRequest: (id) => _db.quote_requests.find(q => q.id === id) || null,
+  getQuoteRequest: (id) => _db.quote_requests.find(q => String(q.id) === String(id)) || null,
   listQuoteRequests: (filters = {}) => {
     let list = [..._db.quote_requests].reverse()
     if (filters.status && filters.status !== 'all') list = list.filter(q => q.status === filters.status)
@@ -84,7 +84,7 @@ export const db = {
     return list
   },
   updateQuoteRequest: (id, updates) => {
-    const idx = _db.quote_requests.findIndex(q => q.id === id)
+    const idx = _db.quote_requests.findIndex(q => String(q.id) === String(id))
     if (idx === -1) return null
     _db.quote_requests[idx] = { ..._db.quote_requests[idx], ...updates, updated_at: new Date().toISOString() }
     save(_db)
@@ -97,9 +97,9 @@ export const db = {
     save(_db)
     return bid
   },
-  getBidsForRequest: (quote_request_id) => _db.bids.filter(b => b.quote_request_id === quote_request_id),
+  getBidsForRequest: (quote_request_id) => _db.bids.filter(b => String(b.quote_request_id) === String(quote_request_id)),
 
-  listDrivers: (operator_id) => operator_id ? _db.drivers.filter(d => d.operator_id === operator_id) : _db.drivers,
+  listDrivers: (operator_id) => operator_id ? _db.drivers.filter(d => String(d.operator_id) === String(operator_id)) : _db.drivers,
   createDriver: (data) => {
     const d = { id: nextId(), created_at: new Date().toISOString(), ...data }
     _db.drivers.push(d)
@@ -123,7 +123,7 @@ export const db = {
   },
   updateBooking: (id, updates) => {
     if (!_db.bookings) return null
-    const idx = _db.bookings.findIndex(b => b.id === id)
+    const idx = _db.bookings.findIndex(b => String(b.id) === String(id))
     if (idx === -1) return null
     _db.bookings[idx] = { ..._db.bookings[idx], ...updates, updated_at: new Date().toISOString() }
     save(_db)
@@ -172,7 +172,7 @@ export const db = {
 
   consumeOtp: (id) => {
     if (!_db.otp_codes) return
-    const idx = _db.otp_codes.findIndex((o) => o.id === id)
+    const idx = _db.otp_codes.findIndex((o) => String(o.id) === String(id))
     if (idx === -1) return
     _db.otp_codes[idx].consumed_at = new Date().toISOString()
     save(_db)
@@ -187,12 +187,12 @@ export const db = {
 
   listMyRideRequests: (customerId) => {
     return _db.quote_requests
-      .filter(q => q.customer_id === customerId)
+      .filter(q => String(q.customer_id) === String(customerId))
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   },
 
   acceptBid: (bidId, bookingReference) => {
-    const idx = _db.bids.findIndex(b => b.id === bidId)
+    const idx = _db.bids.findIndex(b => String(b.id) === String(bidId))
     if (idx === -1) return null
     const bid = _db.bids[idx]
     _db.bids[idx] = {
@@ -203,11 +203,11 @@ export const db = {
       booking_reference: bookingReference,
     }
     _db.bids.forEach((b, i) => {
-      if (b.quote_request_id === bid.quote_request_id && b.id !== bidId && b.status !== 'paid') {
+      if (String(b.quote_request_id) === String(bid.quote_request_id) && String(b.id) !== String(bidId) && b.status !== 'paid') {
         _db.bids[i] = { ..._db.bids[i], status: 'declined' }
       }
     })
-    const qidx = _db.quote_requests.findIndex(q => q.id === bid.quote_request_id)
+    const qidx = _db.quote_requests.findIndex(q => String(q.id) === String(bid.quote_request_id))
     if (qidx !== -1) {
       _db.quote_requests[qidx] = {
         ..._db.quote_requests[qidx],
@@ -226,7 +226,7 @@ export const db = {
   },
 
   setBidPayment: (bidId, { paymentSessionId, paymentLink, expiresAt }) => {
-    const idx = _db.bids.findIndex(b => b.id === bidId)
+    const idx = _db.bids.findIndex(b => String(b.id) === String(bidId))
     if (idx === -1) return null
     _db.bids[idx] = {
       ..._db.bids[idx],
@@ -236,6 +236,16 @@ export const db = {
     }
     save(_db)
     return _db.bids[idx]
+  },
+
+  // Used by /api/setup/ensure-test-accounts to reset operator/admin creds
+  updateUserCredentials: (id, { password, role }) => {
+    const idx = _db.users.findIndex(u => String(u.id) === String(id))
+    if (idx === -1) return null
+    if (password) _db.users[idx].password = password
+    if (role)     _db.users[idx].role     = role
+    save(_db)
+    return _db.users[idx]
   },
 
   // CUSTOM PAYMENT LINKS ──────────────────────────────────────────────
@@ -298,7 +308,7 @@ export const db = {
 
   incrementOtpAttempts: (id) => {
     if (!_db.otp_codes) return 0
-    const idx = _db.otp_codes.findIndex((o) => o.id === id)
+    const idx = _db.otp_codes.findIndex((o) => String(o.id) === String(id))
     if (idx === -1) return 0
     _db.otp_codes[idx].attempts = (_db.otp_codes[idx].attempts || 0) + 1
     save(_db)
