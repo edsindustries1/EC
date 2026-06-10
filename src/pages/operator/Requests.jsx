@@ -97,7 +97,11 @@ export default function OperatorRequests() {
 
 function RequestCard({ r, onBid }) {
   const ts = r.created_at ? format(new Date(r.created_at), 'MMM d · HH:mm') : ''
-  const canBid = r.status === 'pending' || r.status === 'new'
+  // Operators can bid on any request that's open / pending / has bids but
+  // hasn't been confirmed yet. 'open' is the status set by the customer-
+  // facing /api/ride-requests endpoint; 'pending' by the legacy quote form;
+  // 'quoted' once at least one operator has bid.
+  const canBid = ['open', 'pending', 'quoted', 'new'].includes(r.status)
   return (
     <Card style={{ padding: 0 }}>
       <div style={{ padding: '18px 22px', display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'flex-start' }}>
