@@ -88,7 +88,17 @@ export default function PaymentLinks({ embedded = false, prefill = null }) {
       </div>
 
       {loading ? (
-        <Card><div style={{ color: GRAY_500, textAlign: 'center', padding: 24 }}>Loading…</div></Card>
+        <Card style={{ padding: 0, overflow: 'hidden' }}>
+          {[180, 220, 80, 260, 90, 60].map((_, i) => (
+            <div key={i} style={{ display: 'flex', gap: 16, padding: '14px 16px', borderBottom: i < 4 ? `1px solid ${GRAY_100}` : 0 }}>
+              <div className="skeleton" style={{ width: 110, height: 12, borderRadius: 4 }}/>
+              <div className="skeleton" style={{ width: 180, height: 12, borderRadius: 4 }}/>
+              <div className="skeleton" style={{ width: 60, height: 12, borderRadius: 4 }}/>
+              <div className="skeleton" style={{ width: 200, height: 12, borderRadius: 4 }}/>
+              <div className="skeleton" style={{ width: 70, height: 12, borderRadius: 999 }}/>
+            </div>
+          ))}
+        </Card>
       ) : links.length === 0 ? (
         <EmptyState
           icon={FiDollarSign}
@@ -153,14 +163,18 @@ function LinkRow({ link, onCancel }) {
 
   return (
     <tr>
-      <td style={td}>{sent}</td>
-      <td style={td}>
-        <div style={{ fontWeight: 600, color: BLACK }}>{link.customer_name || '—'}</div>
-        <div style={{ fontSize: 12, color: GRAY_500, marginTop: 1 }}>{link.customer_email}</div>
+      <td style={{ ...td, whiteSpace: 'nowrap' }}>{sent}</td>
+      <td style={{ ...td, minWidth: 0 }}>
+        <div style={{ fontWeight: 600, color: BLACK, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {link.customer_name || '—'}
+        </div>
+        <div style={{ fontSize: 12, color: GRAY_500, marginTop: 1, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {link.customer_email}
+        </div>
       </td>
-      <td style={{ ...td, fontWeight: 700 }}>${amount}</td>
-      <td style={{ ...td, maxWidth: 260, color: GRAY_500 }}>
-        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <td style={{ ...td, fontWeight: 700, whiteSpace: 'nowrap' }}>${amount}</td>
+      <td style={{ ...td, color: GRAY_500 }}>
+        <div style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {link.description || '—'}
         </div>
       </td>

@@ -669,3 +669,59 @@ body {
 .shadow-card-hover, .hover\:shadow-card-hover:hover {
   box-shadow: 0 10px 25px rgba(0,0,0,0.10) !important;
 }
+
+/* ──────────────────────────────────────────────────────────────────────
+   Press-down feedback for tap targets — gives the app a native feel on
+   mobile without per-component changes. Buttons/links scale down 2%
+   when held, smoothly settle on release. Honors prefers-reduced-motion.
+   ────────────────────────────────────────────────────────────────────── */
+button, a, [role="button"], input[type="submit"] {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 200ms ease,
+              background-color 180ms ease,
+              border-color 180ms ease,
+              opacity 180ms ease;
+  touch-action: manipulation;
+}
+@media (pointer: coarse) {
+  button:active, a:active, [role="button"]:active, input[type="submit"]:active {
+    transform: scale(0.97);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, a, [role="button"], input[type="submit"] { transition: none !important; }
+  button:active, a:active, [role="button"]:active { transform: none !important; }
+}
+
+/* Disabled buttons don't press down */
+button:disabled:active, [aria-disabled="true"]:active { transform: none !important; }
+
+/* ─── Skeleton loading shimmer (gray pulsing block) ─────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #F6F6F6 0%, #EEEEEE 50%, #F6F6F6 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s linear infinite;
+  border-radius: 8px;
+}
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Subtle fade-in for cards as they mount into view ──────────────── */
+.ec-fade-up {
+  animation: ec-fade-up 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes ec-fade-up {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ec-fade-up { animation: none !important; }
+}
+
+/* ─── Long text guard — never let words break their parent ─────────── */
+.ec-clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ec-wrap { overflow-wrap: anywhere; word-break: break-word; }
+

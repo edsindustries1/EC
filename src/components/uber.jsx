@@ -33,12 +33,42 @@ export function Section({ children, bg = WHITE, text = BLACK }) {
 export function PageHeader({ title, lead, right }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 26 }}>
-      <div>
-        <h1 style={{ fontSize: 'clamp(1.7rem, 3vw, 2.3rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: lead ? 4 : 0 }}>{title}</h1>
-        {lead && <p style={{ color: GRAY_500, fontSize: 15, maxWidth: 580 }}>{lead}</p>}
+      <div style={{ minWidth: 0, flex: '1 1 240px' }}>
+        <h1 style={{ fontSize: 'clamp(1.7rem, 3vw, 2.3rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: lead ? 4 : 0, wordBreak: 'break-word' }}>{title}</h1>
+        {lead && <p style={{ color: GRAY_500, fontSize: 15, maxWidth: 580, overflowWrap: 'anywhere' }}>{lead}</p>}
       </div>
-      {right}
+      <div style={{ flexShrink: 0 }}>{right}</div>
     </div>
+  )
+}
+
+// ── Skeleton loaders ─────────────────────────────────────────────────
+// Cheap shimmer block for loading states. Used in lists/tables instead
+// of bare spinners. Lighter visual cost while feeling "fast".
+
+export function Skeleton({ w = '100%', h = 14, r = 6, style = {} }) {
+  return (
+    <div className="skeleton" style={{ width: w, height: h, borderRadius: r, ...style }} />
+  )
+}
+
+export function SkeletonRow({ widths = [120, 200, 80, 60] }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: `1px solid ${GRAY_100}` }}>
+      {widths.map((w, i) => <Skeleton key={i} w={w} h={12}/>)}
+    </div>
+  )
+}
+
+export function SkeletonCard({ rows = 3 }) {
+  return (
+    <Card style={{ padding: 18 }}>
+      <Skeleton w="40%" h={11} style={{ marginBottom: 10 }} />
+      <Skeleton w="65%" h={20} style={{ marginBottom: 14 }} />
+      {Array.from({ length: rows }).map((_, i) => (
+        <Skeleton key={i} w={`${85 - i * 15}%`} h={10} style={{ marginBottom: 7 }} />
+      ))}
+    </Card>
   )
 }
 

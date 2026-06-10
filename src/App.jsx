@@ -7,6 +7,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
 import SplashScreenGate from './components/SplashScreen'
+import PageTransition from './components/PageTransition'
 import WhatsAppWidget from './components/WhatsAppWidget'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -73,6 +74,7 @@ function AppContent() {
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
       {!native && <Navbar />}
       <main className="flex-grow">
+          <PageTransition>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -247,6 +249,7 @@ function AppContent() {
             {/* Catch All */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </PageTransition>
         </main>
         {native ? <MobileTabBar /> : <Footer />}
         {!native && <WhatsAppWidget />}
