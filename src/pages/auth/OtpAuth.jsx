@@ -15,6 +15,7 @@ import { FiArrowRight, FiArrowLeft, FiMail, FiCheckCircle } from 'react-icons/fi
 import toast from 'react-hot-toast'
 import api from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
+import { useHaptics } from '../../native-ui'
 import {
   BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT,
   btnPrimary, inputStyle,
@@ -30,6 +31,7 @@ export default function OtpAuth() {
   const navigate = useNavigate()
   const location = useLocation()
   const { setSession } = useAuth()
+  const haptic = useHaptics()
 
   const [stage, setStage]     = useState(STAGE.EMAIL)
   const [email, setEmail]     = useState('')
@@ -104,14 +106,17 @@ export default function OtpAuth() {
     try {
       const { data } = await api.post('/auth/verify-otp', { email, code: trimmed })
       if (data?.needs_profile) {
+        haptic('light')
         setSignupToken(data.signup_token)
         setStage(STAGE.PROFILE)
       } else if (data?.token && data?.user) {
+        haptic('success')
         completeSession(data.token, data.user)
       } else {
         toast.error('Unexpected response — try again')
       }
     } catch (err) {
+      haptic('error')
       toast.error(err?.response?.data?.message || 'Verification failed')
     } finally {
       setLoading(false)
@@ -131,11 +136,13 @@ export default function OtpAuth() {
         phone: phone.trim(),
       })
       if (data?.token && data?.user) {
+        haptic('success')
         completeSession(data.token, data.user)
       } else {
         toast.error('Could not finish signup')
       }
     } catch (err) {
+      haptic('error')
       toast.error(err?.response?.data?.message || 'Could not finish signup')
     } finally {
       setLoading(false)

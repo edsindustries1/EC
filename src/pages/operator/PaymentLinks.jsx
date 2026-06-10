@@ -13,6 +13,7 @@ import {
   FiRefreshCw, FiSlash, FiAlertCircle,
 } from 'react-icons/fi'
 import api from '../../utils/api'
+import { useHaptics } from '../../native-ui'
 import { Page, PageHeader, Card, EmptyState, PrimaryButton } from '../../components/uber'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT, inputStyle, btnPrimary } from '../../styles/uber'
 
@@ -201,6 +202,7 @@ function LinkRow({ link, onCancel }) {
 
 // ── Create-link modal ──────────────────────────────────────────────────────
 function CreateModal({ prefill, onClose, onCreated }) {
+  const haptic = useHaptics()
   const [form, setForm] = useState({
     customer_email: prefill?.email || '',
     customer_name:  prefill?.name  || '',
@@ -232,8 +234,10 @@ function CreateModal({ prefill, onClose, onCreated }) {
         description:    form.description.trim(),
         related_booking_reference: form.related_booking_reference?.trim() || undefined,
       })
+      haptic('success')
       onCreated(data.data)
     } catch (e) {
+      haptic('error')
       toast.error(e?.response?.data?.message || 'Could not create link')
     } finally {
       setSubmitting(false)

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { FiPlus, FiMapPin, FiCalendar, FiUsers, FiTruck, FiArrowRight, FiCopy } from 'react-icons/fi'
@@ -6,6 +6,7 @@ import api from '../../utils/api'
 import toast from 'react-hot-toast'
 import { Page, PageHeader, Card, EmptyState, StatusChip, PrimaryButton } from '../../components/uber'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500 } from '../../styles/uber'
+import { usePullToRefreshOnRoot } from '../../native-ui'
 
 const VEHICLE_LABEL = {
   sedan: 'Sedan', suv: 'SUV', sprinter_van: 'Sprinter',
@@ -23,14 +24,15 @@ export default function MyRides() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
 
-  useEffect(() => {
-    Promise.all([
-      api.get('/my-trips').catch(() => ({ data: { data: [] } })),
-      api.get('/ride-requests/my').catch(() => ({ data: { data: [] } })),
-    ]).then(([tripsRes, requestsRes]) => {
+  const loadTrips = useCallback(async () => {
+    try {
+      const [tripsRes, requestsRes] = await Promise.all([
+        api.get('/my-trips').catch(() => ({ data: { data: [] } })),
+        api.get('/ride-requests/my').catch(() => ({ data: { data: [] } })),
+      ])
       const trips = tripsRes.data?.data || []
       const requests = (requestsRes.data?.data || [])
-        .filter(r => r.status !== 'confirmed') // confirmed ones already show as bookings
+        .filter(r => r.status !== 'confirmed')
         .map(r => ({
           kind: 'ride_request',
           ride_request_id: r.id,
@@ -48,9 +50,15 @@ export default function MyRides() {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       )
       setTrips(combined)
-    }).catch(() => toast.error('Failed to load your trips'))
-      .finally(() => setLoading(false))
+    } catch {
+      toast.error('Failed to load your trips')
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => { loadTrips() }, [loadTrips])
+  usePullToRefreshOnRoot(loadTrips)
 
   const filtered = useMemo(() => {
     if (filter === 'all') return trips

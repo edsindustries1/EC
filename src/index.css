@@ -725,3 +725,25 @@ button:disabled:active, [aria-disabled="true"]:active { transform: none !importa
 .ec-clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ec-wrap { overflow-wrap: anywhere; word-break: break-word; }
 
+/* ─── Input focus states (Apple-style outline + subtle scale) ────── */
+input:focus, textarea:focus, select:focus, .ec-mobile-place-input:focus {
+  border-color: #000 !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+  outline: none;
+}
+input:focus-visible, textarea:focus-visible {
+  outline: none;
+}
+
+/* ─── Spin (used by Pull-to-Refresh indicator) ───────────────────── */
+@keyframes ec-spin {
+  from { transform: translate(-50%, 48px) rotate(0deg); }
+  to   { transform: translate(-50%, 48px) rotate(360deg); }
+}
+
+/* Bottom padding under any Page on native, accounting for tab bar + home indicator */
+body.capacitor-native .ec-page-inner {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+}
+

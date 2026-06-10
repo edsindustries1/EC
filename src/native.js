@@ -27,8 +27,12 @@ export async function initNative() {
   document.body.classList.add(`capacitor-${getPlatform()}`)
 
   // ── Status bar ────────────────────────────────────────────────────────
+  // Capacitor API: Style.Dark = DARK icons (for LIGHT backgrounds).
+  // The previous setup used Style.Light here, which produced WHITE icons
+  // on a white background — invisible. Pages with a dark hero (Home)
+  // override this via useStatusBarStyle('dark') in src/native-ui.js.
   try {
-    await StatusBar.setStyle({ style: Style.Light })          // dark icons (white bg)
+    await StatusBar.setStyle({ style: Style.Dark })
     if (getPlatform() === 'android') {
       await StatusBar.setBackgroundColor({ color: '#FFFFFF' })
       await StatusBar.setOverlaysWebView({ overlay: false })

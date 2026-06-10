@@ -12,7 +12,7 @@ export { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT, H1, H2, H3, LEAD, EYEB
 export function Page({ children, narrow = false, gray = false }) {
   return (
     <div style={{ background: gray ? GRAY_50 : WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em', minHeight: '100vh' }}>
-      <div className={narrow ? "max-w-4xl mx-auto" : "max-w-7xl mx-auto"} style={{ padding: '32px 16px 80px' }}>
+      <div className={`${narrow ? "max-w-4xl" : "max-w-7xl"} mx-auto ec-page-inner`} style={{ padding: '32px 16px 80px' }}>
         {children}
       </div>
     </div>
@@ -188,17 +188,28 @@ export function Tabs({ value, onChange, tabs }) {
 
 export function EmptyState({ icon: Icon, title, description, action }) {
   return (
-    <div style={{
-      padding: '60px 24px', textAlign: 'center',
-      background: GRAY_50, borderRadius: 8, border: `1px dashed ${GRAY_100}`,
+    <div className="ec-fade-up" style={{
+      padding: '72px 24px 64px', textAlign: 'center',
+      background: WHITE, borderRadius: 14, border: `1px solid ${GRAY_100}`,
     }}>
       {Icon && (
-        <div style={{ width: 48, height: 48, borderRadius: '50%', background: WHITE, border: `1px solid ${GRAY_100}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Icon size={20}/>
+        <div style={{
+          width: 72, height: 72, borderRadius: '50%',
+          background: GRAY_50,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 18,
+          color: BLACK,
+        }}>
+          <Icon size={28} strokeWidth={1.5}/>
         </div>
       )}
-      <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</div>
-      {description && <p style={{ color: GRAY_500, fontSize: 14, marginBottom: action ? 18 : 0 }}>{description}</p>}
+      <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6, letterSpacing: '-0.01em', color: BLACK }}>{title}</div>
+      {description && (
+        <p style={{
+          color: GRAY_500, fontSize: 14, lineHeight: 1.55,
+          maxWidth: 340, margin: action ? '0 auto 22px' : '0 auto',
+        }}>{description}</p>
+      )}
       {action}
     </div>
   )

@@ -9,6 +9,7 @@ import FleetCarousel from '../components/FleetCarousel'
 import { FadeIn } from '../hooks/useFadeIn'
 import MobileHome from './mobile/MobileHome'
 import { isNative } from '../native'
+import { useStatusBarStyle } from '../native-ui'
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const BLACK = '#000000'

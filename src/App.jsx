@@ -67,9 +67,11 @@ import AdminRevenue from './pages/admin/Revenue'
 // Native shell
 import MobileTabBar from './components/mobile/MobileTabBar'
 import { isNative } from './native'
+import { useSwipeBack } from './native-ui'
 
 function AppContent() {
   const native = isNative()
+  useSwipeBack()
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
       {!native && <Navbar />}
@@ -256,16 +258,22 @@ function AppContent() {
         <Toaster
           position={native ? 'top-center' : 'top-right'}
           toastOptions={{
-            duration: 4000,
+            duration: 3600,
             style: {
-              background: '#1a365d',
+              background: '#000',
               color: '#fff',
+              fontWeight: 500,
+              fontSize: 14,
+              padding: '12px 16px',
+              borderRadius: 12,
+              boxShadow: '0 8px 24px -4px rgba(0,0,0,0.25)',
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif",
+              maxWidth: 360,
             },
-            success: {
-              style: { background: '#065f46' },
-            },
+            success: { iconTheme: { primary: '#22c55e', secondary: '#000' } },
             error: {
-              style: { background: '#991b1b' },
+              style: { background: '#b91c1c' },
+              iconTheme: { primary: '#fff', secondary: '#b91c1c' },
             },
           }}
         />
