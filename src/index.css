@@ -55,9 +55,14 @@ body.capacitor-native > #root {
   }
 }
 
-/* Disable iOS auto-zoom on input focus (fires when font-size < 16px) */
+/* Disable iOS auto-zoom on input focus (fires when font-size < 16px).
+   Only applies to inputs that pop the keyboard — NOT date/time/select,
+   which open native pickers and don't zoom anyway. Excluding them lets
+   compact pickers (the date/time/pax row on home) render at 13px
+   without their content overflowing the cell. */
 @media (pointer: coarse) {
-  input, select, textarea {
+  input:not([type="date"]):not([type="time"]):not([type="datetime-local"]):not([type="month"]):not([type="week"]),
+  textarea {
     font-size: 16px !important;
   }
 }

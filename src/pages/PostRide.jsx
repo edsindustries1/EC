@@ -14,6 +14,7 @@ import PlaceAutocomplete from '../components/PlaceAutocomplete'
 import { useAuth } from '../context/AuthContext'
 import { Page } from '../components/uber'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT, inputStyle } from '../styles/uber'
+import SlideToConfirm from '../components/SlideToConfirm'
 
 const VEHICLE_TYPES = [
   { id: 'sedan',         label: 'Sedan',    pax: 'Up to 3' },
@@ -89,7 +90,7 @@ export default function PostRide() {
           Tell us where you're going. Vetted operators will bid with their best price. Pay only when you accept one.
         </p>
 
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={submit} data-postride-form style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Card>
             <Field label="Pickup" icon={FiMapPin}>
               <PlaceAutocomplete
@@ -136,13 +137,13 @@ export default function PostRide() {
                   type="button"
                   onClick={() => setVehicleType(v.id)}
                   style={{
-                    padding: '12px 14px',
+                    padding: '14px 18px',
                     border: `1.5px solid ${vehicleType === v.id ? BLACK : GRAY_100}`,
-                    borderRadius: 8,
+                    borderRadius: 999,
                     background: vehicleType === v.id ? BLACK : WHITE,
                     color:      vehicleType === v.id ? WHITE : BLACK,
                     cursor: 'pointer', textAlign: 'left',
-                    transition: 'all 150ms ease',
+                    transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -187,23 +188,22 @@ export default function PostRide() {
             </Field>
           </Card>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{
-              background: BLACK, color: WHITE,
-              padding: '16px 22px', borderRadius: 8, border: 0,
-              fontWeight: 700, fontSize: 15, cursor: submitting ? 'not-allowed' : 'pointer',
-              opacity: submitting ? 0.6 : 1,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              boxShadow: '0 10px 30px -10px rgba(0,0,0,0.35)',
+          {/* iPhone-style slide-to-confirm. Friction prevents accidental
+              posts; haptic confirms the commitment at the threshold. */}
+          <SlideToConfirm
+            label="Slide to post ride"
+            doneLabel="Posted!"
+            busy={submitting}
+            onConfirm={() => {
+              // Reuse the form's submit handler by dispatching a real submit
+              // event — keeps validation + handlePostRide in one place.
+              const formEl = document.querySelector('form[data-postride-form]')
+              if (formEl) formEl.requestSubmit ? formEl.requestSubmit() : formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
             }}
-          >
-            {submitting ? 'Posting your ride…' : <>Post ride · Get offers <FiArrowRight size={16}/></>}
-          </button>
+          />
 
-          <p style={{ fontSize: 12, color: GRAY_500, textAlign: 'center', marginTop: 6 }}>
-            Free to post. You only pay when you accept an offer.
+          <p style={{ fontSize: 12, color: GRAY_500, textAlign: 'center', marginTop: 8 }}>
+            Free to post · You only pay when you accept an offer
           </p>
         </form>
       </div>

@@ -252,10 +252,15 @@ export default function MobileHome() {
 
         <div style={{ height: 1, background: GRAY_100, marginLeft: 38 }}/>
 
-        {/* Date / Time / Pax compact row */}
+        {/* Date / Time / Pax row.
+            Date column gets ~1.6× the width of the other two so the
+            iOS "12 Jun 2026" date format fits without overflowing.
+            Pax column is narrowest since it's just "2 pax".
+            All inputs have min-width: 0 so flex can shrink them. */}
         <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-          padding: '4px 4px 4px 4px',
+          display: 'grid', gridTemplateColumns: '1.5fr 1fr 0.85fr',
+          gap: 4,
+          padding: 4,
         }}>
           <CompactPicker icon={FiCalendar}>
             <input
@@ -277,7 +282,7 @@ export default function MobileHome() {
             <select
               value={pax}
               onChange={(e) => setPax(Number(e.target.value))}
-              style={{ ...compactInputStyle, appearance: 'none', paddingRight: 4 }}
+              style={{ ...compactInputStyle, appearance: 'none', paddingRight: 2 }}
             >
               {[1,2,3,4,5,6,8,10,14,20,30,55].map(n => (
                 <option key={n} value={n}>{n} pax</option>
@@ -564,6 +569,12 @@ const sectionTitle = {
   marginBottom: 10,
 }
 
+// Compact input — used for date/time/pax. Note iOS won't auto-zoom
+// since the surrounding page sets font-size:16px on inputs globally
+// (see index.css "Disable iOS auto-zoom" rule); the inline 13px here
+// is overridden by !important. We add explicit min-width:0 so flex
+// children CAN shrink past their intrinsic content width, plus
+// text-overflow:ellipsis as a last-resort guard.
 const compactInputStyle = {
   width: '100%', minWidth: 0,
   background: 'transparent',
@@ -571,4 +582,6 @@ const compactInputStyle = {
   fontSize: 13, fontWeight: 600,
   color: BLACK,
   fontFamily: FONT,
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
 }
