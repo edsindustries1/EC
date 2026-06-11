@@ -137,5 +137,5 @@ function Section({ children, bg = WHITE, text = BLACK }) {
 const H1 = { fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '1.25rem' }
 const H2 = { fontSize: 'clamp(1.75rem, 3.4vw, 2.6rem)', lineHeight: 1.1, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '2rem' }
 const LEAD = { fontSize: 18, lineHeight: 1.5, color: GRAY_500, maxWidth: 620, marginBottom: '1.75rem' }
-const btnPrimary = { background: BLACK, color: WHITE, padding: '12px 22px', borderRadius: 4, border: 0, fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }
-const btnSecondary = { background: 'transparent', color: BLACK, padding: '12px 22px', borderRadius: 4, border: `1px solid ${BLACK}`, fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }
+const btnPrimary = { background: BLACK, color: WHITE, padding: '14px 26px', borderRadius: 999, border: 0, fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }
+const btnSecondary = { background: 'transparent', color: BLACK, padding: '12px 22px', borderRadius: 999, border: `1px solid ${BLACK}`, fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }

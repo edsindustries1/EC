@@ -59,24 +59,25 @@ export const cardCompact = {
   border: `1px solid ${GRAY_100}`,
 }
 
-// Inputs
+// Inputs — soft rounded corners (matches the pill button language)
 export const inputStyle = (error = false) => ({
-  width: '100%', padding: '11px 12px', borderRadius: 4, fontSize: 14,
+  width: '100%', padding: '13px 16px', borderRadius: 12, fontSize: 14,
   border: `1px solid ${error ? '#b91c1c' : GRAY_100}`,
   background: GRAY_50, color: BLACK, outline: 'none', fontFamily: FONT,
 })
 
-// Buttons (use as inline styles on <button>/<Link>)
+// Buttons — fully rounded pills (matches the trip-type chips on home).
+// Old square style (borderRadius: 4) is gone everywhere across the app.
 export const btnPrimary = {
   background: BLACK, color: WHITE,
-  padding: '12px 22px', borderRadius: 4, border: 0,
+  padding: '14px 26px', borderRadius: 999, border: 0,
   fontWeight: 600, fontSize: 14,
   display: 'inline-flex', alignItems: 'center', gap: 8,
   textDecoration: 'none', cursor: 'pointer',
 }
 export const btnSecondary = {
   background: 'transparent', color: BLACK,
-  padding: '12px 22px', borderRadius: 4,
+  padding: '14px 26px', borderRadius: 999,
   border: `1px solid ${BLACK}`,
   fontWeight: 600, fontSize: 14,
   display: 'inline-flex', alignItems: 'center', gap: 8,

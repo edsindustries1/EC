@@ -1005,6 +1005,36 @@ app.get('/api/places/autocomplete', async (req, res) => {
   }
 })
 
+// Reverse geocode — takes lat,lng → returns a single human-readable address.
+// Used by the "Use current location" button on the pickup field.
+app.get('/api/places/reverse-geocode', async (req, res) => {
+  try {
+    const lat = Number(req.query.lat)
+    const lng = Number(req.query.lng)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return res.status(400).json({ message: 'lat and lng query params required' })
+    }
+    if (!GOOGLE_KEY) {
+      return res.status(503).json({ message: 'Geocoding key not configured' })
+    }
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_KEY}`
+    const resp = await fetch(url)
+    const data = await resp.json()
+    if (data.status !== 'OK' || !data.results?.length) {
+      return res.json({ success: false, status: data.status, address: null })
+    }
+    // Prefer a "premise" or "street_address" — falls back to formatted_address
+    const r = data.results.find(x => x.types?.includes('street_address')) || data.results[0]
+    res.json({
+      success: true,
+      address: r.formatted_address,
+      place_id: r.place_id,
+    })
+  } catch (e) {
+    res.status(500).json({ message: 'Reverse-geocode failed', error: e.message })
+  }
+})
+
 // ── BID MARKETPLACE (GetTransfer-style) ──────────────────────────────────────
 
 function makeReferenceUnique() {

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   FiArrowRight, FiClock, FiRefreshCw,
   FiChevronRight, FiHome, FiBriefcase, FiPhone,
-  FiCalendar, FiUsers,
+  FiCalendar, FiUsers, FiCrosshair,
 } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import PlaceAutocomplete from '../../components/PlaceAutocomplete'
@@ -236,6 +236,7 @@ export default function MobileHome() {
           placeholder="Pickup location"
           value={pickup}
           onChange={setPickup}
+          allowCurrentLocation
         />
 
         <div style={{ height: 1, background: GRAY_100, marginLeft: 38 }}/>
@@ -294,14 +295,14 @@ export default function MobileHome() {
         </div>
       )}
 
-      {/* ── See Prices CTA ──────────────────────────────────────────── */}
+      {/* ── See Prices CTA — pill-shaped, matches design language ─────── */}
       <button
         onClick={handleSeePrices}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          width: '100%', padding: '16px',
+          width: '100%', padding: '17px',
           background: BLACK, color: WHITE,
-          border: 0, borderRadius: 12,
+          border: 0, borderRadius: 999,
           fontSize: 16, fontWeight: 700, cursor: 'pointer',
           boxShadow: '0 10px 30px -10px rgba(0,0,0,0.35)',
           marginBottom: 10,
@@ -310,14 +311,14 @@ export default function MobileHome() {
         Book instantly · See prices <FiArrowRight size={17}/>
       </button>
 
-      {/* "Post your ride" alternative — auth required */}
+      {/* "Post your ride" alternative — pill-shaped to match primary CTA */}
       <button
         onClick={() => navigate('/post-ride')}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          width: '100%', padding: '14px',
+          width: '100%', padding: '15px',
           background: WHITE, color: BLACK,
-          border: `1.5px solid ${BLACK}`, borderRadius: 12,
+          border: `1.5px solid ${BLACK}`, borderRadius: 999,
           fontSize: 14, fontWeight: 600, cursor: 'pointer',
           marginBottom: 24,
         }}
@@ -412,7 +413,45 @@ export default function MobileHome() {
 
 // ── Subcomponents ──────────────────────────────────────────────────────
 
-function LocationField({ dotShape, placeholder, value, onChange }) {
+function LocationField({ dotShape, placeholder, value, onChange, allowCurrentLocation = false }) {
+  const [locating, setLocating] = React.useState(false)
+
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Location is not available in this browser. Please type your pickup address.')
+      return
+    }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude: lat, longitude: lng } = pos.coords
+          const res = await fetch(`/api/places/reverse-geocode?lat=${lat}&lng=${lng}`)
+          const data = await res.json()
+          if (data?.address) {
+            onChange(data.address)
+          } else {
+            // Fallback — at least drop the coordinates so the operator can dispatch
+            onChange(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+          }
+        } catch {
+          // Coordinate fallback if the server call fails entirely
+          onChange(`${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`)
+        } finally {
+          setLocating(false)
+        }
+      },
+      (err) => {
+        setLocating(false)
+        const reason = err.code === 1
+          ? 'Permission denied. Enable location for Everywhere Transfers in Settings → Privacy.'
+          : 'Could not get your location. Try typing the address.'
+        alert(reason)
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    )
+  }
+
   return (
     <div style={{
       display: 'flex', alignItems: 'center',
@@ -436,7 +475,41 @@ function LocationField({ dotShape, placeholder, value, onChange }) {
           aria-label={placeholder}
         />
       </div>
+      {allowCurrentLocation && (
+        <button
+          type="button"
+          onClick={useCurrentLocation}
+          disabled={locating}
+          aria-label="Use my current location"
+          title="Use my current location"
+          style={{
+            flexShrink: 0,
+            width: 36, height: 36, borderRadius: '50%',
+            border: 0, background: GRAY_50, color: BLACK,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            cursor: locating ? 'not-allowed' : 'pointer',
+            opacity: locating ? 0.55 : 1,
+            marginLeft: 8,
+            transition: 'background 160ms ease, transform 120ms ease',
+          }}
+        >
+          {locating ? <SpinnerDot/> : <FiCrosshair size={16}/>}
+        </button>
+      )}
     </div>
+  )
+}
+
+function SpinnerDot() {
+  return (
+    <span style={{
+      width: 14, height: 14, borderRadius: '50%',
+      border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000',
+      animation: 'ec-spin-simple 700ms linear infinite',
+      display: 'inline-block',
+    }}>
+      <style>{`@keyframes ec-spin-simple { to { transform: rotate(360deg); } }`}</style>
+    </span>
   )
 }
 

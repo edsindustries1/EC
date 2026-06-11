@@ -66,6 +66,7 @@ import AdminRevenue from './pages/admin/Revenue'
 
 // Native shell
 import MobileTabBar from './components/mobile/MobileTabBar'
+import BackButton from './components/BackButton'
 import { isNative } from './native'
 import { useSwipeBack } from './native-ui'
 
@@ -75,6 +76,7 @@ function AppContent() {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
       {!native && <Navbar />}
+      {native && <BackButton />}
       <main className="flex-grow">
           <PageTransition>
           <Routes>

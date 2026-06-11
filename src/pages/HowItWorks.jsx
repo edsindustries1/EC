@@ -116,5 +116,5 @@ const H1 = { fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, fontWeight:
 const H2 = { fontSize: 'clamp(1.75rem, 3.4vw, 2.6rem)', lineHeight: 1.1, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '2rem' }
 const LEAD = { fontSize: 18, lineHeight: 1.5, color: GRAY_500, maxWidth: 580, marginBottom: '1.75rem' }
 const card = { background: WHITE, padding: 28, borderRadius: 8, border: `1px solid ${GRAY_100}`, height: '100%' }
-const btnPrimary = { background: BLACK, color: WHITE, padding: '14px 24px', borderRadius: 4, border: 0, fontWeight: 600, fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }
-const btnSecondary = { background: 'transparent', color: BLACK, padding: '14px 22px', borderRadius: 4, border: `1px solid ${BLACK}`, fontWeight: 600, fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }
+const btnPrimary = { background: BLACK, color: WHITE, padding: '14px 24px', borderRadius: 999, border: 0, fontWeight: 600, fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }
+const btnSecondary = { background: 'transparent', color: BLACK, padding: '14px 22px', borderRadius: 999, border: `1px solid ${BLACK}`, fontWeight: 600, fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }
