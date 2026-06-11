@@ -49,22 +49,12 @@ export default function PoweredBy({
           textDecoration: 'underline',
           textDecorationThickness: '1px',
           textUnderlineOffset: '3px',
-          padding: '4px 6px',
-          margin: '-4px 0',
-          borderRadius: 4,
-          display: 'inline-block',
-        }}
-        onTouchStart={(e) => {
-          e.currentTarget.style.background = 'rgba(0,0,0,0.05)'
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.background = 'transparent'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(0,0,0,0.05)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'transparent'
+          // No background highlight — underline is enough signal.
+          // Stale highlight was sticking around when iOS opened Safari
+          // (onTouchEnd never fired because the WebView lost focus mid-tap).
+          background: 'transparent',
+          // tap-highlight transparent — kills the default iOS Safari grey flash
+          WebkitTapHighlightColor: 'transparent',
         }}
       >
         Everyday Digital Solutions

@@ -774,8 +774,14 @@ input:focus-visible, textarea:focus-visible {
   to   { transform: translate(-50%, 48px) rotate(360deg); }
 }
 
-/* Bottom padding under any Page on native, accounting for tab bar + home indicator */
+/* Native Page wrapper — top AND bottom safe-area handling.
+   Pages using <Page/> from components/uber.jsx render their content
+   in a div with the .ec-page-inner class. On native, we override the
+   default inline 32px top padding so it clears the Dynamic Island
+   (matches the MobileHome top spacing), and we extend the bottom
+   padding past the tab bar + home indicator. */
 body.capacitor-native .ec-page-inner {
+  padding-top:    calc(env(safe-area-inset-top) + 32px) !important;
   padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
 }
 
