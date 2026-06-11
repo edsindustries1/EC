@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import { FiCheckCircle, FiMapPin, FiCalendar, FiUsers, FiPhone, FiMail, FiArrowLeft, FiPrinter, FiCopy, FiTruck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import api from '../utils/api'
+import CelebrationOverlay from '../components/CelebrationOverlay'
 
 const BLACK = '#000', WHITE = '#fff'
 const GRAY_50 = '#F6F6F6', GRAY_100 = '#EEEEEE', GRAY_500 = '#6B6B6B'
@@ -21,6 +22,9 @@ export default function Reservation() {
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   const [lookupEmail, setLookupEmail] = useState(email)
+  // Play the celebration overlay once per fresh load of a confirmed booking
+  const [celebrate, setCelebrate] = useState(false)
+  const celebratedRef = useRef(false)
 
   const load = async (emailArg) => {
     setLoading(true)
@@ -38,6 +42,20 @@ export default function Reservation() {
   }
 
   useEffect(() => { if (ref) load(email) }, [ref])
+
+  // Trigger the celebration overlay the first time we have a confirmed
+  // booking in this session. sessionStorage prevents re-firing on refresh
+  // or re-navigation.
+  useEffect(() => {
+    if (!booking || celebratedRef.current) return
+    const key = `et:celebrated:${booking.reference}`
+    try {
+      if (sessionStorage.getItem(key) === '1') return
+      sessionStorage.setItem(key, '1')
+    } catch {}
+    celebratedRef.current = true
+    setCelebrate(true)
+  }, [booking])
 
   const copyRef = () => { navigator.clipboard.writeText(ref); toast.success('Reference copied') }
 
@@ -77,6 +95,14 @@ export default function Reservation() {
 
   return (
     <div style={{ background: WHITE, color: BLACK, minHeight: '100vh', fontFamily: FONT, letterSpacing: '-0.01em' }}>
+      <CelebrationOverlay
+        show={celebrate}
+        onDone={() => setCelebrate(false)}
+        title="Reservation confirmed"
+        subtitle="Your chauffeur is on the way"
+        icon="car"
+        hold={1800}
+      />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '40px 0 80px' }}>
 
         {/* Success header */}

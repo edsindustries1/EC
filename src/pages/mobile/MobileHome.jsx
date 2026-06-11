@@ -83,7 +83,10 @@ export default function MobileHome() {
       background: WHITE, color: BLACK,
       fontFamily: FONT, letterSpacing: '-0.01em',
       minHeight: '100%',
-      padding: '12px 16px 96px',
+      // Top padding extends UNDER the status bar via safe-area inset so
+      // the WebView is truly edge-to-edge. Status bar icons remain
+      // legible against the white background.
+      padding: 'calc(12px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom))',
     }}>
 
       {/* ── Greeting ─────────────────────────────────────────────────── */}
@@ -99,21 +102,33 @@ export default function MobileHome() {
         </h1>
       </div>
 
-      {/* ── Trip type pills ──────────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto', paddingBottom: 4 }}>
+      {/* ── Trip type pills — Liquid Glass containers ───────────────────
+          Translucent backdrop blur reads through the page background.
+          Active pill is solid black (Apple-style "selected" treatment). */}
+      <div style={{
+        display: 'inline-flex', gap: 0,
+        marginBottom: 16,
+        padding: 4,
+        borderRadius: 999,
+        background: 'rgba(0, 0, 0, 0.04)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        border: '0.5px solid rgba(0, 0, 0, 0.06)',
+      }}>
         {QUICK_TYPES.map(t => (
           <button
             key={t.id}
             onClick={() => setTripType(t.id)}
             style={{
-              flexShrink: 0,
+              position: 'relative',
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '9px 14px', borderRadius: 999,
+              padding: '8px 16px', borderRadius: 999,
               fontWeight: 600, fontSize: 13,
               border: 0, cursor: 'pointer',
-              background: tripType === t.id ? BLACK : GRAY_50,
+              background: tripType === t.id ? BLACK : 'transparent',
               color:      tripType === t.id ? WHITE : BLACK,
-              transition: 'all 150ms ease',
+              transition: 'background 240ms cubic-bezier(0.16, 1, 0.3, 1), color 240ms ease, transform 180ms ease',
+              boxShadow: tripType === t.id ? '0 2px 8px -2px rgba(0,0,0,0.25)' : 'none',
             }}
           >
             <t.icon size={14}/> {t.label}

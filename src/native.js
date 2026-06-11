@@ -26,16 +26,18 @@ export async function initNative() {
   document.body.classList.add('capacitor-native')
   document.body.classList.add(`capacitor-${getPlatform()}`)
 
-  // ── Status bar ────────────────────────────────────────────────────────
-  // Capacitor API: Style.Dark = DARK icons (for LIGHT backgrounds).
-  // The previous setup used Style.Light here, which produced WHITE icons
-  // on a white background — invisible. Pages with a dark hero (Home)
-  // override this via useStatusBarStyle('dark') in src/native-ui.js.
+  // ── Status bar — Edge-to-edge fullscreen ──────────────────────────────
+  // WebView extends BEHIND the status bar (overlay: true). The React app
+  // pushes content below the notch via env(safe-area-inset-top) so the
+  // status bar icons stay legible. Same pattern Instagram + native iOS apps
+  // use. Per-page pages with a dark hero override style via
+  // useStatusBarStyle('dark') in src/native-ui.js.
   try {
-    await StatusBar.setStyle({ style: Style.Dark })
+    await StatusBar.setStyle({ style: Style.Dark })   // dark icons on light bg
+    await StatusBar.setOverlaysWebView({ overlay: true })
     if (getPlatform() === 'android') {
-      await StatusBar.setBackgroundColor({ color: '#FFFFFF' })
-      await StatusBar.setOverlaysWebView({ overlay: false })
+      // On Android, transparent bg so the WebView's color shows through
+      await StatusBar.setBackgroundColor({ color: '#00000000' })
     }
   } catch (err) {
     console.warn('[native] status bar setup failed:', err)

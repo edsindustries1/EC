@@ -25,13 +25,14 @@ html, body {
   overscroll-behavior-y: none;
 }
 
+/* Edge-to-edge fullscreen on native (matches Instagram, native iOS apps).
+   The WebView itself goes under the status bar and home indicator —
+   individual pages handle the inset via env(safe-area-inset-*) where
+   they need to avoid the notch / home indicator. */
 body.capacitor-native {
-  /* Native safe-area padding — top for notch/dynamic island, bottom for home indicator */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  /* Lock the body so internal scroll regions handle gestures cleanly */
+  /* No body padding — WebView is truly edge-to-edge. Pages handle their own
+     safe-area-inset-top via padding/margin so the status bar icons remain
+     legible against page content. */
   position: fixed;
   inset: 0;
   overflow: hidden;
@@ -41,6 +42,10 @@ body.capacitor-native > #root {
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* Push content under the status bar with a safe top margin.
+     Pages with dark hero sections override this with their own padding. */
+  --ec-safe-top: env(safe-area-inset-top);
+  --ec-safe-bottom: env(safe-area-inset-bottom);
 }
 
 /* Bigger tap targets on touch devices — 44px minimum per Apple HIG */
@@ -724,6 +729,28 @@ button:disabled:active, [aria-disabled="true"]:active { transform: none !importa
 /* ─── Long text guard — never let words break their parent ─────────── */
 .ec-clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ec-wrap { overflow-wrap: anywhere; word-break: break-word; }
+
+/* ─── Liquid Glass — translucent frosted-glass surface ──────────────
+   Used on tab bar, trip-type chips, modal overlays, anywhere we want
+   the iOS 26 "blur the content underneath" look. */
+.ec-glass {
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+}
+.ec-glass-dark {
+  background: rgba(20, 20, 22, 0.62);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ─── Safe-area helpers — pad content under notch / home indicator ─── */
+.ec-safe-top    { padding-top: env(safe-area-inset-top); }
+.ec-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.ec-margin-safe-top    { margin-top: env(safe-area-inset-top); }
+.ec-margin-safe-bottom { margin-bottom: env(safe-area-inset-bottom); }
 
 /* ─── Input focus states (Apple-style outline + subtle scale) ────── */
 input:focus, textarea:focus, select:focus, .ec-mobile-place-input:focus {
