@@ -220,7 +220,7 @@ export default function Signup() {
             width: '100%', padding: '13px 22px',
             background: WHITE, color: BLACK,
             border: `1px solid ${BLACK}`,
-            borderRadius: 4,
+            borderRadius: 999,
             fontWeight: 600, fontSize: 14,
             textDecoration: 'none', marginBottom: 18,
           }}

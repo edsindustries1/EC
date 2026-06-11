@@ -77,7 +77,7 @@ export default function Profile() {
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             width: '100%', marginTop: 18,
-            padding: '14px 22px', borderRadius: 4,
+            padding: '14px 22px', borderRadius: 999,
             background: 'transparent', color: BLACK,
             border: `1px solid ${GRAY_100}`,
             fontWeight: 600, fontSize: 14, cursor: 'pointer',
@@ -113,7 +113,7 @@ export default function Profile() {
             onClick={() => setConfirmingDelete(true)}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '10px 16px', borderRadius: 4,
+              padding: '10px 16px', borderRadius: 999,
               background: 'transparent', color: '#b91c1c',
               border: `1px solid #b91c1c`,
               fontWeight: 600, fontSize: 13, cursor: 'pointer',
@@ -198,7 +198,7 @@ export default function Profile() {
               placeholder="DELETE"
               disabled={deleting}
               style={{
-                width: '100%', padding: '11px 12px', borderRadius: 4,
+                width: '100%', padding: '11px 12px', borderRadius: 999,
                 fontSize: 14, fontFamily: 'Menlo, monospace',
                 border: `1px solid ${GRAY_100}`, background: GRAY_50,
                 marginBottom: 18, outline: 'none',
@@ -209,7 +209,7 @@ export default function Profile() {
                 onClick={() => setConfirmingDelete(false)}
                 disabled={deleting}
                 style={{
-                  flex: 1, padding: '12px 16px', borderRadius: 4,
+                  flex: 1, padding: '12px 16px', borderRadius: 999,
                   background: 'transparent', color: BLACK,
                   border: `1px solid ${GRAY_100}`,
                   fontWeight: 600, fontSize: 14,
@@ -220,7 +220,7 @@ export default function Profile() {
                 onClick={handleDelete}
                 disabled={deleting || confirmText !== 'DELETE'}
                 style={{
-                  flex: 1, padding: '12px 16px', borderRadius: 4,
+                  flex: 1, padding: '12px 16px', borderRadius: 999,
                   background: confirmText === 'DELETE' && !deleting ? '#b91c1c' : '#fca5a5',
                   color: WHITE, border: 0,
                   fontWeight: 700, fontSize: 14,

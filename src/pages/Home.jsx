@@ -172,7 +172,7 @@ export default function Home() {
                 </PrimaryButton>
                 <Link to="/post-ride" style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '14px 22px', borderRadius: 4,
+                  padding: '14px 22px', borderRadius: 999,
                   background: 'transparent', color: BLACK,
                   border: `1.5px solid ${BLACK}`,
                   fontWeight: 600, fontSize: 14, textDecoration: 'none',
@@ -331,7 +331,7 @@ export default function Home() {
             </div>
           </FadeIn>
           <FadeIn delay={120}>
-            <div style={{ aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', background: GRAY_100 }}>
+            <div style={{ aspectRatio: '4/3', borderRadius: 999, overflow: 'hidden', background: GRAY_100 }}>
               <img
                 src="/images/service-corporate.png"
                 alt="Corporate transportation"
@@ -430,7 +430,7 @@ export default function Home() {
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 style={{
                   background: WHITE, color: BLACK,
-                  padding: '14px 28px', borderRadius: 4, border: 0,
+                  padding: '14px 28px', borderRadius: 999, border: 0,
                   fontWeight: 700, fontSize: 16, cursor: 'pointer',
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                 }}
@@ -441,7 +441,7 @@ export default function Home() {
                 href="tel:+17186586000"
                 style={{
                   background: 'transparent', color: WHITE,
-                  padding: '14px 28px', borderRadius: 4,
+                  padding: '14px 28px', borderRadius: 999,
                   border: `1px solid ${WHITE}`,
                   fontWeight: 700, fontSize: 16,
                   display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -501,7 +501,7 @@ function Field({ children }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center',
-      background: GRAY_50, borderRadius: 4,
+      background: GRAY_50, borderRadius: 999,
       padding: '14px 16px',
       border: '1px solid transparent',
       transition: 'border-color 150ms ease',
@@ -517,7 +517,7 @@ function FieldCompact({ children }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center',
-      background: GRAY_50, borderRadius: 4,
+      background: GRAY_50, borderRadius: 999,
       padding: '10px 12px',
     }}>
       {children}
@@ -543,7 +543,7 @@ function PrimaryButton({ children, ...props }) {
       {...props}
       style={{
         background: BLACK, color: WHITE,
-        padding: '14px 24px', borderRadius: 4, border: 0,
+        padding: '14px 24px', borderRadius: 999, border: 0,
         fontWeight: 600, fontSize: 15, cursor: 'pointer',
         display: 'inline-flex', alignItems: 'center', gap: 8,
         transition: 'background 180ms ease, transform 120ms ease',
@@ -562,7 +562,7 @@ function SecondaryButton({ children, ...props }) {
       {...props}
       style={{
         background: 'transparent', color: BLACK,
-        padding: '14px 24px', borderRadius: 4,
+        padding: '14px 24px', borderRadius: 999,
         border: `1px solid ${BLACK}`,
         fontWeight: 600, fontSize: 15, cursor: 'pointer',
         display: 'inline-flex', alignItems: 'center', gap: 8,

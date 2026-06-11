@@ -195,7 +195,7 @@ function DriverCard({ d }) {
         </div>
         {d.plate && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: BLACK, padding: '2px 6px', background: GRAY_50, borderRadius: 4, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: BLACK, padding: '2px 6px', background: GRAY_50, borderRadius: 999, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
               {d.plate}
             </span>
           </div>
@@ -204,7 +204,7 @@ function DriverCard({ d }) {
       <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
         <a href={`tel:${d.phone}`} style={{
           flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          padding: '8px 12px', borderRadius: 4,
+          padding: '8px 12px', borderRadius: 999,
           background: GRAY_50, color: BLACK, textDecoration: 'none',
           fontSize: 13, fontWeight: 600,
         }}>

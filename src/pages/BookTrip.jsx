@@ -278,14 +278,14 @@ function PriceRow({ label, value, bold, muted }) {
   )
 }
 const inputStyle = (error) => ({
-  width: '100%', padding: '11px 12px', borderRadius: 4, fontSize: 14,
+  width: '100%', padding: '11px 12px', borderRadius: 999, fontSize: 14,
   border: `1px solid ${error ? '#b91c1c' : GRAY_100}`,
   background: GRAY_50, color: BLACK, outline: 'none',
   fontFamily: FONT,
 })
 const primaryBtnStyle = {
   background: BLACK, color: WHITE,
-  padding: '13px 22px', borderRadius: 4, border: 0,
+  padding: '13px 22px', borderRadius: 999, border: 0,
   fontWeight: 600, fontSize: 14, cursor: 'pointer',
   display: 'inline-flex', alignItems: 'center', gap: 8,
   textDecoration: 'none',

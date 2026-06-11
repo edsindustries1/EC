@@ -125,7 +125,7 @@ function RequestCard({ r, onBid }) {
             {r.email && <span style={meta}><FiMail size={11}/> <a href={`mailto:${r.email}`} style={link}>{r.email}</a></span>}
           </div>
           {r.bids?.length > 0 && (
-            <div style={{ marginTop: 10, padding: '8px 10px', background: GRAY_50, borderRadius: 4, fontSize: 13 }}>
+            <div style={{ marginTop: 10, padding: '8px 10px', background: GRAY_50, borderRadius: 999, fontSize: 13 }}>
               <span style={{ fontWeight: 700 }}>${r.bids[0].price}</span>
               <span style={{ color: GRAY_500, marginLeft: 8 }}>· {r.bids[0].operator_name || 'You'}</span>
               {r.bids[0].notes && <span style={{ color: GRAY_500, marginLeft: 8 }}>· {r.bids[0].notes}</span>}

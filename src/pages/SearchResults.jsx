@@ -116,7 +116,7 @@ export default function SearchResults() {
 
         {loading && <SkeletonGrid />}
         {err && !loading && (
-          <div style={{ background: '#fee2e2', color: '#991b1b', padding: '12px 16px', borderRadius: 8, marginBottom: 24 }}>{err}</div>
+          <div style={{ background: '#fee2e2', color: '#991b1b', padding: '12px 18px', borderRadius: 999, marginBottom: 24, textAlign: 'center' }}>{err}</div>
         )}
 
         {!loading && !err && (
@@ -138,7 +138,7 @@ function VehicleCard({ opt, onSelect, pax }) {
   const fits = capacityOf(opt.vehicle_type) >= pax
   return (
     <div style={{
-      background: WHITE, borderRadius: 8,
+      background: WHITE, borderRadius: 20,
       border: `1px solid ${GRAY_100}`,
       overflow: 'hidden', display: 'flex', flexDirection: 'column',
       transition: 'border-color 180ms ease, transform 180ms ease',
@@ -195,9 +195,9 @@ function SkeletonGrid() {
         <div key={i} style={{ background: WHITE, borderRadius: 8, border: `1px solid ${GRAY_100}`, height: 360, overflow: 'hidden' }} className="animate-pulse">
           <div style={{ height: 180, background: GRAY_50 }}/>
           <div style={{ padding: 20 }}>
-            <div style={{ height: 18, background: GRAY_100, borderRadius: 4, marginBottom: 10, width: '50%' }}/>
-            <div style={{ height: 14, background: GRAY_50, borderRadius: 4, marginBottom: 18, width: '70%' }}/>
-            <div style={{ height: 44, background: GRAY_50, borderRadius: 4 }}/>
+            <div style={{ height: 18, background: GRAY_100, borderRadius: 999, marginBottom: 10, width: '50%' }}/>
+            <div style={{ height: 14, background: GRAY_50, borderRadius: 999, marginBottom: 18, width: '70%' }}/>
+            <div style={{ height: 44, background: GRAY_50, borderRadius: 999 }}/>
           </div>
         </div>
       ))}
@@ -207,7 +207,7 @@ function SkeletonGrid() {
 
 const primaryBtnStyle = {
   background: BLACK, color: WHITE,
-  padding: '13px 22px', borderRadius: 4, border: 0,
+  padding: '14px 26px', borderRadius: 999, border: 0,
   fontWeight: 600, fontSize: 14, cursor: 'pointer',
   display: 'inline-flex', alignItems: 'center', gap: 8,
   textDecoration: 'none',

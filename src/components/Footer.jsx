@@ -95,11 +95,33 @@ export default function Footer() {
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
               © {new Date().getFullYear()} Everywhere Transfers. All rights reserved.
             </p>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', marginTop: 6, letterSpacing: '0.04em' }}>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 6, letterSpacing: '0.04em' }}>
               Powered by{' '}
-              <a href="https://everydaydigitalsolutions.com" target="_blank" rel="noopener noreferrer"
-                 style={{ color: 'rgba(255,255,255,0.78)', textDecoration: 'none', fontWeight: 600 }}>
-                Everyday Digital Solutions
+              <a
+                href="https://everydaydigitalsolutions.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#FFFFFF',
+                  textDecoration: 'underline',
+                  textDecorationThickness: '1px',
+                  textUnderlineOffset: '2px',
+                  fontWeight: 700,
+                  padding: '4px 6px',
+                  margin: '-4px -6px',
+                  borderRadius: 4,
+                  display: 'inline-block',
+                  cursor: 'pointer',
+                  transition: 'color 160ms ease, background 160ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                }}
+              >
+                Everyday Digital Solutions ↗
               </a>
             </p>
           </div>

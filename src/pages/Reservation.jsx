@@ -73,7 +73,7 @@ export default function Reservation() {
             value={lookupEmail}
             onChange={(e) => setLookupEmail(e.target.value)}
             placeholder="email@example.com"
-            style={{ width: '100%', padding: '12px 14px', borderRadius: 4, border: `1px solid ${GRAY_100}`, background: GRAY_50, color: BLACK, fontSize: 14, fontFamily: FONT, outline: 'none', marginBottom: 12 }}
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 999, border: `1px solid ${GRAY_100}`, background: GRAY_50, color: BLACK, fontSize: 14, fontFamily: FONT, outline: 'none', marginBottom: 12 }}
           />
           <button onClick={() => load(lookupEmail)} style={{ ...primaryBtnStyle, width: '100%', justifyContent: 'center' }}>
             View reservation
@@ -193,14 +193,14 @@ function Row({ icon: Icon, label, value, highlight }) {
 
 const primaryBtnStyle = {
   background: BLACK, color: WHITE,
-  padding: '11px 18px', borderRadius: 4, border: 0,
+  padding: '11px 18px', borderRadius: 999, border: 0,
   fontWeight: 600, fontSize: 14, cursor: 'pointer',
   display: 'inline-flex', alignItems: 'center', gap: 8,
   textDecoration: 'none',
 }
 const secondaryBtnStyle = {
   background: GRAY_50, color: BLACK,
-  padding: '10px 16px', borderRadius: 4,
+  padding: '10px 16px', borderRadius: 999,
   border: `1px solid ${GRAY_100}`,
   fontWeight: 600, fontSize: 13, cursor: 'pointer',
   display: 'inline-flex', alignItems: 'center', gap: 6,

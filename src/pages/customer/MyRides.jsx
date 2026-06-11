@@ -142,7 +142,7 @@ function TripCard({ t }) {
               {isBooking && t.reference && (
                 <button onClick={copyRef} style={{
                   background: BLACK, color: WHITE,
-                  border: 0, padding: '4px 10px', borderRadius: 4,
+                  border: 0, padding: '4px 10px', borderRadius: 999,
                   fontSize: 12, fontWeight: 700, fontFamily: 'monospace',
                   letterSpacing: '0.08em', cursor: 'pointer',
                   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -214,7 +214,7 @@ function TripCard({ t }) {
 const meta = { display: 'inline-flex', alignItems: 'center', gap: 4 }
 const ctaLink = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 14px', borderRadius: 4,
+  padding: '8px 14px', borderRadius: 999,
   background: GRAY_50, color: BLACK, textDecoration: 'none',
   fontSize: 13, fontWeight: 600,
 }

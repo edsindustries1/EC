@@ -92,10 +92,10 @@ export default function PaymentLinks({ embedded = false, prefill = null }) {
         <Card style={{ padding: 0, overflow: 'hidden' }}>
           {[180, 220, 80, 260, 90, 60].map((_, i) => (
             <div key={i} style={{ display: 'flex', gap: 16, padding: '14px 16px', borderBottom: i < 4 ? `1px solid ${GRAY_100}` : 0 }}>
-              <div className="skeleton" style={{ width: 110, height: 12, borderRadius: 4 }}/>
-              <div className="skeleton" style={{ width: 180, height: 12, borderRadius: 4 }}/>
-              <div className="skeleton" style={{ width: 60, height: 12, borderRadius: 4 }}/>
-              <div className="skeleton" style={{ width: 200, height: 12, borderRadius: 4 }}/>
+              <div className="skeleton" style={{ width: 110, height: 12, borderRadius: 999 }}/>
+              <div className="skeleton" style={{ width: 180, height: 12, borderRadius: 999 }}/>
+              <div className="skeleton" style={{ width: 60, height: 12, borderRadius: 999 }}/>
+              <div className="skeleton" style={{ width: 200, height: 12, borderRadius: 999 }}/>
               <div className="skeleton" style={{ width: 70, height: 12, borderRadius: 999 }}/>
             </div>
           ))}

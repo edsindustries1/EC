@@ -124,15 +124,17 @@ export default function MobileHome() {
       background: WHITE, color: BLACK,
       fontFamily: FONT, letterSpacing: '-0.01em',
       minHeight: '100%',
-      // Extra top padding so content sits cleanly below the Dynamic Island.
-      // safe-area-inset-top covers the status bar; the +16px below adds
-      // breathing room so the brand chip + greeting don't crowd the notch.
-      padding: 'calc(env(safe-area-inset-top) + 16px) 16px calc(120px + env(safe-area-inset-bottom))',
+      // safe-area-inset-top + extra 32px breathing room so the brand
+      // chip + greeting clear the Dynamic Island on ALL iPhone notch
+      // sizes (older 4mm notch through 17 Pro Max Dynamic Island).
+      // Requires viewport-fit=cover in index.html — otherwise the
+      // env() resolves to 0.
+      padding: 'calc(env(safe-area-inset-top) + 32px) 16px calc(120px + env(safe-area-inset-bottom))',
     }}>
 
       {/* ── Greeting row + brand chip — same horizontal line ──────────────
-          Daily "Hello" greeting from around the world on the left,
-          "ET · Everywhere Transfers" Liquid Glass chip on the right. */}
+          Hello, [first name] on the left; "ET · Everywhere Transfers"
+          Liquid Glass chip on the right. */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -141,20 +143,20 @@ export default function MobileHome() {
         marginBottom: 24,
       }}>
         <div style={{ minWidth: 0 }}>
-          {/* Big "Bonjour" — the daily greeting word */}
+          {/* Greeting line: "Hello, [first name]" */}
           <div style={{
             fontSize: 26, fontWeight: 800, color: BLACK,
             letterSpacing: '-0.02em', lineHeight: 1.1,
             marginBottom: 4,
           }}>
-            {hello.word}{firstName ? `, ${firstName}` : ''}
+            Hello{firstName ? `, ${firstName}` : ''}
           </div>
-          {/* Language attribution + local time-of-day */}
+          {/* Time-of-day micro-label */}
           <div style={{
             fontSize: 11, fontWeight: 700, color: GRAY_500,
             textTransform: 'uppercase', letterSpacing: '0.12em',
           }}>
-            {hello.lang} <span style={{ color: '#CFCFCF', margin: '0 6px' }}>·</span> {tod}
+            {tod}
           </div>
         </div>
 
@@ -288,8 +290,9 @@ export default function MobileHome() {
       {error && (
         <div style={{
           background: '#fee2e2', color: '#991b1b',
-          padding: '10px 14px', borderRadius: 8,
+          padding: '12px 18px', borderRadius: 999,
           fontSize: 13, fontWeight: 600, marginBottom: 12,
+          textAlign: 'center',
         }}>
           {error}
         </div>
@@ -346,13 +349,13 @@ export default function MobileHome() {
               style={{
                 width: '100%', textAlign: 'left',
                 display: 'flex', alignItems: 'center', gap: 12,
-                padding: '14px',
+                padding: '14px 18px',
                 background: WHITE, border: `1px solid ${GRAY_100}`,
-                borderRadius: 10, cursor: 'pointer',
+                borderRadius: 999, cursor: 'pointer',
               }}
             >
               <div style={{
-                width: 36, height: 36, borderRadius: 8,
+                width: 36, height: 36, borderRadius: '50%',
                 background: GRAY_50, color: BLACK,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
@@ -373,18 +376,18 @@ export default function MobileHome() {
         </div>
       </div>
 
-      {/* ── Bottom dispatch ──────────────────────────────────────────── */}
+      {/* ── Bottom dispatch — pill row ───────────────────────────────── */}
       <a
         href="tel:+17186586000"
         style={{
           display: 'flex', alignItems: 'center', gap: 12,
-          padding: '14px 16px', borderRadius: 10,
+          padding: '14px 18px', borderRadius: 999,
           background: GRAY_50, color: BLACK,
           textDecoration: 'none',
         }}
       >
         <div style={{
-          width: 36, height: 36, borderRadius: 8,
+          width: 36, height: 36, borderRadius: '50%',
           background: WHITE, border: `1px solid ${GRAY_100}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
@@ -518,8 +521,8 @@ function CompactPicker({ icon: Icon, children }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 6,
       background: WHITE,
-      padding: '10px 10px',
-      borderRadius: 10,
+      padding: '11px 12px',
+      borderRadius: 999,
       margin: 2,
       minWidth: 0,
     }}>
@@ -534,8 +537,8 @@ function SavedPlace({ icon: Icon, label, hint }) {
     <button
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
-        padding: '14px',
-        background: GRAY_50, border: 0, borderRadius: 10,
+        padding: '16px',
+        background: GRAY_50, border: 0, borderRadius: 16,
         cursor: 'pointer', textAlign: 'left',
       }}
     >
