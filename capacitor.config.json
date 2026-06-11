@@ -4,13 +4,16 @@
   "webDir": "dist",
   "bundledWebRuntime": false,
   "ios": {
-    "contentInset": "always",
+    "contentInset": "never",
     "scrollEnabled": true,
-    "limitsNavigationsToAppBoundDomains": false
+    "limitsNavigationsToAppBoundDomains": false,
+    "backgroundColor": "#ffffff",
+    "preferredContentMode": "mobile"
   },
   "android": {
     "allowMixedContent": false,
-    "captureInput": true
+    "captureInput": true,
+    "backgroundColor": "#ffffff"
   },
   "server": {
     "androidScheme": "https"
@@ -25,8 +28,7 @@
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#FFFFFF",
-      "overlaysWebView": false
+      "overlaysWebView": true
     },
     "Keyboard": {
       "resize": "body",
