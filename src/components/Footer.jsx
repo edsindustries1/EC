@@ -91,9 +91,18 @@ export default function Footer() {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16, alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-            © {new Date().getFullYear()} Everywhere Transfers. All rights reserved.
-          </p>
+          <div>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+              © {new Date().getFullYear()} Everywhere Transfers. All rights reserved.
+            </p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', marginTop: 6, letterSpacing: '0.04em' }}>
+              Powered by{' '}
+              <a href="https://everydaydigitalsolutions.com" target="_blank" rel="noopener noreferrer"
+                 style={{ color: 'rgba(255,255,255,0.78)', textDecoration: 'none', fontWeight: 600 }}>
+                Everyday Digital Solutions
+              </a>
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: 18 }}>
             <Link to="/privacy" style={{ ...linkStyle, fontSize: 13 }}>Privacy</Link>
             <Link to="/terms"   style={{ ...linkStyle, fontSize: 13 }}>Terms</Link>
