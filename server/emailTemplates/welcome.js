@@ -22,8 +22,13 @@ export function buildWelcomeEmail(name, baseUrl = 'https://www.everywheretransfe
         <li>Flight tracking is automatic. Your driver waits, free of charge.</li>
         <li>Free cancellation up to 4 hours before pickup.</li>
       </ul>
-      <p style="margin:0;color:${GRAY_500};">
+      <p style="margin:0 0 16px;color:${GRAY_500};">
         Tap below to start a booking, or browse our popular routes on the website.
+      </p>
+      <p style="margin:18px 0 0;padding-top:14px;border-top:1px solid #EEEEEE;font-size:11px;color:${GRAY_500};letter-spacing:0.04em;">
+        Everywhere Transfers is built and operated by
+        <a href="https://everydaydigitalsolutions.com" style="color:${BLACK};text-decoration:underline;font-weight:600;">Everyday Digital Solutions</a>
+        — modern technology platforms for premium service businesses.
       </p>
     `,
     ctaLabel: 'Book your first ride',

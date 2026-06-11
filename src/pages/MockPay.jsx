@@ -14,6 +14,7 @@ import {
 } from 'react-icons/fi'
 import api from '../utils/api'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT } from '../styles/uber'
+import PoweredBy from '../components/PoweredBy'
 
 export default function MockPay() {
   const [params] = useSearchParams()
@@ -131,7 +132,7 @@ export default function MockPay() {
               style={{
                 width: '100%', marginTop: 18,
                 background: BLACK, color: WHITE,
-                padding: '15px 22px', borderRadius: 8, border: 0,
+                padding: '15px 22px', borderRadius: 999, border: 0,
                 fontWeight: 700, fontSize: 15, cursor: processing ? 'wait' : 'pointer',
                 opacity: processing ? 0.6 : 1,
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -147,7 +148,7 @@ export default function MockPay() {
               style={{
                 width: '100%', marginTop: 8,
                 background: 'transparent', color: GRAY_500,
-                padding: '12px 16px', borderRadius: 8,
+                padding: '12px 16px', borderRadius: 999,
                 border: 0, fontWeight: 600, fontSize: 13, cursor: 'pointer',
               }}
             >
@@ -159,6 +160,7 @@ export default function MockPay() {
         <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 18, fontSize: 11, color: GRAY_500 }}>
           <FiLock size={11}/> Mock checkout · No card data is stored
         </p>
+        <PoweredBy variant="centered" />
       </div>
     </div>
   )

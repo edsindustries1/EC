@@ -4,6 +4,7 @@ import { FiCheckCircle, FiMapPin, FiCalendar, FiUsers, FiPhone, FiMail, FiArrowL
 import toast from 'react-hot-toast'
 import api from '../utils/api'
 import CelebrationOverlay from '../components/CelebrationOverlay'
+import PoweredBy from '../components/PoweredBy'
 
 const BLACK = '#000', WHITE = '#fff'
 const GRAY_50 = '#F6F6F6', GRAY_100 = '#EEEEEE', GRAY_500 = '#6B6B6B'
@@ -174,6 +175,8 @@ export default function Reservation() {
             </Link>
           </div>
         </div>
+
+        <PoweredBy variant="centered" />
       </div>
     </div>
   )

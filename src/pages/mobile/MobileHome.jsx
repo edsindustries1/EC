@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import PlaceAutocomplete from '../../components/PlaceAutocomplete'
+import PoweredBy from '../../components/PoweredBy'
 import { BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT } from '../../styles/uber'
 
 const QUICK_TYPES = [
@@ -406,14 +407,9 @@ export default function MobileHome() {
       </a>
 
       {/* ── Powered by Everyday Digital Solutions ────────────────────────
-          Subtle attribution at the very bottom of the home scroll. */}
-      <div style={{
-        marginTop: 22,
-        textAlign: 'center',
-        fontSize: 10, fontWeight: 600, color: GRAY_500,
-        letterSpacing: '0.1em', textTransform: 'uppercase',
-      }}>
-        Powered by <span style={{ color: BLACK, fontWeight: 700 }}>Everyday Digital Solutions</span>
+          Clickable link — opens everydaydigitalsolutions.com in Safari. */}
+      <div style={{ marginTop: 22 }}>
+        <PoweredBy variant="centered" />
       </div>
     </div>
   )

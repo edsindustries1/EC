@@ -24,7 +24,9 @@ export function buildBidReceivedEmail({ customerName, pickup, dropoff, operatorN
       </table>
       <p style="margin:0 0 6px;color:${GRAY_500};font-size:13px;">
         Tap below to confirm and pay securely. Other offers on this ride will be
-        automatically cancelled once you accept.
+        automatically cancelled once you accept. Secure payment processing
+        powered by
+        <a href="https://everydaydigitalsolutions.com" style="color:${BLACK};text-decoration:underline;">Everyday Digital Solutions</a>.
       </p>
     `,
     ctaLabel: `Pay $${amount} to confirm`,

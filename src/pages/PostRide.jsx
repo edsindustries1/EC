@@ -189,16 +189,36 @@ export default function PostRide() {
           </Card>
 
           {/* iPhone-style slide-to-confirm. Friction prevents accidental
-              posts; haptic confirms the commitment at the threshold. */}
+              posts; haptic confirms the commitment at the threshold.
+              Returns false from onConfirm if validation fails → slide
+              springs back, "Posted!" overlay never appears. */}
           <SlideToConfirm
             label="Slide to post ride"
             doneLabel="Posted!"
             busy={submitting}
-            onConfirm={() => {
-              // Reuse the form's submit handler by dispatching a real submit
-              // event — keeps validation + handlePostRide in one place.
-              const formEl = document.querySelector('form[data-postride-form]')
-              if (formEl) formEl.requestSubmit ? formEl.requestSubmit() : formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
+            onConfirm={async () => {
+              // Hard-validate before letting the slide complete
+              if (!pickup.trim() || !dropoff.trim()) {
+                toast.error('Please enter pickup and drop-off')
+                return false      // signals "validation failed" → spring back
+              }
+              if (!rideDate) {
+                toast.error('Please pick a date')
+                return false
+              }
+              if (!pickupTime) {
+                toast.error('Please pick a time')
+                return false
+              }
+
+              // All good — call the real API. If submit() throws, we
+              // also bubble the rejection up so the slide springs back.
+              try {
+                await submit({ preventDefault: () => {} })
+                return true
+              } catch {
+                return false
+              }
             }}
           />
 

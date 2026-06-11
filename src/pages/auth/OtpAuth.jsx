@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import api from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
 import { useHaptics } from '../../native-ui'
+import PoweredBy from '../../components/PoweredBy'
 import {
   BLACK, WHITE, GRAY_50, GRAY_100, GRAY_500, FONT,
   btnPrimary, inputStyle,
@@ -168,6 +169,9 @@ export default function OtpAuth() {
         {stage === STAGE.CODE    && <CodeStage  email={email} code={code} setCode={setCode} loading={loading} resendCooldown={resendCooldown} onSubmit={handleVerifyCode} onResend={handleResend} onChangeEmail={() => { setStage(STAGE.EMAIL); setCode('') }} />}
         {stage === STAGE.PROFILE && <ProfileStage email={email} name={name} setName={setName} phone={phone} setPhone={setPhone} loading={loading} onSubmit={handleCompleteSignup} />}
 
+        <div style={{ marginTop: 28 }}>
+          <PoweredBy variant="centered" />
+        </div>
       </div>
     </div>
   )

@@ -80,16 +80,30 @@ export default function SlideToConfirm({
     }
   }
 
-  const endDrag = () => {
+  const endDrag = async () => {
     if (!dragging) return
     setDragging(false)
     const progress = maxXRef.current > 0 ? x / maxXRef.current : 0
     if (progress >= 0.88) {
+      // Snap to right edge while we await the parent's validation
       setX(maxXRef.current)
-      setConfirmed(true)
-      onConfirm?.()
+      try {
+        // Parent's onConfirm can return false (sync) or reject
+        // (async) to signal validation failure → we spring back
+        // and the "Posted!" overlay never appears.
+        const result = await onConfirm?.()
+        if (result === false) {
+          setX(0)
+          crossedRef.current = false
+          return
+        }
+        setConfirmed(true)
+      } catch {
+        setX(0)
+        crossedRef.current = false
+      }
     } else {
-      setX(0)        // spring back via CSS transition
+      setX(0)        // released early — spring back
     }
   }
 
