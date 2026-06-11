@@ -27,11 +27,52 @@ const SUGGESTIONS = [
   { from: 'Manhattan',         to: 'The Hamptons', fromPlace: 'Manhattan, NY',                    toPlace: 'The Hamptons, NY', price: 380 },
 ]
 
-function greetingForNow() {
+// 26 "Hello" greetings from around the world — cycles by day-of-year so
+// the same word shows for the whole day, then rolls to the next country
+// at midnight. Users learn one new hello each day.
+const WORLD_GREETINGS = [
+  { word: 'Hello',      lang: 'English'    },
+  { word: 'Bonjour',    lang: 'French'     },
+  { word: 'Hola',       lang: 'Spanish'    },
+  { word: 'Ciao',       lang: 'Italian'    },
+  { word: 'Guten Tag',  lang: 'German'     },
+  { word: 'Olá',        lang: 'Portuguese' },
+  { word: 'Konnichiwa', lang: 'Japanese'   },
+  { word: 'Annyeong',   lang: 'Korean'     },
+  { word: 'Ni Hao',     lang: 'Mandarin'   },
+  { word: 'Namaste',    lang: 'Hindi'      },
+  { word: 'Salaam',     lang: 'Arabic'     },
+  { word: 'Shalom',     lang: 'Hebrew'     },
+  { word: 'Aloha',      lang: 'Hawaiian'   },
+  { word: 'Hej',        lang: 'Swedish'    },
+  { word: 'Merhaba',    lang: 'Turkish'    },
+  { word: 'Sawubona',   lang: 'Zulu'       },
+  { word: 'Jambo',      lang: 'Swahili'    },
+  { word: 'Zdravo',     lang: 'Serbian'    },
+  { word: 'Terve',      lang: 'Finnish'    },
+  { word: 'Goddag',     lang: 'Danish'     },
+  { word: 'Privet',     lang: 'Russian'    },
+  { word: 'Kamusta',    lang: 'Filipino'   },
+  { word: 'Xin Chào',   lang: 'Vietnamese' },
+  { word: 'Sawasdee',   lang: 'Thai'       },
+  { word: 'Halo',       lang: 'Indonesian' },
+  { word: 'Czesc',      lang: 'Polish'     },
+]
+
+function dailyGreeting() {
+  // Use UTC day-of-epoch so the greeting changes precisely at local
+  // midnight without depending on the user's timezone in the formula.
+  const dayIndex = Math.floor(Date.now() / 86_400_000)
+  return WORLD_GREETINGS[dayIndex % WORLD_GREETINGS.length]
+}
+
+function timeOfDayLabel() {
   const h = new Date().getHours()
+  if (h < 5)  return 'Late night'
   if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (h < 17) return 'Good afternoon'
+  if (h < 21) return 'Good evening'
+  return 'Late night'
 }
 
 function defaultDateISO() {
@@ -51,9 +92,9 @@ export default function MobileHome() {
   const [pax, setPax] = useState(2)
   const [error, setError] = useState('')
 
-  const greeting = isAuthenticated && user?.name
-    ? `${greetingForNow()}, ${user.name.split(' ')[0]}`
-    : greetingForNow()
+  const hello = dailyGreeting()
+  const tod = timeOfDayLabel()
+  const firstName = isAuthenticated && user?.name ? user.name.split(' ')[0] : ''
 
   const handleSeePrices = (e) => {
     e?.preventDefault?.()
@@ -89,15 +130,37 @@ export default function MobileHome() {
       padding: 'calc(env(safe-area-inset-top) + 16px) 16px calc(120px + env(safe-area-inset-bottom))',
     }}>
 
-      {/* ── Top app bar: brand on the right, just under the Dynamic Island ── */}
+      {/* ── Greeting row + brand chip — same horizontal line ──────────────
+          Daily "Hello" greeting from around the world on the left,
+          "ET · Everywhere Transfers" Liquid Glass chip on the right. */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        height: 36,
-        marginBottom: 22,
+        justifyContent: 'space-between',
+        gap: 12,
+        marginBottom: 24,
       }}>
+        <div style={{ minWidth: 0 }}>
+          {/* Big "Bonjour" — the daily greeting word */}
+          <div style={{
+            fontSize: 26, fontWeight: 800, color: BLACK,
+            letterSpacing: '-0.02em', lineHeight: 1.1,
+            marginBottom: 4,
+          }}>
+            {hello.word}{firstName ? `, ${firstName}` : ''}
+          </div>
+          {/* Language attribution + local time-of-day */}
+          <div style={{
+            fontSize: 11, fontWeight: 700, color: GRAY_500,
+            textTransform: 'uppercase', letterSpacing: '0.12em',
+          }}>
+            {hello.lang} <span style={{ color: '#CFCFCF', margin: '0 6px' }}>·</span> {tod}
+          </div>
+        </div>
+
+        {/* Liquid Glass brand chip */}
         <div style={{
+          flexShrink: 0,
           display: 'inline-flex', alignItems: 'center', gap: 8,
           padding: '6px 12px 6px 6px',
           borderRadius: 999,
@@ -105,7 +168,6 @@ export default function MobileHome() {
           WebkitBackdropFilter: 'blur(18px) saturate(180%)',
           backdropFilter: 'blur(18px) saturate(180%)',
         }}>
-          {/* Mini ET monogram */}
           <span style={{
             width: 26, height: 26, borderRadius: '50%',
             background: BLACK, color: WHITE,
@@ -119,18 +181,14 @@ export default function MobileHome() {
         </div>
       </div>
 
-      {/* ── Greeting + headline ────────────────────────────────────────── */}
-      <div style={{ marginBottom: 22 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>
-          {greeting}
-        </p>
-        <h1 style={{
-          fontSize: 32, lineHeight: 1.08, fontWeight: 800,
-          letterSpacing: '-0.025em',
-        }}>
-          Where are you<br/>headed?
-        </h1>
-      </div>
+      {/* ── Headline ──────────────────────────────────────────────────── */}
+      <h1 style={{
+        fontSize: 32, lineHeight: 1.08, fontWeight: 800,
+        letterSpacing: '-0.025em',
+        marginBottom: 22,
+      }}>
+        Where are you<br/>headed?
+      </h1>
 
       {/* ── Trip type pills — Liquid Glass containers ───────────────────
           Translucent backdrop blur reads through the page background.
