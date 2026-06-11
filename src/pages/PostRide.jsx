@@ -55,9 +55,15 @@ export default function PostRide() {
     )
   }
 
+  // Returns true on a successful API post, false otherwise. Used by
+  // both the legacy form submit handler and the SlideToConfirm widget;
+  // callers decide UI flow based on the boolean result.
   const submit = async (e) => {
-    e.preventDefault()
-    if (!pickup.trim() || !dropoff.trim()) { toast.error('Please enter pickup and drop-off'); return }
+    e?.preventDefault?.()
+    if (!pickup.trim() || !dropoff.trim()) {
+      toast.error('Please enter pickup and drop-off')
+      return false
+    }
     setSubmitting(true)
     try {
       const { data } = await api.post('/ride-requests', {
@@ -70,8 +76,19 @@ export default function PostRide() {
       })
       toast.success('Posted — operators will start bidding shortly')
       navigate(`/ride-request/${data.data.id}`)
+      return true
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Could not post ride')
+      // Surface a useful message — server text first, axios fallback,
+      // then a final generic. Log to console for native debug logs.
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error
+      const code = err?.response?.status
+      const generic = err?.message || 'Could not post ride'
+      const final = serverMsg
+        ? `${serverMsg}${code ? ` (HTTP ${code})` : ''}`
+        : code ? `Server returned HTTP ${code}` : generic
+      console.error('[post-ride] failed:', { code, serverMsg, err })
+      toast.error(final)
+      return false
     } finally {
       setSubmitting(false)
     }
@@ -190,35 +207,22 @@ export default function PostRide() {
 
           {/* iPhone-style slide-to-confirm. Friction prevents accidental
               posts; haptic confirms the commitment at the threshold.
-              Returns false from onConfirm if validation fails → slide
-              springs back, "Posted!" overlay never appears. */}
+              submit() now returns true/false — we forward that result
+              directly so the slide springs back on any failure. */}
           <SlideToConfirm
             label="Slide to post ride"
             doneLabel="Posted!"
             busy={submitting}
             onConfirm={async () => {
-              // Hard-validate before letting the slide complete
               if (!pickup.trim() || !dropoff.trim()) {
                 toast.error('Please enter pickup and drop-off')
-                return false      // signals "validation failed" → spring back
-              }
-              if (!rideDate) {
-                toast.error('Please pick a date')
                 return false
               }
-              if (!pickupTime) {
-                toast.error('Please pick a time')
-                return false
-              }
-
-              // All good — call the real API. If submit() throws, we
-              // also bubble the rejection up so the slide springs back.
-              try {
-                await submit({ preventDefault: () => {} })
-                return true
-              } catch {
-                return false
-              }
+              if (!rideDate)   { toast.error('Please pick a date');  return false }
+              if (!pickupTime) { toast.error('Please pick a time');  return false }
+              // submit() returns true on success, false on any failure.
+              // The toast in submit() reports the actual server reason.
+              return await submit()
             }}
           />
 

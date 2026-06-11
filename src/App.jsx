@@ -259,21 +259,28 @@ function AppContent() {
         {!native && <WhatsAppWidget />}
         <Toaster
           position={native ? 'top-center' : 'top-right'}
+          // On native, push the toast stack below the Dynamic Island so
+          // error messages are actually visible — without this they
+          // render right behind the notch.
+          containerStyle={native ? {
+            top: 'calc(env(safe-area-inset-top) + 18px)',
+          } : undefined}
           toastOptions={{
-            duration: 3600,
+            duration: 4500,
             style: {
               background: '#000',
               color: '#fff',
               fontWeight: 500,
               fontSize: 14,
-              padding: '12px 16px',
-              borderRadius: 12,
-              boxShadow: '0 8px 24px -4px rgba(0,0,0,0.25)',
+              padding: '14px 18px',
+              borderRadius: 14,
+              boxShadow: '0 10px 30px -6px rgba(0,0,0,0.4)',
               fontFamily: "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif",
               maxWidth: 360,
             },
             success: { iconTheme: { primary: '#22c55e', secondary: '#000' } },
             error: {
+              duration: 6000,    // errors stay longer so users can read
               style: { background: '#b91c1c' },
               iconTheme: { primary: '#fff', secondary: '#b91c1c' },
             },
