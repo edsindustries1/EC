@@ -122,6 +122,34 @@ export default function Profile() {
             <FiTrash2 size={13}/> Delete my account
           </button>
         </div>
+
+        {/* About + brand attribution */}
+        <div style={{
+          marginTop: 28, padding: '24px 4px 8px',
+          textAlign: 'center',
+          borderTop: `1px solid ${GRAY_100}`,
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: '-0.01em', color: BLACK, marginBottom: 4 }}>
+            Everywhere Transfers
+          </div>
+          <div style={{ fontSize: 12, color: GRAY_500, marginBottom: 14 }}>
+            Premium chauffeur service
+          </div>
+          <div style={{
+            fontSize: 10, fontWeight: 600, color: GRAY_500,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+          }}>
+            Powered by
+            <a
+              href="https://everydaydigitalsolutions.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: BLACK, fontWeight: 700, textDecoration: 'none', marginLeft: 6 }}
+            >
+              Everyday Digital Solutions
+            </a>
+          </div>
+        </div>
       </div>
 
       {confirmingDelete && (

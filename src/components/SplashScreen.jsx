@@ -249,11 +249,27 @@ function Splash({ fading }) {
         Premium chauffeur service
       </div>
 
+      {/* Powered-by attribution at bottom — fades in last */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 'calc(28px + env(safe-area-inset-bottom))',
+          color: 'rgba(255,255,255,0.45)',
+          fontSize: 'clamp(10px, 2.2vw, 11px)',
+          fontWeight: 600,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          animation: 'et-wordmark-in 700ms 2200ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        }}
+      >
+        Powered by <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>Everyday Digital Solutions</span>
+      </div>
+
       {/* Bottom shimmer line — sense of forward motion */}
       <div
         style={{
           position: 'absolute',
-          bottom: 'calc(56px + env(safe-area-inset-bottom))',
+          bottom: 'calc(76px + env(safe-area-inset-bottom))',
           width: 64,
           height: 2,
           borderRadius: 2,

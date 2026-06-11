@@ -83,20 +83,50 @@ export default function MobileHome() {
       background: WHITE, color: BLACK,
       fontFamily: FONT, letterSpacing: '-0.01em',
       minHeight: '100%',
-      // Top padding extends UNDER the status bar via safe-area inset so
-      // the WebView is truly edge-to-edge. Status bar icons remain
-      // legible against the white background.
-      padding: 'calc(12px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom))',
+      // Extra top padding so content sits cleanly below the Dynamic Island.
+      // safe-area-inset-top covers the status bar; the +16px below adds
+      // breathing room so the brand chip + greeting don't crowd the notch.
+      padding: 'calc(env(safe-area-inset-top) + 16px) 16px calc(120px + env(safe-area-inset-bottom))',
     }}>
 
-      {/* ── Greeting ─────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 16 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+      {/* ── Top app bar: brand on the right, just under the Dynamic Island ── */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        height: 36,
+        marginBottom: 22,
+      }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 12px 6px 6px',
+          borderRadius: 999,
+          background: 'rgba(0, 0, 0, 0.04)',
+          WebkitBackdropFilter: 'blur(18px) saturate(180%)',
+          backdropFilter: 'blur(18px) saturate(180%)',
+        }}>
+          {/* Mini ET monogram */}
+          <span style={{
+            width: 26, height: 26, borderRadius: '50%',
+            background: BLACK, color: WHITE,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, fontWeight: 800, letterSpacing: '-0.02em',
+          }}>ET</span>
+          <span style={{
+            fontSize: 11, fontWeight: 700, color: BLACK,
+            letterSpacing: '0.04em', textTransform: 'uppercase',
+          }}>Everywhere Transfers</span>
+        </div>
+      </div>
+
+      {/* ── Greeting + headline ────────────────────────────────────────── */}
+      <div style={{ marginBottom: 22 }}>
+        <p style={{ fontSize: 12, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>
           {greeting}
         </p>
         <h1 style={{
-          fontSize: 28, lineHeight: 1.1, fontWeight: 700,
-          letterSpacing: '-0.02em', marginTop: 6,
+          fontSize: 32, lineHeight: 1.08, fontWeight: 800,
+          letterSpacing: '-0.025em',
         }}>
           Where are you<br/>headed?
         </h1>
@@ -307,6 +337,17 @@ export default function MobileHome() {
           <div style={{ fontSize: 12, color: GRAY_500, marginTop: 2 }}>24/7 · (718) 658-6000</div>
         </div>
       </a>
+
+      {/* ── Powered by Everyday Digital Solutions ────────────────────────
+          Subtle attribution at the very bottom of the home scroll. */}
+      <div style={{
+        marginTop: 22,
+        textAlign: 'center',
+        fontSize: 10, fontWeight: 600, color: GRAY_500,
+        letterSpacing: '0.1em', textTransform: 'uppercase',
+      }}>
+        Powered by <span style={{ color: BLACK, fontWeight: 700 }}>Everyday Digital Solutions</span>
+      </div>
     </div>
   )
 }

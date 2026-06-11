@@ -146,13 +146,20 @@ export function buildEmailLayout({
         <!-- ── LEGAL FOOTER ─────────────────────────────────── -->
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px;width:100%;margin-top:14px;">
           <tr>
-            <td align="center" style="font-family:${FONT};font-size:11px;color:${GRAY_300};line-height:1.55;">
+            <td align="center" style="font-family:${FONT};font-size:11px;color:${GRAY_300};line-height:1.6;">
               © ${new Date().getFullYear()} Everywhere Transfers &nbsp;·&nbsp;
               <a href="${baseUrl}/privacy" style="color:${GRAY_500};text-decoration:underline;">Privacy</a>
               &nbsp;·&nbsp;
               <a href="${baseUrl}/terms" style="color:${GRAY_500};text-decoration:underline;">Terms</a>
               <br/>
               <span style="color:${GRAY_300};">You're receiving this because you have an account or made a reservation with Everywhere Transfers.</span>
+              <br/>
+              <span style="color:${GRAY_300};font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">
+                Powered by
+                <a href="https://everydaydigitalsolutions.com" style="color:${GRAY_500};text-decoration:none;font-weight:700;">
+                  Everyday Digital Solutions
+                </a>
+              </span>
             </td>
           </tr>
         </table>
