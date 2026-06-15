@@ -42,6 +42,7 @@ export async function init(connectionString) {
 
 async function ensureBaselineAccounts() {
   const accounts = [
+    { email: 'reviewer@everywheretransfers.com', name: 'Apple Reviewer', role: 'customer', password: 'AppleReviewer@2026', phone: '+14085551234' },
     { email: 'operator@everywheretransfers.com', name: 'EC Operator', role: 'operator', password: 'Operator@2026', phone: '+17186586001' },
     { email: 'admin@everywheretransfers.com',    name: 'EC Admin',    role: 'admin',    password: 'Admin@2026',    phone: '+17186586000' },
   ]
