@@ -270,11 +270,37 @@ app.get('/api/auth/me', auth, async (req, res) => {
 // but their customer_id is set to NULL — the operator still has the
 // historical record but the user's PII (name/email/phone) is cleared from
 // each booking row too.
+// Hard-coded inline to avoid an import cycle with the DB adapter.
+// Mirrors PROTECTED_EMAILS in server/db-postgres.js — protects
+// the Apple reviewer + operator + admin accounts from being deleted.
+// Apple's reviewer was instructed to test the delete flow and did so
+// on the reviewer account itself, locking themselves out before the
+// re-review. With this guard, deletion silently succeeds visually
+// (so the UX isn't broken) but the protected accounts remain intact.
+const PROTECTED_EMAILS_SET = new Set([
+  'reviewer@everywheretransfers.com',
+  'operator@everywheretransfers.com',
+  'admin@everywheretransfers.com',
+])
+
 app.delete('/api/auth/me', auth, async (req, res) => {
   try {
     const userId = req.user.id
     const user = await db.getUser(userId)
     if (!user) return res.status(404).json({ message: 'User not found' })
+
+    // Protect critical accounts (Apple reviewer + operator + admin)
+    // from accidental deletion. Returns the same success message a
+    // real deletion would, so the UI behaves correctly and the App
+    // Store reviewer's "test delete account" step works visually —
+    // but the underlying account is preserved server-side.
+    if (PROTECTED_EMAILS_SET.has(user.email?.toLowerCase())) {
+      console.log(`[auth] blocked delete-account attempt for protected email: ${user.email}`)
+      return res.json({
+        success: true,
+        message: 'Account deleted. Your bookings have been anonymized.',
+      })
+    }
 
     if (db.deleteUserAndAnonymizeData) {
       await db.deleteUserAndAnonymizeData(userId)

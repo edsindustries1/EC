@@ -40,21 +40,45 @@ export async function init(connectionString) {
   }
 }
 
+// Emails that can NEVER be deleted or have their password drift.
+// Apple's reviewer was instructed to test the "Delete account" flow
+// (per Guideline 5.1.1(v)) and they did — on the reviewer account
+// itself — which immediately blocked their re-review. This list
+// protects those critical accounts:
+//   - DELETE /api/auth/me refuses to delete them
+//   - ensureBaselineAccounts re-asserts their password on every boot
+//     (upsert, not create-if-missing), so even if they get dropped
+//     from a Railway DB restart they self-heal
+export const PROTECTED_EMAILS = new Set([
+  'reviewer@everywheretransfers.com',
+  'operator@everywheretransfers.com',
+  'admin@everywheretransfers.com',
+])
+
 async function ensureBaselineAccounts() {
   const accounts = [
     { email: 'reviewer@everywheretransfers.com', name: 'Apple Reviewer', role: 'customer', password: 'AppleReviewer@2026', phone: '+14085551234' },
-    { email: 'operator@everywheretransfers.com', name: 'EC Operator', role: 'operator', password: 'Operator@2026', phone: '+17186586001' },
-    { email: 'admin@everywheretransfers.com',    name: 'EC Admin',    role: 'admin',    password: 'Admin@2026',    phone: '+17186586000' },
+    { email: 'operator@everywheretransfers.com', name: 'EC Operator',    role: 'operator', password: 'Operator@2026',    phone: '+17186586001' },
+    { email: 'admin@everywheretransfers.com',    name: 'EC Admin',       role: 'admin',    password: 'Admin@2026',       phone: '+17186586000' },
   ]
   for (const a of accounts) {
+    const hash = bcrypt.hashSync(a.password, 10)
     const { rows } = await pool.query('SELECT id FROM users WHERE email = $1 LIMIT 1', [a.email])
     if (rows.length === 0) {
-      const hash = bcrypt.hashSync(a.password, 10)
+      // Account dropped or never existed — create it
       await pool.query(
         `INSERT INTO users (name, email, password, phone, role) VALUES ($1,$2,$3,$4,$5)`,
         [a.name, a.email, hash, a.phone, a.role]
       )
       console.log(`[db] created baseline ${a.role}: ${a.email}`)
+    } else {
+      // Account exists — re-assert password + role so it self-heals
+      // even if it drifted from manual changes or partial migrations.
+      await pool.query(
+        `UPDATE users SET password = $1, role = $2, name = COALESCE(name, $3) WHERE email = $4`,
+        [hash, a.role, a.name, a.email]
+      )
+      console.log(`[db] re-asserted baseline ${a.role}: ${a.email}`)
     }
   }
 }
