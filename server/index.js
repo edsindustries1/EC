@@ -145,12 +145,38 @@ app.post('/api/auth/request-otp', async (req, res) => {
 })
 
 // 2) Verify code — logs in if user exists, returns signup_token if new
+// Static OTP codes for protected accounts (Apple reviewer + operator + admin).
+// Apple's reviewer has no access to the inbox for reviewer@everywheretransfers.com,
+// so they can't retrieve the real OTP code we email. This backdoor lets them sign
+// in with a known code (123456) without breaking security for real users — only
+// the explicit protected email + exact 123456 combo bypasses the email lookup.
+const REVIEWER_OTP_CODES = {
+  'reviewer@everywheretransfers.com': '123456',
+  'operator@everywheretransfers.com': '123456',
+  'admin@everywheretransfers.com':    '123456',
+}
+
 app.post('/api/auth/verify-otp', async (req, res) => {
   try {
     const email = String(req.body?.email || '').trim().toLowerCase()
     const code = String(req.body?.code || '').trim()
     if (!isValidEmail(email) || !/^\d{6}$/.test(code)) {
       return res.status(400).json({ message: 'Email and 6-digit code required' })
+    }
+
+    // ── Static-OTP backdoor for protected demo accounts ────────────────
+    // Reviewer / operator / admin can sign in with code 123456 without
+    // needing email access. Skips the OTP table lookup entirely.
+    if (REVIEWER_OTP_CODES[email] === code) {
+      const existing = await db.getUserByEmail(email)
+      if (existing) {
+        console.log(`[auth] verify-otp STATIC-OK — ${email}`)
+        const { token, user } = sign(existing)
+        return res.json({ ok: true, token, user })
+      }
+      // Account doesn't exist yet — fall through to the new-user path,
+      // which will issue a signup token. Reviewer accounts are seeded
+      // via ensureBaselineAccounts() on boot so this should never fire.
     }
 
     const otp = await db.getActiveOtp(email)
