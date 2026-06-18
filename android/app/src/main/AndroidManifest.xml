@@ -32,4 +32,16 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Location: used only to autofill the pickup address on the booking
+         form when the user taps the crosshair icon. We never request
+         background location and never track movement. Matches the iOS
+         NSLocationWhenInUseUsageDescription in ios/App/App/Info.plist. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Vibrate: enables haptic feedback we fire on key actions (OTP
+         success, slide-to-confirm threshold, etc.). Matches the
+         @capacitor/haptics plugin contract. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>
