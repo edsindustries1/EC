@@ -266,7 +266,7 @@ app.post('/ec_bridge/trip_status', bridgeAuth, (req, res) => {
 app.post('/ec_bridge/cancel_trip', bridgeAuth, (req, res) => {
   const t = findTrip(req.body || {})
   if (!t) return res.status(404).json({ ok: false, error: 'trip not found' })
-  if (['on_board', 'completed'].includes(t.status)) return res.status(409).json({ ok: false, error: 'trip already under way' })
+  if (['arrived', 'on_board', 'completed', 'no_show'].includes(t.status)) return res.status(409).json({ ok: false, error: 'not_cancellable', state: t.status })
   if (t.status !== 'cancelled') {
     setStatus(t, 'cancelled')
     log(`app cancelled ${t.external_ref}${req.body?.reason ? ` (${req.body.reason})` : ''}`)

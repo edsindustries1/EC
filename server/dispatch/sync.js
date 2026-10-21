@@ -4,6 +4,10 @@
 // trips). Each leg is created in the dispatcher's trip log as a waiting job;
 // dispatchers assign a car exactly as they do for phone bookings. Status comes
 // back by signed webhook, with a periodic poll as a safety net.
+//
+// Every change to a booking's dispatch state runs inside withBookingLock() and
+// re-reads the booking first, so the webhook, the poller and customer actions
+// never overwrite each other (single server process).
 
 import { db } from '../db.js'
 import { bridge, bridgeEnabled, BridgeError } from './bridgeClient.js'
@@ -12,6 +16,9 @@ import { notifyTripUpdate } from './notify.js'
 
 const MAX_SEND_ATTEMPTS = 8
 const FINAL = new Set(['completed', 'cancelled', 'no_show'])
+const FINAL_BOOKING = new Set(['completed', 'cancelled', 'no_show'])
+// Customers may cancel in the app until the driver is at the pickup.
+export const CANCEL_BLOCKING = new Set(['arrived', 'on_board'])
 
 // Dispatch status → status the customer sees on the booking.
 //   waiting   in the trip log, no car yet
@@ -49,12 +56,21 @@ const TEST_EMAILS = new Set([
   ...String(process.env.DISPATCH_TEST_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
 ])
 
-export function isTestBooking(booking) {
-  return process.env.DISPATCH_SEND_TEST_ACCOUNTS !== 'true' && TEST_EMAILS.has(String(booking.email || '').toLowerCase())
+export function isTestEmail(email) {
+  return process.env.DISPATCH_SEND_TEST_ACCOUNTS !== 'true' && TEST_EMAILS.has(String(email || '').toLowerCase())
+}
+
+// Checks both the contact email on the form and the logged-in account's email
+// (a reviewer could type a different contact email).
+async function isTestBooking(booking) {
+  if (isTestEmail(booking.email)) return true
+  if (booking.customer_id == null) return false
+  const user = await db.getUser(booking.customer_id).catch(() => null)
+  return isTestEmail(user?.email)
 }
 
 export function legsOf(booking) {
-  const legs = booking.dispatch_legs
+  const legs = booking?.dispatch_legs
   if (Array.isArray(legs)) return legs
   if (typeof legs === 'string') {
     try { return JSON.parse(legs) } catch { return [] }
@@ -77,6 +93,24 @@ export function customerStatus(legs, fallback = 'confirmed') {
     return legs.some(l => l.status === 'completed') ? 'completed' : CUSTOMER_STATUS[leg.status]
   }
   return CUSTOMER_STATUS[leg.status] || fallback
+}
+
+// Older app builds book round trips without a return time; the return leg
+// then has to be added by the operator.
+function missingReturn(booking) {
+  return booking.trip_type === 'roundtrip' && !(booking.return_date && booking.return_time)
+}
+
+// ── Per-booking lock ─────────────────────────────────────────────────────────
+const locks = new Map()
+function withBookingLock(reference, fn) {
+  const key = String(reference).toUpperCase()
+  const prev = locks.get(key) || Promise.resolve()
+  const run = prev.catch(() => {}).then(fn)
+  const tail = run.catch(() => {})
+  locks.set(key, tail)
+  tail.then(() => { if (locks.get(key) === tail) locks.delete(key) })
+  return run
 }
 
 function buildLegs(booking, coords) {
@@ -105,45 +139,52 @@ function buildLegs(booking, coords) {
 // not lose the booking, so failed sends stay queued for the poller.
 export async function queueBooking(booking) {
   if (!bridgeEnabled()) return booking
-  if (isTestBooking(booking)) {
-    return db.updateBooking(booking.id, { dispatch_state: 'skipped_test' })
-  }
-  if (!dispatchableTypes().includes(booking.vehicle_type)) {
-    return db.updateBooking(booking.id, { dispatch_state: 'not_dispatchable' })
-  }
-  const [pickup, dropoff] = await Promise.all([
-    geocode(booking.pickup).catch(() => null),
-    geocode(booking.dropoff).catch(() => null),
-  ])
-  const coords = { pickup: pickup || {}, dropoff: dropoff || {} }
-  const updated = await db.updateBooking(booking.id, {
-    dispatch_state: 'queued',
-    dispatch_legs: JSON.stringify(buildLegs(booking, coords)),
-    pickup_lat: pickup?.lat ?? null,
-    pickup_lng: pickup?.lng ?? null,
-    dropoff_lat: dropoff?.lat ?? null,
-    dropoff_lng: dropoff?.lng ?? null,
+  const ref = booking.reference
+  const prepared = await withBookingLock(ref, async () => {
+    const fresh = await db.getBookingByRef(ref)
+    if (!fresh || FINAL_BOOKING.has(fresh.status) || legsOf(fresh).length) return fresh
+    if (await isTestBooking(fresh)) return db.updateBooking(fresh.id, { dispatch_state: 'skipped_test' })
+    if (!dispatchableTypes().includes(fresh.vehicle_type)) return db.updateBooking(fresh.id, { dispatch_state: 'not_dispatchable' })
+    const [pickup, dropoff] = await Promise.all([
+      geocode(fresh.pickup).catch(() => null),
+      geocode(fresh.dropoff).catch(() => null),
+    ])
+    const coords = { pickup: pickup || {}, dropoff: dropoff || {} }
+    return db.updateBooking(fresh.id, {
+      dispatch_state: 'queued',
+      dispatch_legs: JSON.stringify(buildLegs(fresh, coords)),
+      pickup_lat: pickup?.lat ?? null,
+      pickup_lng: pickup?.lng ?? null,
+      dropoff_lat: dropoff?.lat ?? null,
+      dropoff_lng: dropoff?.lng ?? null,
+    })
   })
-  return sendPendingLegs(updated)
+  if (!prepared || prepared.dispatch_state !== 'queued') return prepared
+  return sendPendingLegs(ref)
+}
+
+function cleanText(s, max) {
+  return String(s || '').replace(/[<>"'`]/g, '').replace(/\s+/g, ' ').trim().slice(0, max)
 }
 
 function tripPayload(booking, leg) {
   const notes = [
-    booking.flight_number && `Flight ${booking.flight_number}`,
-    Number(booking.child_seats) > 0 && `${booking.child_seats} child seat(s)`,
-    booking.special_requests,
+    missingReturn(booking) && 'ROUND TRIP - return time not given, call customer',
+    booking.flight_number && `Flight ${cleanText(booking.flight_number, 20)}`,
+    Number(booking.child_seats) > 0 && `${Number(booking.child_seats)} child seat(s)`,
+    cleanText(booking.special_requests, 160),
   ].filter(Boolean).join(' | ')
   return {
     external_ref: leg.external_ref,
     booking_reference: booking.reference,
     leg: leg.leg,
-    pickup: leg.pickup,
-    dropoff: leg.dropoff,
+    pickup: { ...leg.pickup, address: cleanText(leg.pickup?.address, 250) },
+    dropoff: leg.dropoff ? { ...leg.dropoff, address: cleanText(leg.dropoff.address, 250) } : null,
     pickup_date: leg.pickup_date,
     pickup_time: leg.pickup_time,
     passengers: Number(booking.passengers) || 1,
     vehicle_type: booking.vehicle_type,
-    passenger: { name: booking.name, phone: booking.phone, email: booking.email },
+    passenger: { name: cleanText(booking.name, 100), phone: cleanText(booking.phone, 30), email: booking.email },
     notes,
     // Only a dispatch-priced fare goes on the trip; a table estimate is left
     // for the dispatcher to price, exactly as with a phone booking.
@@ -151,28 +192,32 @@ function tripPayload(booking, leg) {
   }
 }
 
-export async function sendPendingLegs(booking) {
-  if (!bridgeEnabled() || !booking) return booking
-  const legs = legsOf(booking)
-  let changed = false
-  for (const leg of legs) {
-    if (leg.send === 'sent' || (leg.send === 'failed' && leg.attempts >= MAX_SEND_ATTEMPTS)) continue
-    leg.attempts += 1
-    try {
-      const res = await bridge.createTrip(tripPayload(booking, leg))
-      leg.send = 'sent'
-      leg.trip_id = res.trip.trip_id
-      leg.error = null
-      mergeTrip(leg, res.trip)
-    } catch (e) {
-      leg.error = e.message
-      leg.send = e instanceof BridgeError && !e.retryable ? 'failed' : (leg.attempts >= MAX_SEND_ATTEMPTS ? 'failed' : 'queued')
-      console.error(`[dispatch] send ${leg.external_ref} attempt ${leg.attempts} failed: ${e.message}`)
+// Sends every queued leg of a booking. Takes the reference and re-reads the
+// booking under the lock, so a cancel that happened meanwhile is respected.
+export function sendPendingLegs(reference) {
+  return withBookingLock(reference, async () => {
+    const booking = await db.getBookingByRef(reference)
+    if (!bridgeEnabled() || !booking || FINAL_BOOKING.has(booking.status)) return booking
+    const legs = legsOf(booking)
+    let changed = false
+    for (const leg of legs) {
+      if (leg.send !== 'queued' || FINAL.has(leg.status)) continue
+      leg.attempts += 1
+      try {
+        const res = await bridge.createTrip(tripPayload(booking, leg))
+        leg.send = 'sent'
+        leg.trip_id = res.trip.trip_id
+        leg.error = null
+        mergeTrip(leg, res.trip)
+      } catch (e) {
+        leg.error = e.message
+        leg.send = e instanceof BridgeError && !e.retryable ? 'failed' : (leg.attempts >= MAX_SEND_ATTEMPTS ? 'failed' : 'queued')
+        console.error(`[dispatch] send ${leg.external_ref} attempt ${leg.attempts} failed: ${e.message}`)
+      }
+      changed = true
     }
-    changed = true
-  }
-  if (!changed) return booking
-  return saveLegs(booking, legs)
+    return changed ? saveLegs(booking, legs) : booking
+  })
 }
 
 function dispatchState(legs) {
@@ -187,11 +232,12 @@ function mergeTrip(leg, trip) {
   leg.car_no = trip.car_no ?? leg.car_no ?? null
   leg.driver = trip.driver ?? leg.driver ?? null
   leg.vehicle = trip.vehicle ?? leg.vehicle ?? null
-  leg.location = trip.location ?? leg.location ?? null
+  leg.location = trip.location ?? null
   leg.eta_minutes = trip.eta_minutes ?? null
   leg.fare_total = trip.fare?.total ?? leg.fare_total ?? null
   leg.is_reservation = trip.is_reservation ?? leg.is_reservation
   leg.job_no = trip.job_no ?? leg.job_no ?? null
+  leg.cancelled_by = trip.cancelled_by ?? leg.cancelled_by ?? null
   // Dispatch may know coordinates the app could not geocode.
   if (trip.pickup_coords?.lat != null && leg.pickup && leg.pickup.lat == null) {
     leg.pickup = { ...leg.pickup, lat: Number(trip.pickup_coords.lat), lng: Number(trip.pickup_coords.lng) }
@@ -200,15 +246,20 @@ function mergeTrip(leg, trip) {
   leg.updated_at = trip.updated_at || new Date().toISOString()
 }
 
-async function saveLegs(booking, legs) {
+// Must be called inside the booking lock with a freshly read booking.
+async function saveLegs(booking, legs, extra = {}) {
   const before = booking.status
-  const status = customerStatus(legs, before)
+  const status = extra.status || customerStatus(legs, before)
+  const notes = legs.map(l => l.error).filter(Boolean)
+  if (missingReturn(booking)) notes.push('Round trip booked without a return time: add the return leg in the trip log')
+  if (extra.note) notes.push(extra.note)
   const updated = await db.updateBooking(booking.id, {
     dispatch_legs: JSON.stringify(legs),
     dispatch_state: dispatchState(legs),
-    dispatch_error: legs.map(l => l.error).filter(Boolean).join('; ') || null,
+    dispatch_error: notes.join('; ') || null,
     dispatch_synced_at: new Date().toISOString(),
     status,
+    ...(extra.cancelled_at ? { cancelled_at: extra.cancelled_at } : {}),
   })
   if (status !== before) {
     notifyTripUpdate(updated, activeLeg(legs), before)
@@ -218,43 +269,69 @@ async function saveLegs(booking, legs) {
 }
 
 // Apply a trip status object (from webhook or poll) to whichever booking leg
-// owns it. Out-of-order deliveries are ignored using updated_at.
+// owns it. Out-of-order deliveries are ignored using seq.
 export async function applyTripUpdate(trip) {
   const ref = String(trip.external_ref || '')
   const bookingRef = ref.replace(/-R$/, '')
-  const booking = await db.getBookingByRef(bookingRef)
-  if (!booking) return { matched: false }
-  const legs = legsOf(booking)
-  const leg = legs.find(l => l.external_ref === ref || (trip.trip_id && String(l.trip_id) === String(trip.trip_id)))
-  if (!leg) return { matched: false }
-  // Out-of-order guard: dispatch numbers every change of a trip (seq).
-  if (trip.seq != null && leg.seq != null && Number(trip.seq) < Number(leg.seq)) {
-    return { matched: true, stale: true }
-  }
-  leg.trip_id = leg.trip_id || trip.trip_id
-  leg.send = 'sent'
-  mergeTrip(leg, trip)
-  await saveLegs(booking, legs)
-  return { matched: true }
+  if (!bookingRef) return { matched: false }
+  return withBookingLock(bookingRef, async () => {
+    const booking = await db.getBookingByRef(bookingRef)
+    if (!booking) return { matched: false }
+    const legs = legsOf(booking)
+    const leg = legs.find(l => l.external_ref === ref || (trip.trip_id && String(l.trip_id) === String(trip.trip_id)))
+    if (!leg) return { matched: false }
+    if (trip.seq != null && leg.seq != null && Number(trip.seq) < Number(leg.seq)) {
+      return { matched: true, stale: true }
+    }
+    leg.trip_id = leg.trip_id || trip.trip_id
+    leg.send = 'sent'
+    mergeTrip(leg, trip)
+    await saveLegs(booking, legs)
+    return { matched: true }
+  })
 }
 
-export async function cancelBooking(booking, reason) {
-  const legs = legsOf(booking)
-  // A completed outbound leg does not block cancelling the return leg; a
-  // passenger currently on board does.
-  const blocked = legs.find(l => l.status === 'on_board')
-  if (blocked) throw new BridgeError('This trip is already under way and cannot be cancelled in the app', { retryable: false })
-  for (const leg of legs) {
-    if (FINAL.has(leg.status)) continue
-    if (leg.send === 'sent' && leg.trip_id) {
-      const res = await bridge.cancelTrip({ trip_id: leg.trip_id, external_ref: leg.external_ref, reason })
-      mergeTrip(leg, res.trip)
+// Customer cancel. Legs are cancelled one by one and the result is saved even
+// if a later leg fails, so a partial cancel is never lost.
+export function cancelBooking(reference, reason) {
+  return withBookingLock(reference, async () => {
+    const booking = await db.getBookingByRef(reference)
+    if (!booking) throw new BridgeError('Reservation not found', { retryable: false })
+    if (FINAL_BOOKING.has(booking.status)) throw new BridgeError(`Reservation is already ${booking.status}`, { retryable: false })
+    const legs = legsOf(booking)
+    const now = new Date().toISOString()
+    if (!legs.length) return db.updateBooking(booking.id, { status: 'cancelled', cancelled_at: now })
+    if (legs.some(l => CANCEL_BLOCKING.has(l.status))) {
+      throw new BridgeError('Your driver is already at the pickup. Please call dispatch to cancel.', { retryable: false })
     }
-    leg.status = 'cancelled'
-    leg.send = 'sent'
-  }
-  if (!legs.length) return db.updateBooking(booking.id, { status: 'cancelled' })
-  return saveLegs(booking, legs)
+    let failure = null
+    let note = null
+    for (const leg of legs) {
+      if (FINAL.has(leg.status)) continue
+      if (leg.send === 'sent' && leg.trip_id) {
+        if (!bridgeEnabled()) {
+          note = `Cancelled in the app while dispatch link was off: cancel ${leg.external_ref} in the trip log`
+        } else {
+          try {
+            const res = await bridge.cancelTrip({ trip_id: leg.trip_id, external_ref: leg.external_ref, reason })
+            mergeTrip(leg, res.trip)
+          } catch (e) {
+            failure = e.status === 409
+              ? new BridgeError('Your driver is already on the way to the pickup. Please call dispatch to cancel.', { retryable: false })
+              : e
+            break
+          }
+        }
+      }
+      leg.status = 'cancelled'
+      leg.cancelled_by = 'customer'
+      leg.send = 'sent'
+    }
+    const allClosed = legs.every(l => FINAL.has(l.status))
+    const saved = await saveLegs(booking, legs, { note, cancelled_at: allClosed ? now : undefined })
+    if (failure) throw failure
+    return saved
+  })
 }
 
 // Safety net: retry unsent legs and refresh live trips the webhook may have
@@ -264,28 +341,33 @@ export async function pollOnce() {
   if (polling || !bridgeEnabled()) return
   polling = true
   try {
-    const bookings = await db.listBookings({})
-    const staleBefore = Date.now() - 90 * 1000
-    for (const booking of bookings) {
+    const candidates = (await db.listBookings({})).filter(b => legsOf(b).length && !FINAL_BOOKING.has(b.status))
+    for (const { reference } of candidates) {
+      const booking = await db.getBookingByRef(reference)
       const legs = legsOf(booking)
-      if (!legs.length) continue
-      if (legs.some(l => l.send === 'queued')) {
-        await sendPendingLegs(booking)
+      if (!booking || FINAL_BOOKING.has(booking.status)) continue
+      if (legs.some(l => l.send === 'queued' && !FINAL.has(l.status))) {
+        await sendPendingLegs(reference)
         continue
       }
-      const live = legs.filter(l => l.send === 'sent' && l.trip_id && !FINAL.has(l.status))
-      if (!live.length) continue
       const synced = booking.dispatch_synced_at ? new Date(booking.dispatch_synced_at).getTime() : 0
-      if (synced > staleBefore) continue
-      for (const leg of live) {
-        try {
-          const res = await bridge.tripStatus({ trip_id: leg.trip_id, external_ref: leg.external_ref })
-          mergeTrip(leg, res.trip)
-        } catch (e) {
-          console.error(`[dispatch] poll ${leg.external_ref} failed: ${e.message}`)
+      if (synced > Date.now() - 90 * 1000) continue
+      await withBookingLock(reference, async () => {
+        const fresh = await db.getBookingByRef(reference)
+        if (!fresh || FINAL_BOOKING.has(fresh.status)) return
+        const freshLegs = legsOf(fresh)
+        const live = freshLegs.filter(l => l.send === 'sent' && l.trip_id && !FINAL.has(l.status))
+        if (!live.length) return
+        for (const leg of live) {
+          try {
+            const res = await bridge.tripStatus({ trip_id: leg.trip_id, external_ref: leg.external_ref })
+            if (res.trip?.seq == null || leg.seq == null || Number(res.trip.seq) >= Number(leg.seq)) mergeTrip(leg, res.trip)
+          } catch (e) {
+            console.error(`[dispatch] poll ${leg.external_ref} failed: ${e.message}`)
+          }
         }
-      }
-      await saveLegs(booking, legs)
+        await saveLegs(fresh, freshLegs)
+      })
     }
   } finally {
     polling = false
@@ -299,5 +381,7 @@ export function startPoller() {
   }
   const seconds = Number(process.env.DISPATCH_POLL_SECONDS) || 60
   console.log(`[dispatch] bridge enabled → ${process.env.DISPATCH_BRIDGE_URL}, polling every ${seconds}s`)
+  if (!process.env.DISPATCH_WEBHOOK_SECRET) console.warn('[dispatch] DISPATCH_WEBHOOK_SECRET not set: status webhooks will be rejected (poll only)')
+  if (!process.env.GOOGLE_PLACES_API_KEY && !process.env.VITE_GOOGLE_MAPS_API_KEY) console.warn('[dispatch] no Google key: trips are sent without coordinates')
   setInterval(() => pollOnce().catch(e => console.error('[dispatch] poll error:', e.message)), seconds * 1000)
 }

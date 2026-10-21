@@ -137,6 +137,30 @@ const bigLive = await live(big.data.data.reference, token)
 const inLog = (await mockState()).trips.some(t => t.external_ref === big.data.data.reference)
 check('coach not dispatched', !inLog && bigLive.dispatch === 'not_dispatchable', bigLive.dispatch)
 
+// 9b. Review fixes.
+const pub = await api(`/bookings/${ref}`)
+check('public lookup hides dispatch data', pub.status === 200 && pub.data.data && !('dispatch_legs' in pub.data.data) && !('pickup_lat' in pub.data.data))
+
+const arr = await api('/bookings', { method: 'POST', token, body: { pickup: 'Times Square, Manhattan, NY', dropoff: 'LaGuardia Airport, Queens, NY', pickup_date: tomorrow, pickup_time: '07:00', passengers: 1, vehicle_type: 'sedan', name: 'Arrive Test', email: CUSTOMER, phone: '2125550100' } })
+const tA = await waitFor(async () => (await mockState()).trips.find(t => t.external_ref === arr.data.data.reference), 'arrive-test in trip log')
+await sim(tA.id, 'send', { car_no: '102' }); await sim(tA.id, 'accept'); await sim(tA.id, 'arrived')
+await waitFor(async () => (await live(arr.data.data.reference, token))?.status === 'arrived', 'arrived')
+const lateCancel = await api(`/bookings/${arr.data.data.reference}/cancel`, { method: 'POST', token })
+const lateLive = await live(arr.data.data.reference, token)
+check('cancel blocked once driver arrived', lateCancel.status === 409 && lateLive.can_cancel === false, lateCancel.data.message)
+
+const oldRt = await api('/bookings', { method: 'POST', token, body: { pickup: 'Brooklyn, NY', dropoff: 'JFK Airport, Queens, NY', pickup_date: tomorrow, pickup_time: '06:00', passengers: 1, vehicle_type: 'sedan', trip_type: 'roundtrip', name: 'Old Build', email: CUSTOMER, phone: '2125550100' } })
+await waitFor(async () => (await mockState()).trips.find(t => t.external_ref === oldRt.data.data.reference), 'old round trip in log')
+const opTok = (await api('/auth/login', { method: 'POST', body: { email: 'operator@everywheretransfers.com', password: process.env.E2E_OPERATOR_PASSWORD || 'operator123' } })).data.token
+const opRow = (await api('/operator/dispatch', { token: opTok })).data.data.find(b => b.reference === oldRt.data.data.reference)
+const oldNote = (await mockState()).trips.find(t => t.external_ref === oldRt.data.data.reference).notes
+check('round trip without return time: flagged for operator', opRow.legs.length === 1 && /return/i.test(opRow.dispatch_error || '') && /ROUND TRIP/.test(oldNote))
+
+const sneaky = await api('/bookings', { method: 'POST', token, body: { pickup: 'Queens, NY', dropoff: 'Manhattan, NY', pickup_date: tomorrow, pickup_time: '09:00', passengers: 1, vehicle_type: 'sedan', name: 'Reviewer Contact', email: 'reviewer@everywheretransfers.com', phone: '2125550100' } })
+await sleep(1500)
+const sneakyRow = (await api('/operator/dispatch', { token: opTok })).data.data.find(b => b.reference === sneaky.data.data.reference)
+check('reviewer contact email never dispatched', sneakyRow.dispatch_state === 'skipped_test' && !(await mockState()).trips.some(t => t.external_ref === sneaky.data.data.reference))
+
 // 10. Security: forged webhook rejected; live view needs owner/email.
 const forged = await fetch(`${API}/dispatch/webhook`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-EC-Key': 'ec-app', 'X-EC-Timestamp': String(Math.floor(Date.now() / 1000)), 'X-EC-Signature': 'ab'.repeat(32) }, body: JSON.stringify({ type: 'trip.status', trip: { external_ref: ref2, status: 'completed' } }) })
 check('forged webhook rejected (401)', forged.status === 401)

@@ -5,10 +5,20 @@ import { bridgeConfig, bridgeEnabled } from './bridgeClient.js'
 import { verify } from './signing.js'
 import {
   applyTripUpdate, cancelBooking, customerStatus, legsOf, activeLeg,
-  queueBooking, sendPendingLegs,
+  queueBooking, sendPendingLegs, CANCEL_BLOCKING,
 } from './sync.js'
 
 const FINAL_BOOKING = new Set(['completed', 'cancelled', 'no_show'])
+
+// Booking row without dispatch internals (driver phone, live location, trip
+// ids, errors). Use for every customer-facing response that returns a booking.
+const PRIVATE_FIELDS = ['dispatch_legs', 'dispatch_error', 'dispatch_synced_at', 'pickup_lat', 'pickup_lng', 'dropoff_lat', 'dropoff_lng']
+export function withoutDispatch(booking) {
+  if (!booking) return booking
+  const out = { ...booking }
+  for (const k of PRIVATE_FIELDS) delete out[k]
+  return out
+}
 
 // Driver phone numbers are hidden unless the business opts in; customers call
 // the dispatch line instead.
@@ -44,7 +54,7 @@ function liveView(booking) {
     dispatch: bridgeEnabled() ? (booking.dispatch_state || 'not_sent') : 'off',
     legs: legs.map(publicLeg),
     active_leg: active ? active.leg : null,
-    can_cancel: !FINAL_BOOKING.has(booking.status) && !legs.some(l => l.status === 'on_board'),
+    can_cancel: bridgeEnabled() && !FINAL_BOOKING.has(booking.status) && !legs.some(l => CANCEL_BLOCKING.has(l.status)),
   }
 }
 
@@ -58,6 +68,10 @@ export function registerDispatchRoutes(app, { auth, role, optionalUser }) {
   // Dispatch → app status push. Signed with the shared webhook secret.
   app.post('/api/dispatch/webhook', async (req, res) => {
     const { keyId, webhookSecret } = bridgeConfig()
+    if (!webhookSecret) {
+      console.error('[dispatch] webhook received but DISPATCH_WEBHOOK_SECRET is not set')
+      return res.status(503).json({ ok: false, error: 'webhook not configured' })
+    }
     const reason = verify({
       keyId,
       secret: webhookSecret,
@@ -100,9 +114,10 @@ export function registerDispatchRoutes(app, { auth, role, optionalUser }) {
       if (!booking) return res.status(404).json({ message: 'Reservation not found' })
       if (!canView(booking, req.user, null)) return res.status(403).json({ message: 'Not allowed' })
       if (FINAL_BOOKING.has(booking.status)) return res.status(409).json({ message: `Reservation is already ${booking.status}` })
-      const reason = String(req.body?.reason || 'Cancelled by customer in app').slice(0, 200)
-      let updated = await cancelBooking(booking, reason)
-      updated = await db.updateBooking(updated.id, { cancelled_at: new Date().toISOString() })
+      // With the integration off the app keeps its old behaviour: no in-app cancel.
+      if (!bridgeEnabled()) return res.status(409).json({ message: 'Please call dispatch to cancel this reservation' })
+      const reason = String(req.body?.reason || 'Cancelled by customer in app').replace(/[<>"'`]/g, '').slice(0, 200)
+      const updated = await cancelBooking(booking.reference, reason)
       res.json({ success: true, data: liveView(updated) })
     } catch (e) {
       const status = e.retryable === false ? 409 : 502
@@ -152,7 +167,8 @@ export function registerDispatchRoutes(app, { auth, role, optionalUser }) {
         updated = await queueBooking(booking)
       } else {
         for (const l of legs) if (l.send !== 'sent') { l.send = 'queued'; l.attempts = 0; l.error = null }
-        updated = await sendPendingLegs(await db.updateBooking(booking.id, { dispatch_legs: JSON.stringify(legs) }))
+        await db.updateBooking(booking.id, { dispatch_legs: JSON.stringify(legs) })
+        updated = await sendPendingLegs(booking.reference)
       }
       res.json({ success: true, data: { reference: updated.reference, status: customerStatus(legsOf(updated), updated.status), dispatch_state: updated.dispatch_state, dispatch_error: updated.dispatch_error } })
     } catch (e) {

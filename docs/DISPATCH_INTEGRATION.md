@@ -39,7 +39,7 @@ npm run demo:dispatch -- --reset
 5. Watch the reservation page: the status, driver card and moving map update on their own.
 6. Operator view: http://localhost:3001/operator/dispatch as `operator@everywheretransfers.com` / `operator123`.
 
-Automated end-to-end check (with the demo running): `npm run test:dispatch`. It runs 27 checks: quote, round trip, duplicates, the full driver flow, customer and dispatcher cancel, coach not dispatched, forged webhook rejected, and access control.
+Automated end-to-end check (with the demo running): `npm run test:dispatch`. It runs 31 checks: quote, round trip, duplicates, the full driver flow, customer and dispatcher cancel, no cancel once the driver has arrived, coach not dispatched, a round trip from an older app build flagged, a reviewer contact email not dispatched, the public lookup hiding dispatch data, forged webhook rejected, and access control.
 
 ## Settings (app server)
 
@@ -48,7 +48,7 @@ Automated end-to-end check (with the demo running): `npm run test:dispatch`. It 
 | `DISPATCH_ENABLED` | `true` turns the integration on. Off by default. |
 | `DISPATCH_BRIDGE_URL` | Dispatch base URL, for example `https://everywheretrans.com` (staging host first) |
 | `DISPATCH_BRIDGE_KEY` / `DISPATCH_BRIDGE_SECRET` | Must match `key_id` / `secret` in the dispatch `ec_bridge.php` |
-| `DISPATCH_WEBHOOK_SECRET` | Must match `webhook_secret` there |
+| `DISPATCH_WEBHOOK_SECRET` | Must match `webhook_secret` there. Required: without it webhooks are refused and status only arrives by polling. |
 | `DISPATCH_VEHICLE_TYPES` | Types sent to dispatch (default `sedan,suv,sprinter_van`). Others stay on the operator flow. |
 | `DISPATCH_POLL_SECONDS` | Safety-net poll interval (default 60) |
 | `DISPATCH_SHOW_DRIVER_PHONE` | `true` shows the driver's phone to customers (default: dispatch number only) |
@@ -60,7 +60,9 @@ Automated end-to-end check (with the demo running): `npm run test:dispatch`. It 
 - **Never lose a booking:** if dispatch is down, the booking is saved and queued. The poller resends it, and duplicates are prevented by the booking reference.
 - **Round trips:** two trip-log jobs, `REF` and `REF-R`. The customer can cancel the return leg after riding the outbound.
 - **Fare:** the dispatch fare is shown as a fixed fare and written on the trip. If dispatch could not price a trip, the app shows its own estimate and the trip-log fare is left for the dispatcher, as with a phone booking.
-- **Cancel:** customers can cancel until the driver has arrived. After that the app tells them to call dispatch.
+- **Cancel:** customers can cancel until the driver has arrived. After that the app tells them to call dispatch. With the integration off there is no in-app cancel, as before.
+- **Round trips from older app builds** (no return time): the outbound leg is sent with a ROUND TRIP note, and the booking is flagged on the operator Dispatch page.
+- **Quotes:** cached for 5 minutes per route, at most 30 dispatch quotes a minute per visitor, and a 4-second timeout; otherwise the app's own table is used. Production needs the Google key so trips are sent with coordinates.
 - **App Store review:** reviewer, operator and admin accounts never create jobs in live dispatch.
 
 ## Still to do before going live

@@ -47,6 +47,8 @@ export default function BookTrip() {
   const [flightNumber, setFlightNumber]       = useState('')
   const [childSeats, setChildSeats]           = useState(0)
   const [specialRequests, setSpecialRequests] = useState('')
+  const [returnDate, setReturnDate]           = useState('')
+  const [returnTime, setReturnTime]           = useState('')
   const [agree, setAgree]                     = useState(false)
 
   const [estimate, setEstimate]   = useState({ low: null, high: null, point: null })
@@ -70,6 +72,11 @@ export default function BookTrip() {
     if (!name.trim())  e.name  = 'Required'
     if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) e.email = 'Valid email required'
     if (!phone.trim() || phone.replace(/\D/g, '').length < 7) e.phone = 'Valid phone required'
+    if (trip === 'roundtrip') {
+      if (!returnDate) e.returnDate = 'Required for a round trip'
+      if (!returnTime) e.returnTime = 'Required for a round trip'
+      if (returnDate && date && `${returnDate} ${returnTime}` <= `${date} ${time}`) e.returnDate = 'Return must be after pickup'
+    }
     if (!agree) e.agree = 'Please agree to the terms'
     setErrors(e)
     return Object.keys(e).length === 0
@@ -86,6 +93,8 @@ export default function BookTrip() {
         passengers: pax,
         vehicle_type: vehicleId,
         trip_type: trip,
+        return_date: trip === 'roundtrip' ? returnDate : undefined,
+        return_time: trip === 'roundtrip' ? returnTime : undefined,
         name, email, phone,
         flight_number: flightNumber || undefined,
         child_seats: childSeats || 0,
@@ -156,6 +165,18 @@ export default function BookTrip() {
                 Your reservation reference will be emailed to this address.
               </p>
             </Card>
+
+            {trip === 'roundtrip' && (
+              <Card title="Return trip">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input label="Return date" type="date" value={returnDate} onChange={setReturnDate} error={errors.returnDate} />
+                  <Input label="Return pickup time" type="time" value={returnTime} onChange={setReturnTime} error={errors.returnTime} />
+                </div>
+                <p style={{ fontSize: 12, color: GRAY_500, marginTop: 10 }}>
+                  We pick you up at {to || 'your drop-off'} and bring you back to {from || 'your pickup'}.
+                </p>
+              </Card>
+            )}
 
             <Card title="Trip preferences">
               {showFlightField && (

@@ -12,7 +12,7 @@ export function bridgeConfig() {
     baseUrl: (process.env.DISPATCH_BRIDGE_URL || '').replace(/\/$/, ''),
     keyId: process.env.DISPATCH_BRIDGE_KEY || '',
     secret: process.env.DISPATCH_BRIDGE_SECRET || '',
-    webhookSecret: process.env.DISPATCH_WEBHOOK_SECRET || process.env.DISPATCH_BRIDGE_SECRET || '',
+    webhookSecret: process.env.DISPATCH_WEBHOOK_SECRET || '',
   }
 }
 
@@ -29,12 +29,12 @@ export class BridgeError extends Error {
   }
 }
 
-async function call(action, payload) {
+async function call(action, payload, timeoutMs = TIMEOUT_MS) {
   const { baseUrl, keyId, secret } = bridgeConfig()
   const path = `/ec_bridge/${action}`
   const body = JSON.stringify(payload)
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   let res
   try {
     res = await fetch(baseUrl + path, {
@@ -55,15 +55,17 @@ async function call(action, payload) {
     throw new BridgeError(`dispatch returned non-JSON (HTTP ${res.status})`, { status: res.status })
   }
   if (!res.ok || !data.ok) {
-    // 4xx means our request is wrong: retrying the same payload will not help.
-    const retryable = res.status >= 500 || res.status === 429
+    // Other 4xx mean our request is wrong: retrying the same payload will not help.
+    // 409 (creation in progress, replayed request) and 429 clear up on retry.
+    const retryable = res.status >= 500 || res.status === 429 || res.status === 409
     throw new BridgeError(data.error || `dispatch error (HTTP ${res.status})`, { retryable, status: res.status })
   }
   return data
 }
 
 export const bridge = {
-  quote: (payload) => call('quote', payload),
+  // Quotes sit on the customer's search path: give up fast and use the table.
+  quote: (payload) => call('quote', payload, 4000),
   createTrip: (payload) => call('create_trip', payload),
   tripStatus: (payload) => call('trip_status', payload),
   cancelTrip: (payload) => call('cancel_trip', payload),

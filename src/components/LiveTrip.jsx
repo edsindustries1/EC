@@ -60,13 +60,17 @@ export default function LiveTrip({ reference, email, onChange }) {
     const tick = async () => {
       const v = await load()
       if (stopped) return
-      if (v && !['completed', 'cancelled', 'no_show'].includes(v.status)) timer = setTimeout(tick, POLL_MS)
+      // Keep polling only while the trip is tracked by dispatch and still open.
+      const tracked = v && v.dispatch !== 'off' && v.legs?.length
+      if (tracked && !['completed', 'cancelled', 'no_show'].includes(v.status)) timer = setTimeout(tick, POLL_MS)
     }
     tick()
     return () => { stopped = true; clearTimeout(timer) }
   }, [load])
 
-  useEffect(() => { if (live && onChange) onChange(live) }, [live, onChange])
+  useEffect(() => {
+    if (live && onChange && live.dispatch !== 'off' && live.legs?.length) onChange(live)
+  }, [live, onChange])
 
   if (!live || live.dispatch === 'off' || !live.legs?.length) return null
 

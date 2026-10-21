@@ -53,7 +53,7 @@ export default function OperatorDispatch() {
   }, [])
 
   const filtered = useMemo(() => rows.filter(r => {
-    if (tab === 'attention') return ['failed', 'queued', 'partial'].includes(r.dispatch_state) || (!r.dispatch_state && !['completed', 'cancelled'].includes(r.status))
+    if (tab === 'attention') return ['failed', 'queued', 'partial'].includes(r.dispatch_state) || !!r.dispatch_error || (!r.dispatch_state && !['completed', 'cancelled'].includes(r.status))
     if (tab === 'active') return !['completed', 'cancelled', 'no_show'].includes(r.status)
     return true
   }), [rows, tab])
@@ -117,6 +117,9 @@ export default function OperatorDispatch() {
                     )}
                   </div>
                 </div>
+                {r.dispatch_error && (
+                  <div style={{ marginTop: 8, fontSize: 12, color: '#991b1b' }}>{r.dispatch_error}</div>
+                )}
                 {r.legs?.length > 0 && (
                   <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {r.legs.map(l => (

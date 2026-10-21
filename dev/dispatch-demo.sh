@@ -16,6 +16,7 @@ export DISPATCH_ENABLED=true
 export DISPATCH_BRIDGE_URL=http://localhost:4100
 export DISPATCH_BRIDGE_KEY=ec-app
 export DISPATCH_BRIDGE_SECRET=dev-bridge-secret
+export DISPATCH_WEBHOOK_SECRET=dev-bridge-secret
 export DISPATCH_POLL_SECONDS=20
 unset DATABASE_URL
 

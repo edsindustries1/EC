@@ -15,8 +15,8 @@ import {
   sendPaymentLinkEmail,
 } from './emailService.js'
 import * as Payroc from './payroc.js'
-import { registerDispatchRoutes } from './dispatch/routes.js'
-import { queueBooking, startPoller } from './dispatch/sync.js'
+import { registerDispatchRoutes, withoutDispatch } from './dispatch/routes.js'
+import { queueBooking, startPoller, isTestEmail } from './dispatch/sync.js'
 import { dispatchQuote } from './dispatch/quote.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -651,7 +651,7 @@ app.post('/api/quote/estimate', async (req, res) => {
     const { pickup, dropoff, pickup_date, pickup_time, passengers } = req.body
     if (!pickup || !dropoff) return res.status(400).json({ message: 'Pickup and dropoff required' })
     const routeType = detectRouteType(pickup, dropoff)
-    const dispatchPrices = await dispatchQuote({ pickup, dropoff, pickup_date, pickup_time, passengers })
+    const dispatchPrices = await dispatchQuote({ pickup, dropoff, pickup_date, pickup_time, passengers }, { ip: String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip })
     const options = Object.keys(PRICE_TABLE).map(v => {
       const d = dispatchPrices?.[v]
       return d
@@ -677,7 +677,10 @@ app.post('/api/bookings', auth, async (req, res) => {
     if (!name || !email || !phone) return res.status(400).json({ message: 'Contact info required' })
 
     const routeType = detectRouteType(pickup, dropoff)
-    const dispatchPrices = await dispatchQuote({ pickup, dropoff, pickup_date, pickup_time, passengers })
+    // Test/review accounts never touch live dispatch, not even for a price.
+    const account = await db.getUser(req.user.id)
+    const testAccount = isTestEmail(account?.email) || isTestEmail(email)
+    const dispatchPrices = testAccount ? null : await dispatchQuote({ pickup, dropoff, pickup_date, pickup_time, passengers })
     const dispatchPrice = dispatchPrices?.[vehicle_type || 'sedan']?.price
     const price = dispatchPrice
       ? { low: dispatchPrice, high: dispatchPrice, point: dispatchPrice }
@@ -746,7 +749,7 @@ app.get('/api/bookings/:ref', async (req, res) => {
     if (email && booking.email.toLowerCase() !== String(email).toLowerCase()) {
       return res.status(403).json({ message: 'Email does not match this reservation' })
     }
-    res.json({ success: true, data: booking })
+    res.json({ success: true, data: withoutDispatch(booking) })
   } catch (e) {
     res.status(500).json({ message: 'Lookup failed', error: e.message })
   }
@@ -774,7 +777,7 @@ app.get('/api/my-trips', auth, async (req, res) => {
     const bookings = (allBookings || []).filter(b => b.email?.toLowerCase() === email)
     const quotes = (allQuotes || []).filter(q => q.customer_email?.toLowerCase() === email)
     const items = [
-      ...bookings.map(b => ({ kind: 'booking', ...b })),
+      ...bookings.map(b => ({ kind: 'booking', ...withoutDispatch(b) })),
       ...quotes.map(q => ({ kind: 'quote_request', ...q })),
     ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     res.json({ success: true, data: items })
