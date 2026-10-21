@@ -63,7 +63,7 @@ export default function MyRides() {
   const filtered = useMemo(() => {
     if (filter === 'all') return trips
     return trips.filter(t => {
-      const isPast = t.status === 'completed' || t.status === 'cancelled'
+      const isPast = ['completed', 'cancelled', 'no_show'].includes(t.status)
       return filter === 'past' ? isPast : !isPast
     })
   }, [trips, filter])

@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # OS
 Thumbs.db
+
+# Local mock dispatch data
+dev/mock-dispatch/data.json

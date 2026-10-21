@@ -99,6 +99,8 @@ export const statusColour = (status) => {
     confirmed:   { bg: '#dcfce7', fg: '#166534' },
     assigned:    { bg: '#e0e7ff', fg: '#3730a3' },
     in_progress: { bg: '#fce7f3', fg: '#9d174d' },
+    arrived:     { bg: '#e0e7ff', fg: '#3730a3' },
+    no_show:     { bg: '#fee2e2', fg: '#991b1b' },
     completed:   { bg: GRAY_100,  fg: BLACK     },
     cancelled:   { bg: '#fee2e2', fg: '#991b1b' },
     available:   { bg: '#dcfce7', fg: '#166534' },

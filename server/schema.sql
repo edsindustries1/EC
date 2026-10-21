@@ -146,3 +146,18 @@ CREATE TABLE IF NOT EXISTS otp_codes (
 );
 CREATE INDEX IF NOT EXISTS idx_otp_codes_email_created ON otp_codes(email, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_otp_codes_expires_at    ON otp_codes(expires_at);
+
+-- Dispatch integration (everywheretrans.com trip log). Each booking leg is a
+-- dispatch trip; dispatch_legs holds per-leg trip id, status, driver, vehicle
+-- and last known location. Idempotent — safe to re-run on every boot.
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS dispatch_state      TEXT;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS dispatch_legs       JSONB;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS dispatch_error      TEXT;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS dispatch_synced_at  TIMESTAMPTZ;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_lat          NUMERIC;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_lng          NUMERIC;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS dropoff_lat         NUMERIC;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS dropoff_lng         NUMERIC;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancelled_at        TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_bookings_dispatch_state ON bookings(dispatch_state);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS price_source        TEXT;

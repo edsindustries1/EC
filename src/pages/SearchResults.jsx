@@ -44,7 +44,7 @@ export default function SearchResults() {
   useEffect(() => {
     let active = true
     setLoading(true)
-    api.post('/quote/estimate', { pickup: from, dropoff: to })
+    api.post('/quote/estimate', { pickup: from, dropoff: to, pickup_date: date, pickup_time: time, passengers: pax })
       .then(({ data }) => {
         if (!active) return
         const opts = data?.data?.options || []
@@ -55,7 +55,7 @@ export default function SearchResults() {
       .catch((e) => setErr(e?.response?.data?.message || 'Could not load pricing'))
       .finally(() => active && setLoading(false))
     return () => { active = false }
-  }, [from, to, pax])
+  }, [from, to, date, time, pax])
 
   const select = (opt) => {
     const q = new URLSearchParams({ from, to, date, time, pax: String(pax), trip, vehicle: opt.vehicle_type, price: String(opt.point) })
@@ -162,9 +162,19 @@ function VehicleCard({ opt, onSelect, pax }) {
             <div style={{ color: GRAY_500, fontSize: 13, marginTop: 2 }}>{meta.examples}</div>
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>From</div>
-            <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1 }}>${opt.low}</div>
-            <div style={{ fontSize: 11, color: GRAY_500, marginTop: 2 }}>${opt.low}–${opt.high} est.</div>
+            {opt.source === 'dispatch' ? (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Fixed fare</div>
+                <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1 }}>${opt.point}</div>
+                <div style={{ fontSize: 11, color: GRAY_500, marginTop: 2 }}>Confirmed fare</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: GRAY_500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>From</div>
+                <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1 }}>${opt.low}</div>
+                <div style={{ fontSize: 11, color: GRAY_500, marginTop: 2 }}>${opt.low}–${opt.high} est.</div>
+              </>
+            )}
           </div>
         </div>
 

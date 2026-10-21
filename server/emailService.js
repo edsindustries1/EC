@@ -5,6 +5,7 @@ import { buildOperatorNotificationEmail } from './emailTemplates/operatorNotific
 import { buildOtpEmail } from './emailTemplates/otpCode.js'
 import { buildBidReceivedEmail } from './emailTemplates/bidReceived.js'
 import { buildPaymentLinkEmail } from './emailTemplates/paymentLink.js'
+import { buildTripUpdateEmail } from './emailTemplates/tripUpdate.js'
 
 const BASE_URL       = process.env.BASE_URL    || 'https://everywheretransfers.com'
 const FROM_EMAIL     = process.env.FROM_EMAIL  || 'reservations@everywheretransfers.com'
@@ -85,6 +86,15 @@ export async function sendPaymentLinkEmail({ to, customerName, amount, currency,
   const { subject, html } = buildPaymentLinkEmail({ customerName, amount, currency, description, paymentUrl, expiresAt, operatorName })
   const id = await send({ to, subject, html })
   if (id) console.log('[email] Payment link sent to', to, id)
+  return id
+}
+
+export async function sendTripUpdateEmail({ to, status, name, reference, pickup, dropoff, leg }) {
+  if (!to) return null
+  const built = buildTripUpdateEmail({ status, name, reference, pickup, dropoff, leg }, BASE_URL)
+  if (!built) return null
+  const id = await send({ to, subject: built.subject, html: built.html })
+  if (id) console.log(`[email] Trip ${status} sent to`, to, id)
   return id
 }
 

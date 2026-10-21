@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Trip Log</title>
+<style>
+  :root { --bg:#f3f4f6; --panel:#fff; --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --waiting:#fff7d6; --res:#dbeafe; --offered:#ffedd5; --assigned:#dcfce7; --arrived:#bbf7d0; --onboard:#a7f3d0; --done:#f3f4f6; --cancel:#fee2e2; --accent:#1f2937; }
+  * { box-sizing:border-box }
+  body { margin:0; font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink) }
+  header { background:#0f172a; color:#fff; padding:12px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap }
+  header h1 { font-size:16px; margin:0; font-weight:700 }
+  header .tag { font-size:11px; background:#f59e0b; color:#111; padding:2px 8px; border-radius:999px; font-weight:700 }
+  header .meta { margin-left:auto; font-size:12px; color:#cbd5e1 }
+  main { padding:14px 18px; display:grid; grid-template-columns: 1fr 320px; gap:14px }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr } }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden }
+  .panel h2 { font-size:13px; margin:0; padding:10px 12px; border-bottom:1px solid var(--line); background:#f9fafb; display:flex; justify-content:space-between }
+  .scroll { overflow-x:auto }
+  table { width:100%; border-collapse:collapse; min-width:980px }
+  th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); padding:8px; border-bottom:1px solid var(--line); background:#f9fafb; white-space:nowrap }
+  td { padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top }
+  tr.waiting td { background:var(--waiting) } tr.scheduled td { background:var(--res) } tr.offered td { background:var(--offered) }
+  tr.assigned td { background:var(--assigned) } tr.arrived td { background:var(--arrived) } tr.on_board td { background:var(--onboard) }
+  tr.completed td, tr.no_show td { background:var(--done); color:var(--muted) } tr.cancelled td { background:var(--cancel); color:var(--muted) }
+  .app { display:inline-block; font-size:10px; font-weight:800; background:#111827; color:#fff; padding:1px 6px; border-radius:4px; margin-right:4px }
+  .car { width:70px; padding:4px 6px; border:1px solid #9ca3af; border-radius:4px; font:inherit }
+  .status { font-weight:700; white-space:nowrap }
+  .btns { display:flex; flex-wrap:wrap; gap:4px }
+  button { font:inherit; font-size:12px; padding:3px 8px; border-radius:4px; border:1px solid #9ca3af; background:#fff; cursor:pointer }
+  button.go { background:var(--accent); color:#fff; border-color:var(--accent) }
+  button.bad { color:#b91c1c; border-color:#fca5a5 }
+  .muted { color:var(--muted) }
+  .log { font:12px/1.5 ui-monospace,Menlo,monospace; padding:10px 12px; max-height:520px; overflow:auto; white-space:pre-wrap }
+  .fleet { padding:10px 12px; font-size:12px }
+  .fleet div { padding:3px 0; border-bottom:1px dashed var(--line) }
+  .empty { padding:30px; text-align:center; color:var(--muted) }
+  #toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#111827; color:#fff; padding:8px 14px; border-radius:6px; display:none }
+</style>
+</head>
+<body>
+<header>
+  <h1>Trip Log</h1><span class="tag">LOCAL MOCK — not the real dispatch system</span>
+  <span class="meta" id="meta">loading…</span>
+</header>
+<main>
+  <section class="panel">
+    <h2><span>Trips (app bookings are marked <span class="app">APP</span>)</span><span class="muted">Type a car # and press Enter to send a job, like the real Car # box</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th>Fare#</th><th>Car#</th><th>Pickup</th><th>Dropoff</th><th>Pickup time</th><th>Car type</th><th>Total</th><th>Passenger</th><th>Telephone</th><th>Notes</th><th>Status</th><th>Driver simulator</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" style="display:none">No trips yet. Book a ride in the app and it appears here within a few seconds.</div>
+  </section>
+  <aside style="display:flex;flex-direction:column;gap:14px">
+    <section class="panel"><h2>Activity</h2><div class="log" id="log"></div></section>
+    <section class="panel"><h2>Fleet (car numbers)</h2><div class="fleet" id="fleet"></div></section>
+  </aside>
+</main>
+<div id="toast"></div>
+<script>
+const LABEL = { waiting:'Waiting', scheduled:'Reservation', offered:'Sent to car', assigned:'Accepted', arrived:'Arrived', on_board:'Picked up', completed:'Completed', cancelled:'Cancelled', no_show:'No show' }
+const ACTIONS = {
+  offered: [['accept','Driver accepts','go'], ['unassign','Pull back']],
+  assigned: [['arrived','Arrived','go'], ['noshow','No show','bad'], ['unassign','Driver rejects','bad']],
+  arrived: [['onboard','Picked up','go'], ['noshow','No show','bad']],
+  on_board: [['complete','Complete','go']],
+}
+let focused = null
+
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])) }
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 2600) }
+
+async function act(id, action, body) {
+  const res = await fetch(`/sim/${id}/${action}`, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body || {}) })
+  const data = await res.json()
+  if (!data.ok) toast(data.error)
+  refresh()
+}
+
+function row(t) {
+  const canSend = ['waiting','scheduled'].includes(t.status)
+  const carCell = canSend
+    ? `<input class="car" data-id="${t.id}" placeholder="Car #" value="${focused === t.id ? '' : ''}">`
+    : esc(t.car_no || t.pending_car || '')
+  const btns = (ACTIONS[t.status] || []).map(([a, label, cls]) => `<button class="${cls||''}" data-id="${t.id}" data-act="${a}">${label}</button>`)
+  if (!['completed','cancelled','no_show'].includes(t.status)) btns.push(`<button class="bad" data-id="${t.id}" data-act="cancel">Cancel</button>`)
+  const driver = t.driver ? `<div class="muted">${esc(t.driver.first_name)} · ${esc([t.vehicle?.color, t.vehicle?.make, t.vehicle?.model].filter(Boolean).join(' '))}${t.eta_minutes ? ` · ETA ${t.eta_minutes}m` : ''}</div>` : (t.pending_car ? `<div class="muted">waiting for car ${esc(t.pending_car)} to accept</div>` : '')
+  return `<tr class="${t.status}">
+    <td><b>${esc(t.job_no)}</b></td>
+    <td>${carCell}</td>
+    <td>${esc(t.pickup_address)}</td>
+    <td>${esc(t.dropoff_address)}</td>
+    <td style="white-space:nowrap">${esc(t.pickup_date)}<br>${esc(t.pickup_time)}</td>
+    <td>${esc(t.cab_name)}</td>
+    <td>${t.fare?.total != null ? '$' + Number(t.fare.total).toFixed(2) : '<span class="muted">—</span>'}</td>
+    <td>${esc(t.passenger?.name)}</td>
+    <td>${esc(t.passenger?.phone)}</td>
+    <td>${t.notes?.startsWith('APP') ? '<span class="app">APP</span>' : ''}${esc((t.notes || '').replace(/^APP\s*/, ''))}</td>
+    <td class="status">${LABEL[t.status] || t.status}${driver}</td>
+    <td><div class="btns">${btns.join('')}</div></td>
+  </tr>`
+}
+
+async function refresh() {
+  if (document.activeElement && document.activeElement.classList.contains('car') && document.activeElement.value) return
+  const s = await (await fetch('/sim/state')).json()
+  document.getElementById('rows').innerHTML = s.trips.map(row).join('')
+  document.getElementById('empty').style.display = s.trips.length ? 'none' : 'block'
+  document.getElementById('log').textContent = s.log.join('\n') || 'Waiting for activity…'
+  document.getElementById('meta').textContent = `${s.trips.length} trips · ${s.outbox} webhook(s) pending · ${new Date().toLocaleTimeString()}`
+  document.getElementById('fleet').innerHTML = Object.entries(s.fleet).map(([no, c]) => `<div><b>${no}</b> — ${esc(c.driver.first_name)} ${esc(c.driver.last_name)}, ${esc(c.vehicle.color)} ${esc(c.vehicle.make)} ${esc(c.vehicle.model)} <span class="muted">(${esc(c.vehicle.cab_name)})</span></div>`).join('')
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList.contains('car') && e.target.value.trim()) {
+    const id = e.target.dataset.id, car = e.target.value.trim()
+    e.target.value = ''
+    act(id, 'send', { car_no: car })
+  }
+})
+document.addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]')
+  if (b) act(b.dataset.id, b.dataset.act)
+})
+refresh()
+setInterval(refresh, 2000)
+</script>
+</body>
+</html>

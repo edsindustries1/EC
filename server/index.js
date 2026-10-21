@@ -15,6 +15,9 @@ import {
   sendPaymentLinkEmail,
 } from './emailService.js'
 import * as Payroc from './payroc.js'
+import { registerDispatchRoutes } from './dispatch/routes.js'
+import { queueBooking, startPoller } from './dispatch/sync.js'
+import { dispatchQuote } from './dispatch/quote.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -25,7 +28,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'ec-secret-key-2024'
 const DIST = join(__dirname, '../dist')
 
 app.use(cors({ origin: true, credentials: true }))
-app.use(express.json())
+// Keep the raw body: the dispatch webhook signature is computed over it.
+app.use(express.json({ verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8') } }))
 
 // ── Serve built frontend static files ────────────────────────────────────────
 
@@ -48,6 +52,17 @@ function auth(req, res, next) {
     next()
   } catch {
     return res.status(401).json({ message: 'Token expired or invalid' })
+  }
+}
+
+// Decoded JWT user when a valid token is sent, otherwise null (no 401).
+function optionalUser(req) {
+  const h = req.headers.authorization
+  if (!h?.startsWith('Bearer ')) return null
+  try {
+    return jwt.verify(h.slice(7), JWT_SECRET)
+  } catch {
+    return null
   }
 }
 
@@ -629,16 +644,20 @@ function makeReference() {
 }
 
 // Instant price estimate for the search results screen
-app.post('/api/quote/estimate', (req, res) => {
+// When the dispatch integration is on, prices come from the dispatch system's
+// fare tables (same fare dispatchers see); the table is the fallback.
+app.post('/api/quote/estimate', async (req, res) => {
   try {
-    const { pickup, dropoff } = req.body
+    const { pickup, dropoff, pickup_date, pickup_time, passengers } = req.body
     if (!pickup || !dropoff) return res.status(400).json({ message: 'Pickup and dropoff required' })
     const routeType = detectRouteType(pickup, dropoff)
-    const options = Object.keys(PRICE_TABLE).map(v => ({
-      vehicle_type: v,
-      route_type: routeType,
-      ...priceFor(v, routeType),
-    }))
+    const dispatchPrices = await dispatchQuote({ pickup, dropoff, pickup_date, pickup_time, passengers })
+    const options = Object.keys(PRICE_TABLE).map(v => {
+      const d = dispatchPrices?.[v]
+      return d
+        ? { vehicle_type: v, route_type: routeType, low: d.price, high: d.price, point: d.price, distance_miles: d.distance_miles, source: 'dispatch' }
+        : { vehicle_type: v, route_type: routeType, ...priceFor(v, routeType), source: 'table' }
+    })
     res.json({ success: true, data: { route_type: routeType, options } })
   } catch (e) {
     res.status(500).json({ message: 'Estimate failed', error: e.message })
@@ -658,7 +677,11 @@ app.post('/api/bookings', auth, async (req, res) => {
     if (!name || !email || !phone) return res.status(400).json({ message: 'Contact info required' })
 
     const routeType = detectRouteType(pickup, dropoff)
-    const price = priceFor(vehicle_type || 'sedan', routeType)
+    const dispatchPrices = await dispatchQuote({ pickup, dropoff, pickup_date, pickup_time, passengers })
+    const dispatchPrice = dispatchPrices?.[vehicle_type || 'sedan']?.price
+    const price = dispatchPrice
+      ? { low: dispatchPrice, high: dispatchPrice, point: dispatchPrice }
+      : priceFor(vehicle_type || 'sedan', routeType)
 
     let reference
     let collisions = 0
@@ -685,6 +708,7 @@ app.post('/api/bookings', auth, async (req, res) => {
       return_date: return_date || '',
       return_time: return_time || '',
       route_type: routeType,
+      price_source: dispatchPrice ? 'dispatch' : 'table',
       price_low: price.low,
       price_high: price.high,
       price_quoted: price.point,
@@ -702,6 +726,10 @@ app.post('/api/bookings', auth, async (req, res) => {
       passengers: Number(passengers) || 1,
       rideDate: `${pickup_date || ''} ${pickup_time || ''}`.trim(),
     }).catch(err => console.error('[email] operator notification failed:', err.message))
+
+    // Send to the dispatcher's trip log in the background; failures stay
+    // queued and are retried by the dispatch poller.
+    queueBooking(booking).catch(err => console.error('[dispatch] queue failed:', err.message))
 
     res.status(201).json({ success: true, data: booking })
   } catch (e) {
@@ -1429,6 +1457,10 @@ app.get('/api/bids/:id/status', auth, async (req, res) => {
   }
 })
 
+// ── DISPATCH INTEGRATION (everywheretrans.com trip log) ──────────────────────
+
+registerDispatchRoutes(app, { auth, role, optionalUser })
+
 // ── HEALTH ────────────────────────────────────────────────────────────────────
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date().toISOString() }))
@@ -1458,6 +1490,7 @@ async function start() {
     console.log(`[API] Server running on port ${PORT}`)
     console.log(`[API] Serving frontend from: ${DIST}`)
     console.log(`[API] NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
+    startPoller()
   })
 }
 

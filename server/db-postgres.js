@@ -316,7 +316,7 @@ export const db = {
       'pickup', 'dropoff', 'pickup_date', 'pickup_time',
       'passengers', 'vehicle_type', 'trip_type', 'return_date', 'return_time',
       'route_type', 'price_low', 'price_high', 'price_quoted',
-      'flight_number', 'child_seats', 'special_requests', 'status',
+      'flight_number', 'child_seats', 'special_requests', 'status', 'price_source',
     ]
     const values = [
       data.reference,
@@ -334,6 +334,7 @@ export const db = {
       data.child_seats || 0,
       data.special_requests || null,
       data.status || 'confirmed',
+      data.price_source || null,
     ]
     const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ')
     const { rows } = await pool.query(

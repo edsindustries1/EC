@@ -10,7 +10,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "mock:dispatch": "node dev/mock-dispatch/server.js",
+    "demo:dispatch": "sh dev/dispatch-demo.sh",
+    "test:dispatch": "node dev/mock-dispatch/e2e.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.0",

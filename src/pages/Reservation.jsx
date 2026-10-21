@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import api from '../utils/api'
 import CelebrationOverlay from '../components/CelebrationOverlay'
 import PoweredBy from '../components/PoweredBy'
+import LiveTrip from '../components/LiveTrip'
 
 const BLACK = '#000', WHITE = '#fff'
 const GRAY_50 = '#F6F6F6', GRAY_100 = '#EEEEEE', GRAY_500 = '#6B6B6B'
@@ -26,6 +27,8 @@ export default function Reservation() {
   // Play the celebration overlay once per fresh load of a confirmed booking
   const [celebrate, setCelebrate] = useState(false)
   const celebratedRef = useRef(false)
+  // Live dispatch status (null when the integration is off for this booking)
+  const [live, setLive] = useState(null)
 
   const load = async (emailArg) => {
     setLoading(true)
@@ -109,7 +112,7 @@ export default function Reservation() {
         {/* Success header */}
         <div style={{ background: BLACK, color: WHITE, borderRadius: 12, padding: '36px 28px', textAlign: 'center', marginBottom: 18 }}>
           <FiCheckCircle size={44} style={{ margin: '0 auto 14px' }} />
-          <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6 }}>Reservation confirmed</h1>
+          <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6 }}>{live?.status === 'cancelled' ? 'Reservation cancelled' : live?.status === 'completed' ? 'Trip complete' : 'Reservation confirmed'}</h1>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 22 }}>A confirmation email is on its way to {booking.email}.</p>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, padding: '14px 20px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)' }}>
@@ -122,6 +125,8 @@ export default function Reservation() {
             </button>
           </div>
         </div>
+
+        <LiveTrip reference={booking.reference} email={email} onChange={setLive} />
 
         {/* Trip details */}
         <div style={{ background: WHITE, border: `1px solid ${GRAY_100}`, borderRadius: 8, padding: '22px 24px', marginBottom: 14 }}>
@@ -150,7 +155,7 @@ export default function Reservation() {
           <div style={{ background: WHITE, border: `1px solid ${GRAY_100}`, borderRadius: 8, padding: '22px 24px' }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Estimated total</h3>
             <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1 }}>${booking.price_quoted}</div>
-            <div style={{ fontSize: 12, color: GRAY_500, marginTop: 6 }}>Range: ${booking.price_low}–${booking.price_high}</div>
+            <div style={{ fontSize: 12, color: GRAY_500, marginTop: 6 }}>{booking.price_source === 'dispatch' ? 'Fixed fare' : `Range: $${booking.price_low}–$${booking.price_high}`}</div>
             <div style={{ fontSize: 12, color: GRAY_500, marginTop: 14 }}>Payment collected at trip time. Gratuity included.</div>
           </div>
         </div>
@@ -159,9 +164,19 @@ export default function Reservation() {
         <div style={{ background: WHITE, border: `1px solid ${GRAY_100}`, borderRadius: 8, padding: '22px 24px' }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>What happens next</h3>
           <ol style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: BLACK }}>
-            <li><strong style={{ color: GRAY_500, marginRight: 8 }}>1.</strong>Our dispatch team confirms your chauffeur within 1 hour.</li>
-            <li><strong style={{ color: GRAY_500, marginRight: 8 }}>2.</strong>You receive driver details via SMS and email 24h before pickup.</li>
-            <li><strong style={{ color: GRAY_500, marginRight: 8 }}>3.</strong>Driver contacts you 15 minutes before arrival.</li>
+            {live ? (
+              <>
+                <li><strong style={{ color: GRAY_500, marginRight: 8 }}>1.</strong>Your trip is on our dispatch board now.</li>
+                <li><strong style={{ color: GRAY_500, marginRight: 8 }}>2.</strong>When a driver is assigned you see their name, car and plate here, and we email you.</li>
+                <li><strong style={{ color: GRAY_500, marginRight: 8 }}>3.</strong>Track your driver live on this page until pickup.</li>
+              </>
+            ) : (
+              <>
+                <li><strong style={{ color: GRAY_500, marginRight: 8 }}>1.</strong>Our dispatch team confirms your chauffeur within 1 hour.</li>
+                <li><strong style={{ color: GRAY_500, marginRight: 8 }}>2.</strong>You receive driver details via SMS and email 24h before pickup.</li>
+                <li><strong style={{ color: GRAY_500, marginRight: 8 }}>3.</strong>Driver contacts you 15 minutes before arrival.</li>
+              </>
+            )}
           </ol>
           <div style={{ marginTop: 22, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             <button onClick={() => window.print()} style={secondaryBtnStyle}>
