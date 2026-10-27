@@ -45,7 +45,7 @@
 </header>
 <main>
   <section class="panel">
-    <h2><span>Trips (app bookings are marked <span class="app">APP</span>)</span><span class="muted">Type a car # and press Enter to send a job, like the real Car # box</span></h2>
+    <h2><span>Trips (app bookings are marked <span class="app">APP</span>, phone-agent bookings <span class="app">AI CALL</span>)</span><span class="muted">Type a car # and press Enter to send a job, like the real Car # box</span></h2>
     <div class="scroll">
       <table>
         <thead><tr>
@@ -100,7 +100,7 @@ function row(t) {
     <td>${t.fare?.total != null ? '$' + Number(t.fare.total).toFixed(2) : '<span class="muted">—</span>'}</td>
     <td>${esc(t.passenger?.name)}</td>
     <td>${esc(t.passenger?.phone)}</td>
-    <td>${t.notes?.startsWith('APP') ? '<span class="app">APP</span>' : ''}${esc((t.notes || '').replace(/^APP\s*/, ''))}</td>
+    <td>${t.notes?.startsWith('APP') ? '<span class="app">APP</span>' : ''}${t.notes?.startsWith('AI CALL') ? '<span class="app">AI CALL</span>' : ''}${esc((t.notes || '').replace(/^(APP|AI CALL)\s*/, ''))}</td>
     <td class="status">${LABEL[t.status] || t.status}${driver}</td>
     <td><div class="btns">${btns.join('')}</div></td>
   </tr>`

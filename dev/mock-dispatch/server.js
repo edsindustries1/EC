@@ -235,7 +235,7 @@ app.post('/ec_bridge/create_trip', bridgeAuth, (req, res) => {
     passengers: p.passengers,
     cab_name: CAB_MAP[p.vehicle_type],
     passenger: p.passenger || {},
-    notes: `APP ${p.booking_reference || p.external_ref}${p.notes ? ' | ' + p.notes : ''}`,
+    notes: `${p.channel === 'phone_ai' ? 'AI CALL' : 'APP'} ${p.booking_reference || p.external_ref}${p.notes ? ' | ' + p.notes : ''}`,
     // No dispatch-priced fare from the app → blank; the dispatcher prices it.
     fare_total: p.quoted_price ?? null,
     car_no: null,
@@ -256,6 +256,34 @@ app.post('/ec_bridge/create_trip', bridgeAuth, (req, res) => {
 function findTrip(body) {
   return store.trips.find(t => (body.trip_id && String(t.id) === String(body.trip_id)) || (body.external_ref && t.external_ref === body.external_ref))
 }
+
+// Caller ID lookup for the phone agent: the caller's recent addresses and open
+// trips, matched on the last 10 digits (the real trip log stores mixed formats).
+const digits10 = v => String(v || '').replace(/\D/g, '').slice(-10)
+const OPEN = ['waiting', 'assigned', 'arrived', 'on_board']
+
+app.post('/ec_bridge/caller_lookup', bridgeAuth, (req, res) => {
+  const phone = digits10(req.body?.phone)
+  if (phone.length !== 10) return res.status(422).json({ ok: false, error: 'phone required' })
+  const mine = store.trips.filter(t => digits10(t.passenger?.phone) === phone).reverse()
+  const seen = new Set()
+  const recent = []
+  for (const t of mine) {
+    const key = `${t.pickup_address}|${t.dropoff_address}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    recent.push({ pickup: t.pickup_address, dropoff: t.dropoff_address, cab_name: t.cab_name, last_used: t.created_at })
+    if (recent.length === 5) break
+  }
+  const name = mine.find(t => t.passenger?.name)?.passenger.name || null
+  res.json({
+    ok: true,
+    phone,
+    name,
+    recent,
+    open_trips: mine.filter(t => OPEN.includes(t.status)).map(t => ({ ...tripView(t), pickup_address: t.pickup_address, dropoff_address: t.dropoff_address, cab_name: t.cab_name })),
+  })
+})
 
 app.post('/ec_bridge/trip_status', bridgeAuth, (req, res) => {
   const t = findTrip(req.body || {})
