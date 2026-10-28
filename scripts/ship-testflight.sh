@@ -32,7 +32,10 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -de
 echo "== archived: build/App.xcarchive"
 [ "$DRY" = 1 ] && { echo "dry run: not uploading"; exit 0; }
 
+# Manual distribution signing with the "Everywhere Transfers App Store v1" profile (made via the ASC API
+# to include this Mac's Apple Distribution certificate); cloud signing is not available to the API key.
+echo "== export"
+xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist scripts/ExportOptions.plist -exportPath build/export -quiet
 echo "== upload to App Store Connect"
-xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist scripts/ExportOptions.plist \
-  -exportPath build/export "${AUTH[@]}"
+xcrun altool --upload-app -f build/export/*.ipa -t ios --apiKey "$KEY_ID" --apiIssuer "$ISSUER" 2>&1 | grep -E "UPLOAD|error|Error" | head -5
 echo "== uploaded build $BUILD. It appears in TestFlight after Apple processes it (5-15 min)."

@@ -3,10 +3,13 @@
 <plist version="1.0">
 <dict>
   <key>method</key><string>app-store-connect</string>
-  <key>destination</key><string>upload</string>
+  <key>destination</key><string>export</string>
   <key>teamID</key><string>6A5B4KV827</string>
-  <key>signingStyle</key><string>automatic</string>
+  <key>signingStyle</key><string>manual</string>
+  <key>signingCertificate</key><string>Apple Distribution</string>
+  <key>provisioningProfiles</key><dict>
+    <key>com.everywheretransfers.app</key><string>Everywhere Transfers App Store v1</string>
+  </dict>
   <key>uploadSymbols</key><true/>
-  <key>manageAppVersionAndBuildNumber</key><false/>
 </dict>
 </plist>
