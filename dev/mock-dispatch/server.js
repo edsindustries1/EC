@@ -19,7 +19,7 @@ import { verify, signedHeaders } from '../../server/dispatch/signing.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_FILE = join(__dirname, 'data.json')
-const PORT = Number(process.env.MOCK_DISPATCH_PORT) || 4100
+const PORT = Number(process.env.PORT || process.env.MOCK_DISPATCH_PORT) || 4100
 const KEY = process.env.DISPATCH_BRIDGE_KEY || 'ec-app'
 const SECRET = process.env.DISPATCH_BRIDGE_SECRET || 'dev-bridge-secret'
 const WEBHOOK_URL = process.env.DISPATCH_WEBHOOK_URL || 'http://localhost:3001/api/dispatch/webhook'
