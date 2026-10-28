@@ -23,6 +23,8 @@ const PORT = Number(process.env.MOCK_DISPATCH_PORT) || 4100
 const KEY = process.env.DISPATCH_BRIDGE_KEY || 'ec-app'
 const SECRET = process.env.DISPATCH_BRIDGE_SECRET || 'dev-bridge-secret'
 const WEBHOOK_URL = process.env.DISPATCH_WEBHOOK_URL || 'http://localhost:3001/api/dispatch/webhook'
+// Several receivers (app server + phone agent) can be given, comma-separated.
+const WEBHOOK_URLS = WEBHOOK_URL.split(',').map(s => s.trim()).filter(Boolean)
 const WEBHOOK_SECRET = process.env.DISPATCH_WEBHOOK_SECRET || SECRET
 const RESERVATION_LEAD_MIN = 60
 
@@ -140,11 +142,16 @@ async function flushOutbox() {
     if (ev.next_at > now) continue
     const t = store.trips.find(x => x.id === ev.trip_id)
     if (!t) { store.outbox = store.outbox.filter(e => e !== ev); continue }
-    const path = new URL(WEBHOOK_URL).pathname
     const body = JSON.stringify({ event_id: ev.event_id, type: 'trip.status', trip: tripView(t) })
+    ev.delivered = ev.delivered || []
     try {
-      const res = await fetch(WEBHOOK_URL, { method: 'POST', headers: signedHeaders(KEY, WEBHOOK_SECRET, 'POST', path, body), body })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      for (const url of WEBHOOK_URLS) {
+        if (ev.delivered.includes(url)) continue
+        const path = new URL(url).pathname
+        const res = await fetch(url, { method: 'POST', headers: signedHeaders(KEY, WEBHOOK_SECRET, 'POST', path, body), body })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        ev.delivered.push(url)
+      }
       store.outbox = store.outbox.filter(e => e !== ev)
       log(`webhook ✓ ${t.external_ref} → ${t.status}`)
     } catch (e) {
