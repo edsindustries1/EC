@@ -37,3 +37,4 @@ Thumbs.db
 
 # Local mock dispatch data
 dev/mock-dispatch/data.json
+.railway/

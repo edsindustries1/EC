@@ -1,0 +1,11 @@
+# Not needed on the server; keeps the upload small.
+ios/
+android/
+attached_assets/
+marketing/
+build/
+dist/
+node_modules/
+zipFile.zip
+dev/mock-dispatch/data.json
+server/data/
