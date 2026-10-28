@@ -235,7 +235,9 @@ app.post('/ec_bridge/create_trip', bridgeAuth, (req, res) => {
     passengers: p.passengers,
     cab_name: CAB_MAP[p.vehicle_type],
     passenger: p.passenger || {},
-    notes: `${p.channel === 'phone_ai' ? 'AI CALL' : 'APP'} ${p.booking_reference || p.external_ref}${p.notes ? ' | ' + p.notes : ''}`,
+    account_no: p.account_no || '',
+    voucher_no: p.voucher_no || '',
+    notes: `${p.channel === 'phone_ai' ? 'AI CALL' : 'APP'} ${p.booking_reference || p.external_ref}${p.account_no ? ` | ACCT ${p.account_no}` : ''}${p.voucher_no ? ` | VOUCHER ${p.voucher_no}` : ''}${p.notes ? ' | ' + p.notes : ''}`,
     // No dispatch-priced fare from the app → blank; the dispatcher prices it.
     fare_total: p.quoted_price ?? null,
     car_no: null,
