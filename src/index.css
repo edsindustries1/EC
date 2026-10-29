@@ -826,3 +826,6 @@ body.capacitor-native main.ec-has-tabbar {
 body.capacitor-native main.ec-has-tabbar .ec-page-inner {
   padding-bottom: 24px !important;
 }
+/* Keyboard open (native): hide the tab bar so it doesn't sit on top of
+   the focused form or eat the shrunken viewport. */
+body.ec-kb-open .ec-tabbar { display: none; }

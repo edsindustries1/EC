@@ -10,6 +10,7 @@ import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { App as CapApp } from '@capacitor/app'
+import { Keyboard } from '@capacitor/keyboard'
 
 export function isNative() {
   return Capacitor?.isNativePlatform?.() ?? false
@@ -69,6 +70,17 @@ export async function initNative() {
       console.warn('[native] splash hide failed:', err)
     }
   })
+
+  // ── Keyboard ──────────────────────────────────────────────────────────
+  // Keyboard resize mode is "body", so the page shrinks above the keyboard.
+  // Tag <body> while it's open so the fixed tab bar can step aside instead
+  // of floating over the form (see .ec-kb-open in index.css).
+  try {
+    Promise.resolve(Keyboard.addListener('keyboardWillShow', () => document.body.classList.add('ec-kb-open'))).catch(() => {})
+    Promise.resolve(Keyboard.addListener('keyboardWillHide', () => document.body.classList.remove('ec-kb-open'))).catch(() => {})
+  } catch (err) {
+    console.warn('[native] keyboard listeners failed:', err)
+  }
 
   // ── Android hardware back button ──────────────────────────────────────
   if (getPlatform() === 'android') {
