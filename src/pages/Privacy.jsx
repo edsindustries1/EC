@@ -18,7 +18,7 @@ export function Legal({ title, lead, sections }) {
   return (
     <div style={{ background: WHITE, color: BLACK, fontFamily: FONT, letterSpacing: '-0.01em', minHeight: '100vh' }}>
       <section style={{ background: BLACK, color: WHITE }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0', textAlign: 'center' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '80px', paddingBottom: '80px', textAlign: 'center' }}>
           <h1 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 12 }}>
             {title}
           </h1>
@@ -27,7 +27,7 @@ export function Legal({ title, lead, sections }) {
       </section>
 
       <section style={{ background: GRAY_50 }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '64px 0' }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '64px', paddingBottom: '64px' }}>
           <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${GRAY_100}`, padding: '40px 36px', display: 'flex', flexDirection: 'column', gap: 28 }}>
             {sections.map((s, i) => (
               <div key={s.title}>

@@ -116,7 +116,7 @@ export default function OperatorActivity() {
 
   return (
     <div style={{ background: WHITE, color: BLACK, minHeight: '100vh', fontFamily: FONT, letterSpacing: '-0.01em' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '32px 0 80px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '32px', paddingBottom: '80px' }}>
 
         {/* HEADER */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 22 }}>

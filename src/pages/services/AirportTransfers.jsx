@@ -61,7 +61,7 @@ export function ServiceDetail({ eyebrow, title, titleAccent, lead, heroImage, fe
 
       {/* HERO */}
       <section style={{ background: BLACK, color: WHITE }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <FadeIn className="lg:col-span-7">
               <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: 14 }}>{eyebrow}</p>
@@ -93,7 +93,7 @@ export function ServiceDetail({ eyebrow, title, titleAccent, lead, heroImage, fe
 
       {/* FEATURES */}
       <section style={{ background: GRAY_50 }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '72px 0' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '72px', paddingBottom: '72px' }}>
           <FadeIn>
             <h2 style={H2}>What's included</h2>
           </FadeIn>
@@ -118,7 +118,7 @@ export function ServiceDetail({ eyebrow, title, titleAccent, lead, heroImage, fe
       {/* EXTRA (airports / hours / etc.) */}
       {extra && (
         <section style={{ background: WHITE }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '72px 0' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '72px', paddingBottom: '72px' }}>
             {extra}
           </div>
         </section>
@@ -127,7 +127,7 @@ export function ServiceDetail({ eyebrow, title, titleAccent, lead, heroImage, fe
       {/* VEHICLES */}
       {vehicles && (
         <section style={{ background: GRAY_50 }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '72px 0' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '72px', paddingBottom: '72px' }}>
             <FadeIn>
               <h2 style={H2}>Recommended vehicles</h2>
             </FadeIn>
@@ -158,7 +158,7 @@ export function ServiceDetail({ eyebrow, title, titleAccent, lead, heroImage, fe
 
       {/* CTA */}
       <section style={{ background: BLACK, color: WHITE }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '64px 0' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '64px', paddingBottom: '64px' }}>
           <FadeIn>
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', color: WHITE, marginBottom: 0 }}>

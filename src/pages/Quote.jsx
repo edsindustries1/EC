@@ -50,7 +50,7 @@ export default function Quote() {
 
       {/* HERO */}
       <section style={{ background: BLACK, color: WHITE }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0', textAlign: 'center' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '80px', paddingBottom: '80px', textAlign: 'center' }}>
           <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: 12 }}>
             No registration required
           </p>
@@ -72,7 +72,7 @@ export default function Quote() {
 
       {/* FORM */}
       <section style={{ background: GRAY_50 }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '56px 0' }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '56px', paddingBottom: '56px' }}>
           <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${GRAY_100}`, overflow: 'hidden' }}>
             <QuoteForm/>
           </div>

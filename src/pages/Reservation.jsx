@@ -107,7 +107,7 @@ export default function Reservation() {
         icon="car"
         hold={1800}
       />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '40px 0 80px' }}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
 
         {/* Success header */}
         <div style={{ background: BLACK, color: WHITE, borderRadius: 12, padding: '36px 28px', textAlign: 'center', marginBottom: 18 }}>
