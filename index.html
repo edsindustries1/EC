@@ -7,6 +7,22 @@
          Without it, padding-top: env(safe-area-inset-top) resolves to 0 and content sits
          under the Dynamic Island / notch. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Inside the native app (Capacitor injects window.Capacitor before this runs)
+         lock the scale to 1. iOS zooms the WebView whenever a field with
+         font-size < 16px is focused and never zooms back out, which is what
+         leaves pages "zoomed in" after typing. A native app doesn't pinch-zoom,
+         so this matches platform behaviour. The public website keeps pinch-zoom. -->
+    <script>
+      (function () {
+        try {
+          var C = window.Capacitor
+          if (C && C.isNativePlatform && C.isNativePlatform()) {
+            document.querySelector('meta[name=viewport]').setAttribute('content',
+              'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover')
+          }
+        } catch (e) {}
+      })()
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">

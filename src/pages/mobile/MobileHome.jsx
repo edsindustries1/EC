@@ -268,6 +268,7 @@ export default function MobileHome() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              className="ec-compact-input"
               style={compactInputStyle}
             />
           </CompactPicker>
@@ -276,11 +277,13 @@ export default function MobileHome() {
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
+              className="ec-compact-input"
               style={compactInputStyle}
             />
           </CompactPicker>
           <CompactPicker icon={FiUsers}>
             <select
+              className="ec-compact-input"
               value={pax}
               onChange={(e) => setPax(Number(e.target.value))}
               style={{ ...compactInputStyle, appearance: 'none', paddingRight: 2 }}
@@ -520,9 +523,9 @@ function SpinnerDot() {
 function CompactPicker({ icon: Icon, children }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 6,
+      display: 'flex', alignItems: 'center', gap: 5,
       background: WHITE,
-      padding: '11px 12px',
+      padding: '11px 10px',
       borderRadius: 999,
       margin: 2,
       minWidth: 0,
@@ -565,10 +568,10 @@ const sectionTitle = {
   marginBottom: 10,
 }
 
-// Compact input — used for date/time/pax. Note iOS won't auto-zoom
-// since the surrounding page sets font-size:16px on inputs globally
-// (see index.css "Disable iOS auto-zoom" rule); the inline 13px here
-// is overridden by !important. We add explicit min-width:0 so flex
+// Compact input — used for date/time/pax. These carry .ec-compact-input,
+// which is exempt from the global 16px rule in index.css; 13px is safe
+// here only because this screen is native-only and the native viewport
+// is scale-locked (index.html), so iOS can't focus-zoom. min-width:0 so flex
 // children CAN shrink past their intrinsic content width, plus
 // text-overflow:ellipsis as a last-resort guard.
 const compactInputStyle = {

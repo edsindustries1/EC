@@ -19,8 +19,25 @@ export function getPlatform() {
   return Capacitor?.getPlatform?.() ?? 'web'
 }
 
+// Native app: no pinch-zoom and no iOS focus-zoom (see index.html — this is
+// the fallback in case the inline head script didn't see window.Capacitor).
+const LOCKED_VIEWPORT = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover'
+function lockViewportScale() {
+  try {
+    let meta = document.querySelector('meta[name=viewport]')
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.setAttribute('name', 'viewport')
+      document.head.appendChild(meta)
+    }
+    if (meta.getAttribute('content') !== LOCKED_VIEWPORT) meta.setAttribute('content', LOCKED_VIEWPORT)
+  } catch {}
+}
+
 export async function initNative() {
   if (!isNative()) return
+
+  lockViewportScale()
 
   // Tag <body> so native-only CSS rules activate (see index.css .capacitor-native)
   document.body.classList.add('capacitor-native')
