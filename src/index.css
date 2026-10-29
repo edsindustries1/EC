@@ -820,3 +820,9 @@ body.capacitor-native main.ec-has-back {
 body.capacitor-native main.ec-has-back .ec-page-inner {
   padding-top: 8px !important;
 }
+body.capacitor-native main.ec-has-tabbar {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+}
+body.capacitor-native main.ec-has-tabbar .ec-page-inner {
+  padding-bottom: 24px !important;
+}

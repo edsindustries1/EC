@@ -259,7 +259,7 @@ export default function MobileHome() {
             Pax column is narrowest since it's just "2 pax".
             All inputs have min-width: 0 so flex can shrink them. */}
         <div style={{
-          display: 'grid', gridTemplateColumns: '1.5fr 1fr 0.85fr',
+          display: 'grid', gridTemplateColumns: '1.4fr 1.1fr 0.9fr',
           gap: 4,
           padding: 4,
         }}>

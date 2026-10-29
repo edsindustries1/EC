@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
@@ -66,19 +66,25 @@ import AdminUsers from './pages/admin/Users'
 import AdminRevenue from './pages/admin/Revenue'
 
 // Native shell
-import MobileTabBar from './components/mobile/MobileTabBar'
-import BackButton from './components/BackButton'
+import MobileTabBar, { showsTabBar } from './components/mobile/MobileTabBar'
+import BackButton, { showsBackButton } from './components/BackButton'
 import { isNative } from './native'
 import { useSwipeBack } from './native-ui'
 
 function AppContent() {
   const native = isNative()
+  const { pathname } = useLocation()
+  const hasBack = native && showsBackButton(pathname)
+  // Home pads for the tab bar itself; every other tab-bar page gets the
+  // bottom inset from <main> so its last row isn't hidden behind the bar.
+  const padForTabBar = native && pathname !== '/' && showsTabBar(pathname)
+  const mainClass = ['flex-grow', hasBack && 'ec-has-back', padForTabBar && 'ec-has-tabbar'].filter(Boolean).join(' ')
   useSwipeBack()
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-page)', transition: 'background 300ms ease' }}>
       {!native && <Navbar />}
       {native && <BackButton />}
-      <main className="flex-grow">
+      <main className={mainClass}>
           <PageTransition>
           <Routes>
             {/* Public Routes */}

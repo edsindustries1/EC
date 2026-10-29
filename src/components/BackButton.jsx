@@ -23,13 +23,19 @@ import { useHaptics } from '../native-ui'
 
 const HIDE_ON = ['/', '/verify', '/my-rides', '/profile', '/account', '/login', '/signup']
 
+// Shared with App.jsx, which reserves a top band on pages that show the
+// button so page titles don't render underneath it.
+export function showsBackButton(pathname) {
+  return !HIDE_ON.includes(pathname)
+}
+
 export default function BackButton() {
   const location = useLocation()
   const navigate = useNavigate()
   const haptic = useHaptics()
 
   if (!isNative()) return null
-  if (HIDE_ON.includes(location.pathname)) return null
+  if (!showsBackButton(location.pathname)) return null
 
   const handleBack = () => {
     haptic('light')
