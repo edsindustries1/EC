@@ -18,7 +18,7 @@ import { fileURLToPath } from 'url'
 import { verify, signedHeaders } from '../../server/dispatch/signing.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_FILE = join(__dirname, 'data.json')
+const DATA_FILE = process.env.MOCK_DATA_FILE || join(__dirname, 'data.json')
 const PORT = Number(process.env.PORT || process.env.MOCK_DISPATCH_PORT) || 4100
 const KEY = process.env.DISPATCH_BRIDGE_KEY || 'ec-app'
 const SECRET = process.env.DISPATCH_BRIDGE_SECRET || 'dev-bridge-secret'
