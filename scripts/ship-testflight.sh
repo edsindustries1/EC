@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Builds the iOS app and uploads it to TestFlight.
-#   scripts/ship-testflight.sh --api https://staging.example.com --build 30        build + upload
+#   scripts/ship-testflight.sh --api https://staging.example.com --build 30 --version 1.1   build + upload
 #   scripts/ship-testflight.sh --dry                                              archive only, no bump, no upload
 # The web bundle is built with VITE_API_BASE_URL so the native app talks to the given server.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-API=""; BUILD=""; DRY=0
+API=""; BUILD=""; VERSION=""; DRY=0
 while [ $# -gt 0 ]; do case "$1" in
-  --api) API="$2"; shift 2;; --build) BUILD="$2"; shift 2;; --dry) DRY=1; shift;; *) echo "unknown arg $1"; exit 1;; esac; done
+  --api) API="$2"; shift 2;; --build) BUILD="$2"; shift 2;; --version) VERSION="$2"; shift 2;; --dry) DRY=1; shift;; *) echo "unknown arg $1"; exit 1;; esac; done
 [ "$DRY" = 1 ] || { [ -n "$API" ] && [ -n "$BUILD" ] || { echo "need --api URL and --build N"; exit 1; }; }
 
 ASC_DIR=~/.appstoreconnect
@@ -24,6 +24,11 @@ if [ -n "$BUILD" ]; then
   sed -i '' -E "s/CURRENT_PROJECT_VERSION = [0-9]+;/CURRENT_PROJECT_VERSION = $BUILD;/g" "$PBX"
   echo "== build number set to $BUILD"
 fi
+if [ -n "$VERSION" ]; then
+  # Apple refuses builds whose marketing version is already approved on the store.
+  sed -i '' -E "s/MARKETING_VERSION = [0-9.]+;/MARKETING_VERSION = $VERSION;/g" "$PBX"
+  echo "== marketing version set to $VERSION"
+fi
 
 rm -rf build/App.xcarchive build/export
 echo "== archive"
@@ -37,5 +42,8 @@ echo "== archived: build/App.xcarchive"
 echo "== export"
 xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist scripts/ExportOptions.plist -exportPath build/export -quiet
 echo "== upload to App Store Connect"
-xcrun altool --upload-app -f build/export/*.ipa -t ios --apiKey "$KEY_ID" --apiIssuer "$ISSUER" 2>&1 | grep -E "UPLOAD|error|Error" | head -5
+# altool crashes on this Mac (Xcode 27); Transporter does the same job.
+xcrun iTMSTransporter -m upload -assetFile "$(ls build/export/*.ipa | head -1)" -apiKey "$KEY_ID" -apiIssuer "$ISSUER" -v informational > build/upload.log 2>&1 \
+  || { grep -E "ERROR|error" build/upload.log | head -5; exit 1; }
+grep -E "Package Summary|uploaded|DELIVERY|success" -i build/upload.log | head -3
 echo "== uploaded build $BUILD. It appears in TestFlight after Apple processes it (5-15 min)."
