@@ -8,11 +8,14 @@
     "scrollEnabled": true,
     "limitsNavigationsToAppBoundDomains": false,
     "backgroundColor": "#ffffff",
-    "preferredContentMode": "mobile"
+    "preferredContentMode": "mobile",
+    "zoomEnabled": false,
+    "allowsLinkPreview": false
   },
   "android": {
     "allowMixedContent": false,
     "captureInput": true,
+    "zoomEnabled": false,
     "backgroundColor": "#ffffff"
   },
   "server": {
