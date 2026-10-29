@@ -10,6 +10,23 @@
 
 html {
   scroll-behavior: smooth;
+  /* Stop iOS/Android from inflating text (e.g. after rotating to landscape),
+     which made some pages look zoomed-in. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Never let a stray wide element make the whole page scroll sideways.
+   `clip` (not hidden) so position: sticky inside pages keeps working. */
+html, body { max-width: 100%; overflow-x: clip; }
+#root, main { max-width: 100vw; overflow-x: clip; }
+img, video, canvas, iframe { max-width: 100%; }
+
+/* Tailwind min-h-screen = 100vh, which on mobile browsers is taller than
+   the visible area (URL bar / keyboard). Prefer the dynamic viewport. */
+@supports (height: 100dvh) {
+  .min-h-screen { min-height: 100dvh; }
+  .h-screen { height: 100dvh; }
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -60,8 +77,14 @@ body.capacitor-native > #root {
    which open native pickers and don't zoom anyway. Excluding them lets
    compact pickers (the date/time/pax row on home) render at 13px
    without their content overflowing the cell. */
+/* iOS zooms the page on focus for ANY form control under 16px — including
+   <select> and date/time inputs — and doesn't zoom back out. The native app
+   also locks the viewport scale (index.html), but the website relies on this.
+   .ec-compact-input is the home screen's date/time/pax row: native-only and
+   covered by the scale lock, so it may stay compact. */
 @media (pointer: coarse) {
-  input:not([type="date"]):not([type="time"]):not([type="datetime-local"]):not([type="month"]):not([type="week"]),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.ec-compact-input),
+  select:not(.ec-compact-input),
   textarea {
     font-size: 16px !important;
   }
@@ -785,3 +808,24 @@ body.capacitor-native .ec-page-inner {
   padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
 }
 
+
+/* Native pages that show the floating back button (components/BackButton)
+   get a top band that clears the status bar / Dynamic Island AND the
+   button, so titles never sit under either. Pages built on <Page/> already
+   pad for the safe area, so they only need the button's height on top. */
+body.capacitor-native main.ec-has-back {
+  padding-top: calc(env(safe-area-inset-top) + 64px);
+  background: #fff;
+}
+body.capacitor-native main.ec-has-back .ec-page-inner {
+  padding-top: 8px !important;
+}
+body.capacitor-native main.ec-has-tabbar {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+}
+body.capacitor-native main.ec-has-tabbar .ec-page-inner {
+  padding-bottom: 24px !important;
+}
+/* Keyboard open (native): hide the tab bar so it doesn't sit on top of
+   the focused form or eat the shrunken viewport. */
+body.ec-kb-open .ec-tabbar { display: none; }

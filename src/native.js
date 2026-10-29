@@ -10,6 +10,7 @@ import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { App as CapApp } from '@capacitor/app'
+import { Keyboard } from '@capacitor/keyboard'
 
 export function isNative() {
   return Capacitor?.isNativePlatform?.() ?? false
@@ -19,8 +20,25 @@ export function getPlatform() {
   return Capacitor?.getPlatform?.() ?? 'web'
 }
 
+// Native app: no pinch-zoom and no iOS focus-zoom (see index.html — this is
+// the fallback in case the inline head script didn't see window.Capacitor).
+const LOCKED_VIEWPORT = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover'
+function lockViewportScale() {
+  try {
+    let meta = document.querySelector('meta[name=viewport]')
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.setAttribute('name', 'viewport')
+      document.head.appendChild(meta)
+    }
+    if (meta.getAttribute('content') !== LOCKED_VIEWPORT) meta.setAttribute('content', LOCKED_VIEWPORT)
+  } catch {}
+}
+
 export async function initNative() {
   if (!isNative()) return
+
+  lockViewportScale()
 
   // Tag <body> so native-only CSS rules activate (see index.css .capacitor-native)
   document.body.classList.add('capacitor-native')
@@ -52,6 +70,17 @@ export async function initNative() {
       console.warn('[native] splash hide failed:', err)
     }
   })
+
+  // ── Keyboard ──────────────────────────────────────────────────────────
+  // Keyboard resize mode is "body", so the page shrinks above the keyboard.
+  // Tag <body> while it's open so the fixed tab bar can step aside instead
+  // of floating over the form (see .ec-kb-open in index.css).
+  try {
+    Promise.resolve(Keyboard.addListener('keyboardWillShow', () => document.body.classList.add('ec-kb-open'))).catch(() => {})
+    Promise.resolve(Keyboard.addListener('keyboardWillHide', () => document.body.classList.remove('ec-kb-open'))).catch(() => {})
+  } catch (err) {
+    console.warn('[native] keyboard listeners failed:', err)
+  }
 
   // ── Android hardware back button ──────────────────────────────────────
   if (getPlatform() === 'android') {

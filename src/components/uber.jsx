@@ -23,7 +23,7 @@ export function Page({ children, narrow = false, gray = false }) {
 export function Section({ children, bg = WHITE, text = BLACK }) {
   return (
     <section style={{ background: bg, color: text }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
         {children}
       </div>
     </section>

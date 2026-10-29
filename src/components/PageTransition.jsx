@@ -35,7 +35,13 @@ export default function PageTransition({ children }) {
   if (reduced) return <>{children}</>
 
   const opacity = stage === 'leaving' ? 0 : 1
-  const translate = stage === 'leaving' ? 'translateY(6px)' : 'translateY(0)'
+  // IMPORTANT: when idle the wrapper must have NO transform and NO
+  // will-change: transform. Either one turns this div into the containing
+  // block for every position:fixed descendant, so overlays, sheets and
+  // bottom bars inside a page get pinned to the (tall, scrolling) page
+  // instead of the screen — they drift off-screen or cover the wrong area.
+  const animating = stage !== 'idle'
+  const translate = stage === 'leaving' ? 'translateY(6px)' : (animating ? 'translateY(0)' : 'none')
 
   return (
     <div
@@ -44,7 +50,7 @@ export default function PageTransition({ children }) {
         opacity,
         transform: translate,
         transition: `opacity ${ENTER_MS}ms cubic-bezier(0.4, 0, 0.2, 1), transform ${ENTER_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
-        willChange: 'opacity, transform',
+        willChange: animating ? 'opacity, transform' : 'auto',
         minHeight: 'inherit',
       }}
     >

@@ -19,16 +19,21 @@ const TABS = [
   { to: '/account',   label: 'Account', icon: FiUser,  match: (p) => p === '/account' || p === '/profile' || p === '/login' || p === '/signup' },
 ]
 
+// Hidden on flow screens where the user should focus on the task.
+const HIDE_ON = ['/search', '/book-trip', '/reservation']
+export function showsTabBar(pathname) {
+  return !HIDE_ON.some(p => pathname.startsWith(p))
+}
+
 export default function MobileTabBar() {
   const location = useLocation()
   const { isAuthenticated } = useAuth() || {}
 
-  // Hide on flow screens where the user should focus on the task
-  const hideOn = ['/search', '/book-trip', '/reservation']
-  if (hideOn.some(p => location.pathname.startsWith(p))) return null
+  if (!showsTabBar(location.pathname)) return null
 
   return (
     <nav
+      className="ec-tabbar"
       style={{
         position: 'fixed', left: 0, right: 0, bottom: 0,
         zIndex: 50,

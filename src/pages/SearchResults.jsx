@@ -76,7 +76,7 @@ export default function SearchResults() {
     <div style={{ background: WHITE, color: BLACK, minHeight: '100vh', fontFamily: FONT, letterSpacing: '-0.01em' }}>
       {/* Trip summary header */}
       <div style={{ background: WHITE, borderBottom: `1px solid ${GRAY_100}` }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '20px 0' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
           <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: GRAY_500, fontSize: 12, fontWeight: 600, textDecoration: 'none', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             <FiArrowLeft size={12}/> Edit search
           </Link>
@@ -102,7 +102,7 @@ export default function SearchResults() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '40px 0 80px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         <FadeIn>
           <h1 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 8 }}>
             Choose your vehicle

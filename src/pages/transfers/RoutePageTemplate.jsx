@@ -41,7 +41,7 @@ export default function RoutePageTemplate({
 
       {/* HERO */}
       <section style={{ background: BLACK, color: WHITE }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '80px 0', textAlign: 'center' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '80px', paddingBottom: '80px', textAlign: 'center' }}>
           <FadeIn>
             <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: 14 }}>
               NYC car service
@@ -64,7 +64,7 @@ export default function RoutePageTemplate({
 
       {/* TRUST STRIP */}
       <section style={{ background: WHITE, borderBottom: `1px solid ${GRAY_100}` }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '50px 0' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '50px', paddingBottom: '50px' }}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TRUST_BULLETS.map((b, i) => (
               <FadeIn key={b.title} delay={i * 70}>
@@ -83,7 +83,7 @@ export default function RoutePageTemplate({
 
       {/* MAIN: image + form */}
       <section style={{ background: GRAY_50 }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '64px 0' }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '64px', paddingBottom: '64px' }}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
             <FadeIn className="lg:col-span-2">
               <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${GRAY_100}`, overflow: 'hidden', marginBottom: 16 }}>
@@ -135,7 +135,7 @@ export default function RoutePageTemplate({
 
       {/* FAQ */}
       <section style={{ background: WHITE }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '72px 0' }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '72px', paddingBottom: '72px' }}>
           <FadeIn>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3.4vw, 2.6rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 28, textAlign: 'center' }}>
               Frequently asked
@@ -159,7 +159,7 @@ export default function RoutePageTemplate({
 
       {/* CTA */}
       <section style={{ background: BLACK, color: WHITE }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '64px 0' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '64px', paddingBottom: '64px' }}>
           <FadeIn>
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', color: WHITE, marginBottom: 0 }}>

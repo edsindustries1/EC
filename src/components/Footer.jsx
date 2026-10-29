@@ -46,7 +46,7 @@ export default function Footer() {
       background: BLACK, color: WHITE,
       fontFamily: FONT, letterSpacing: '-0.01em',
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ padding: '64px 0 32px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12" style={{ paddingTop: '64px', paddingBottom: '32px' }}>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 24, marginBottom: 48, paddingBottom: 32, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
           <div>
