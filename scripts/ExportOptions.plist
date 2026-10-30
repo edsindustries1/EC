@@ -8,7 +8,7 @@
   <key>signingStyle</key><string>manual</string>
   <key>signingCertificate</key><string>Apple Distribution</string>
   <key>provisioningProfiles</key><dict>
-    <key>com.everywheretransfers.app</key><string>Everywhere Transfers App Store v1</string>
+    <key>com.everywheretransfers.app</key><string>Everywhere Transfers App Store v2</string>
   </dict>
   <key>uploadSymbols</key><true/>
 </dict>
