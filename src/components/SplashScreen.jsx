@@ -124,25 +124,18 @@ function Splash({ fading }) {
         }}
       />
 
-      {/* ET monogram — 3D extruded sculpt */}
-      <div
+      {/* Official ET logo */}
+      <img
+        src="/mark-white.png"
+        alt=""
         style={{
-          color: '#fff',
-          fontSize: 'clamp(108px, 30vw, 200px)',
-          fontWeight: 900,
-          letterSpacing: '-0.04em',
-          lineHeight: 1,
-          // Sharp, crisp rendering — no blur, no antialiasing softness
-          WebkitFontSmoothing: 'antialiased',
-          MozOsxFontSmoothing: 'grayscale',
-          textShadow: ET_SHADOW,
-          transformStyle: 'preserve-3d',
+          height: 'clamp(150px, 36vw, 240px)',
+          width: 'auto',
+          display: 'block',
           willChange: 'transform, opacity',
           animation: 'et-mono-3d-in 1100ms cubic-bezier(0.16, 1, 0.3, 1) both',
         }}
-      >
-        ET
-      </div>
+      />
 
       {/* Car silhouette removed (1.0/29): a hand-drawn SVG sedan never
           matched the premium feel of the 3D ET sculpt. The brand mark

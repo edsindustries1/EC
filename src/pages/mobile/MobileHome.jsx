@@ -171,12 +171,7 @@ export default function MobileHome() {
           WebkitBackdropFilter: 'blur(18px) saturate(180%)',
           backdropFilter: 'blur(18px) saturate(180%)',
         }}>
-          <span style={{
-            width: 26, height: 26, borderRadius: '50%',
-            background: BLACK, color: WHITE,
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, fontWeight: 800, letterSpacing: '-0.02em',
-          }}>ET</span>
+          <img src="/mark.png" alt="" style={{ height: 28, width: 'auto', display: 'block' }} />
           <span style={{
             fontSize: 11, fontWeight: 700, color: BLACK,
             letterSpacing: '0.04em', textTransform: 'uppercase',

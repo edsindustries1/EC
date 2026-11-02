@@ -61,7 +61,7 @@ export default function Login() {
 
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Link to="/" style={{ fontWeight: 800, fontSize: 28, letterSpacing: '-0.02em', color: BLACK, textDecoration: 'none' }}>
-            Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Transfers</span>
+            <img src="/logo-stacked.png" alt="Everywhere Transfers" style={{ height: 120, width: 'auto', margin: '0 auto', display: 'block' }} />
           </Link>
         </div>
 

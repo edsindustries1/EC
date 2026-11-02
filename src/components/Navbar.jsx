@@ -81,7 +81,7 @@ export default function Navbar() {
             textDecoration: 'none',
           }}
         >
-          Everywhere<span style={{ color: GRAY_500, fontWeight: 500 }}> Transfers</span>
+          <img src="/logo.png" alt="Everywhere Transfers" style={{ height: 44, width: 'auto', display: 'block' }} />
         </Link>
 
         {/* Desktop links */}

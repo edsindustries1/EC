@@ -161,7 +161,7 @@ export default function OtpAuth() {
 
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <Link to="/" style={brandStyle}>
-            Everywhere<span style={brandAccent}> Transfers</span>
+            <img src="/logo-stacked.png" alt="Everywhere Transfers" style={{ height: 120, width: 'auto', margin: '0 auto', display: 'block' }} />
           </Link>
         </div>
 
